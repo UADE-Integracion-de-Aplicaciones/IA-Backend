@@ -3,29 +3,29 @@ const Sequelize = require('sequelize');
 
 module.exports = {
     create(req, res) {
-        return user
+        return client
             .create ({})
-            .then(user => res.status(200).send(user))
+            .then(client => res.status(200).send(client))
             .catch(error => res.status(400).send(error))
     },
 
     list(_, res) {
-        return user.findAll({})
-            .then(user => res.status(200).send(user))
+        return client.findAll({})
+            .then(client => res.status(200).send(client))
             .catch(error => res.status(400).send(error))
     },
 
-    login(req, res) {
+    modify(req, res) {
         //
         // logic
         //
-        res.status(200).send("login")
+        res.status(200).send("modify")
     },
 
-    register(req, res) {
+    delete(req, res) {
         //
         // logic
         //
-        res.status(200).send("Register")
+        res.status(200).send("delete")
     }
 };

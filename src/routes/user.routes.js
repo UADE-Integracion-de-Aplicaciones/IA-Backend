@@ -1,6 +1,7 @@
 'use strict';
 module.exports = (app) => {
     var userController = require('../controllers/user');
-    app.post('/login', (req,res) => bookingController.create(req, res));
- 
+
+    app.get('/login', (req,res) => userController.login(req, res)); 
+    app.post('/register', (req, res) => userController.register(req,res));
 }
