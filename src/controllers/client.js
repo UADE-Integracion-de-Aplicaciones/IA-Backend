@@ -27,5 +27,12 @@ module.exports = {
         // logic
         //
         res.status(200).send("delete")
+    },
+    
+    getClient(req, res) {
+        //
+        // Deberiamos identificar si es CBU o DNI y de ahi buscar por dicho campo
+        //
+        res.status(200).send("get client")
     }
 };
