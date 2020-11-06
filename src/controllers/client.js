@@ -28,7 +28,7 @@ module.exports = {
         //
         res.status(200).send("delete")
     },
-    
+
     getClient(req, res) {
         //
         // Deberiamos identificar si es CBU o DNI y de ahi buscar por dicho campo
