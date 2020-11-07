@@ -9,7 +9,7 @@ const doc = {
         title: "Integracion de Aplicaciones - BANCO",
         description: "Endpoints del proyecto del banco del grupo 5, para la amteria de Integracion de Aplicaciones - UADE"
     },
-    host: "localhost:3000",
+    host: "localhost:8080",
     basePath: "/",
     schemes: ['http', 'https'],
     consumes: ['application/json'],
@@ -70,5 +70,5 @@ const doc = {
 
 
 swaggerAutogen(outputFile, endpointsFiles, doc).then(() => {
-    require('./index.js')
+    // require('./index.js')
 })

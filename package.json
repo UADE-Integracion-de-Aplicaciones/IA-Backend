@@ -9,7 +9,8 @@
     "test:watch": "jest --watch",
     "swagger-autogen": "node swagger.js",
     "lint": "eslint 'src/**/*.js' --fix",
-    "format": "prettier-eslint 'server/**/*.{js,json}' --write"
+    "format": "prettier-eslint 'server/**/*.{js,json}' --write",
+    "build-db": "cd docker && docker-compose up"
   },
   "repository": {
     "type": "git",

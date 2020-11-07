@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-// const user = require('../sequelize/models').user;
+const client = require('../sequelize/models').client;
 
 module.exports = {
     create(req, res) {

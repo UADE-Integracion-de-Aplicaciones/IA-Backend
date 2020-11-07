@@ -14,3 +14,8 @@ Como inicializar el servidor y generar la documentacion
 npm run swagger-autogen
 
 Y entrar a localhost:8080/doc
+
+
+Para levantar la base de datos correr
+
+npm run build-db
