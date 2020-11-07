@@ -1,28 +1,24 @@
 module.exports = (sequelize, DataTypes) => {
-  const Parametros = sequelize.define(
-    "Parametros",
+  const User = sequelize.define(
+    "Usuarios",
     {
-      id: {
-        type: DataTypes.INTEGER,
+      usuario_id: {
         primaryKey: true,
-        autoIncrement: true,
+        type: DataTypes.UUID,
       },
-      parametro: {
+      nombreUsuario: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      valor: {
+      clave: {
         type: DataTypes.STRING,
         allowNull: false,
       },
       fecha_creacion: {
         type: DataTypes.DATE,
       },
-      fecha_actualizacion: {
-        type: DataTypes.DATE,
-      },
     },
     {}
   );
-  return Parametros;
+  return User;
 };
