@@ -4,6 +4,16 @@ module.exports = (app) => {
 
     app.get('/client', (req,res) => clientController.getClient(req, res)); 
     app.delete('/client', (req,res) => clientController.delete(req, res)); 
-    app.post('/client', (req,res) => clientController.create(req, res)); 
-    app.put('/client', (req,res) => clientController.update(req, res)); 
+    app.post('/client', (req,res) => {
+        // #swagger.tags = ['Cliente']
+        // #swagger.description = 'Endpoint para crear un cliente.'
+        // #swagger.parameters['id'] = { description: 'ID de cliente.' }
+
+        /* #swagger.parameters['filtro'] = {
+               description: 'Un filtro.',
+               type: 'string'
+        } */
+        clientController.create(req, res)
+    }); 
+    app.put('/client', (req,res) => clientController.modify(req, res)); 
 }

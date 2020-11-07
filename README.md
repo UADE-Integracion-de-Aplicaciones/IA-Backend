@@ -6,3 +6,11 @@ sequelize model:create --name [nombre del modelo] --attributes [atributo:tipo],[
 
 Por ejemplo
 sequelize model:create --name usuario --attributes username:string,status:char
+
+
+
+Como inicializar el servidor y generar la documentacion
+
+npm run swagger-autogen
+
+Y entrar a localhost:8080/doc
