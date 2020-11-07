@@ -16,6 +16,6 @@ npm run swagger-autogen
 Y entrar a localhost:8080/doc
 
 
-Para levantar la base de datos correr
+Para levantar la base de datos + servidor local, expone en puerto 8080
 
-npm run build-db
+npm run compose:local

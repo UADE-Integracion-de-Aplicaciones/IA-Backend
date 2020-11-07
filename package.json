@@ -10,7 +10,8 @@
     "swagger-autogen": "node swagger.js",
     "lint": "eslint 'src/**/*.js' --fix",
     "format": "prettier-eslint 'server/**/*.{js,json}' --write",
-    "build-db": "cd docker && docker-compose up"
+    "compose:test": "cd docker && docker-compose -f docker-compose-test up",
+    "compose:local": "cd docker && docker-compose -f docker-compose-locel up"
   },
   "repository": {
     "type": "git",

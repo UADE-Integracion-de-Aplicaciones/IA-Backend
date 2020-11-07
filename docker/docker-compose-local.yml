@@ -1,0 +1,34 @@
+version: "3"
+services:
+  test:
+    image: "node:14"
+    user: "node"
+    networks:
+      - ia_backend
+    depends_on:
+      - db_test
+    volumes:
+      - ../:/home/node/app
+    working_dir: /home/node/app
+    command: bash -c 'npm i && npm start'
+    ports:
+      - 8080:8080
+    environment:
+      - NODE_ENV=test
+
+  db_test:
+    image: postgres:10.7-alpine
+    restart: always
+    networks:
+      - ia_backend
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=postgres #pragma: whitelist secret
+    volumes:
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+      - ./db/data.sql:/docker-entrypoint-initdb.d/2-data.sql
+
+networks:
+  ia_backend:
+    driver: bridge
