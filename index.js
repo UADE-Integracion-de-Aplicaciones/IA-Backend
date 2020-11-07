@@ -1,29 +1,42 @@
-const express = require('express')
-const logger = require("morgan")
-const bodyParser = require("body-parser")
+const express = require("express");
+const logger = require("morgan");
+const bodyParser = require("body-parser");
 
-const swaggerAutogen = require('swagger-autogen')()
+const swaggerAutogen = require("swagger-autogen")();
 
-const swaggerUi = require('swagger-ui-express')
-const swaggerFile = require('./resource/swagger/swagger_output.json')
+const swaggerUi = require("swagger-ui-express");
+const swaggerFile = require("./resource/swagger/swagger_output.json");
+const db = require("./src/sequelize/models");
 
 // This will be our application entry. We'll setup our server here.
-const http = require('http');
+const http = require("http");
 
-const app = express()
+const app = express();
 
-app.use(logger('dev'))
+app.use(logger("dev"));
 app.use(bodyParser.json());
+
+let forceSync = true;
+db.sequelize
+  .sync({ force: forceSync })
+  .then(() => {
+    console.log("Drop and re-sync db.");
+  })
+  .then(() => {
+    //var test = require("./api/test/SampleTestData");
+    //if (forceSync) {
+    //  test.createSampleData(); //Datasets con informacion pre cargada
+    //}
+  });
 
 //Seteamos los endpoints, cada uno llama a un archivo de endppoints distinto
 require("./src/routes/user.routes.js")(app);
-app.get('/', (req, res) => res.status(200).send('Hello World!'))
-
+app.get("/", (req, res) => res.status(200).send("Hello World!"));
 
 const port = parseInt(process.env.PORT, 10) || 8080;
-app.set('port', port);
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.set("port", port);
+app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 
-app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile));
+app.use("/doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
-require('./src/routes/client.routes')(app);
+require("./src/routes/client.routes")(app);
