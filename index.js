@@ -2,6 +2,11 @@ const express = require('express')
 const logger = require("morgan")
 const bodyParser = require("body-parser")
 
+const swaggerAutogen = require('swagger-autogen')()
+
+const swaggerUi = require('swagger-ui-express')
+const swaggerFile = require('./resource/swagger/swagger_output.json')
+
 // This will be our application entry. We'll setup our server here.
 const http = require('http');
 
@@ -18,3 +23,7 @@ app.get('/', (req, res) => res.status(200).send('Hello World!'))
 const port = parseInt(process.env.PORT, 10) || 8080;
 app.set('port', port);
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+
+app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile));
+
+require('./src/routes/client.routes')(app);
