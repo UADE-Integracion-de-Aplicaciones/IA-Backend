@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
-const cuenta = require('../sequelize/models').cuenta;
+const cuenta = require('../sequelize/models').cuentas;
+const movimientos = require('../sequelize/models').momivimientosCuentas;
 
 module.exports = {
     async create(payload) {
@@ -28,6 +29,23 @@ module.exports = {
         return cuenta
     },
 
+    async getSaldo(payload){
+        const cuenta = this.buscarCuenta(payload);
+        //let saldo = cuenta.findAll({ attributes: 'saldo'})
+        return cuenta.saldo
+    },
+
+    // Por ahora devuelve todos los movimientos con ese ID
+    // Habria que mockear como vamos a devolver el resumen
+    async getResumenCuenta(payload){
+        const cuenta = this.buscarCuenta(payload);
+        return movimientos.findAll({
+            where:{
+                cuenta_id: cuenta.id
+            }
+        })
+    },
+
     // se genera un numero de cuenta random de 13 digitos
     generarNumeroCuenta(){
         let numero = Math.floor(1000000000000 + Math.random() * 9000000000000).toString();
@@ -47,13 +65,13 @@ module.exports = {
     //Recibe el payload (body del req) y chequea si tiene numero de cuenta o cbu
     buscarCuenta(payload) {
         if (payload.numero_cuenta)
-            return this.getCuentaByNumeroCuetna(payload.numero_cuenta)
+            return this.getCuentaByNumeroCuenta(payload.numero_cuenta)
         else if (payload.cbu)
             return this.getCuentaByCBU(payload.cbu)
         throw Error("No se encontro un campo valido")
     },
 
-    getCuentaByNumeroCuetna(numero_cuenta) {
+    getCuentaByNumeroCuenta(numero_cuenta) {
         return cuenta.findOne({
             where: {
                 numero_cuenta: numero_cuenta

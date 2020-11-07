@@ -37,4 +37,16 @@ module.exports = {
         .then(cuenta => res.status(200).send(cuenta))
         .catch(error => res.status(400).send(error))
     },
+
+    async getSaldo(req, res) {
+        await cuentaDao.getSaldo(req.body)
+        .then(saldo => res.status(200).send(saldo))
+        .catch(error => res.status(400).send(error))
+    },
+
+    async getResumenCuenta(req, res) {
+        await cuentaDao.getCuentaByNumeroCuenta(req.body)
+        .then(resumen => res.status(200).send(resumen))
+        .catch(error => res.status(400).send(error))
+    },
 };
