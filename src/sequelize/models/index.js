@@ -40,10 +40,16 @@ Object.keys(db).forEach((modelName) => {
   }
 });
 
+const syncDb = (force = false) => {
+  return sequelize.sync({ force });
+  //console.log("Drop and re-sync db.");
+  //var test = require("./api/test/SampleTestData");
+  //if (forceSync) {
+  //  test.createSampleData(); //Datasets con informacion pre cargada
+  //}
+};
+
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-var usuarios = require('../../models/Usuarios') (sequelize, Sequelize);
-db.usuarios = usuarios
-
-module.exports = db;
+module.exports = { db, syncDb };

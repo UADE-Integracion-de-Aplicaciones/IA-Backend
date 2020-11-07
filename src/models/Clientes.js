@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-  const Client = sequelize.define(
-    "Clientes",
+  const Clientes = sequelize.define(
+    "clientes",
     {
       id: {
         primaryKey: true,
@@ -90,5 +90,5 @@ module.exports = (sequelize, DataTypes) => {
     },
     {}
   );
-  return Client;
+  return Clientes;
 };

@@ -6,28 +6,18 @@ const swaggerAutogen = require("swagger-autogen")();
 
 const swaggerUi = require("swagger-ui-express");
 const swaggerFile = require("./resource/swagger/swagger_output.json");
-const db = require("./src/sequelize/models");
+const { db, syncDb } = require("./src/sequelize/models");
 
 // This will be our application entry. We'll setup our server here.
 const http = require("http");
 
 const app = express();
+(async () => {
+  await syncDb(false);
+})();
 
 app.use(logger("dev"));
 app.use(bodyParser.json());
-
-let forceSync = true;
-db.sequelize
-  .sync({ force: forceSync })
-  .then(() => {
-    console.log("Drop and re-sync db.");
-  })
-  .then(() => {
-    //var test = require("./api/test/SampleTestData");
-    //if (forceSync) {
-    //  test.createSampleData(); //Datasets con informacion pre cargada
-    //}
-  });
 
 //Seteamos los endpoints, cada uno llama a un archivo de endppoints distinto
 app.get("/", (req, res) => res.status(200).send("Hello World!"));

@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   const CodigosAutorizacion = sequelize.define(
-    "CodigosAutorizacion",
+    "codigos_autorizacion",
     {
       id: {
         type: DataTypes.INTEGER,
