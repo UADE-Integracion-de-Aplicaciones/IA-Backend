@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const user = require('../sequelize/models').user;
+const user = require('../sequelize/models').usuarios;
 
 module.exports = {
     //Crea una transaccion / eposito de cuenta

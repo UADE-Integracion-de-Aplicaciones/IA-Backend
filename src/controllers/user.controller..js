@@ -2,17 +2,18 @@ const userDao = require('../daos/user.dao');
 
 module.exports = {
     login(req, res) {
-        if (!req || !req.body || !req.clave || !req.nombreUsuario)
-            res.status(300).send("No existn credenciales")
+        const {nombreUsuario, clave} = req.query
 
-        userDao.getUserByUserName(req.nombreUsuario)
+        if (!req || !req.body || !clave || !nombreUsuario)
+            res.status(300).send("No existn credenciales")
+        userDao.getUserByUserName(nombreUsuario)
             .then(user => {
                 if (!user) {
                     res.status(501).send("Hubo un error inesperado.")
                     return ;
                 }
 
-                if (user.clave === req.clave)
+                if (user.clave === clave)
                     res.status(200).send("Se encontro el usuario")
                 else 
                     res.status(301).send("Credenciales incompatibles")
