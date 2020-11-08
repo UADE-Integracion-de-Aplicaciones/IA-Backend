@@ -14,7 +14,7 @@ const crearData = async () => {
     clave: "123",
     rol_id: rol1.get("id"),
   });
-  console.log(usuarioA);
+
   const empleadoA = await empleados.create({
     nombre: "Alejandro",
     apellido: "Otero",
@@ -23,7 +23,7 @@ const crearData = async () => {
     cargo: "ejecutivo",
     usuario_id: usuarioA.get("id"),
   });
-  console.log(empleadoA);
+
   const clienteA = await clientes.create({
     tipo: CLIENTES_TIPO.PERSONA_FISICA,
     cuit: "65544333",
@@ -79,7 +79,7 @@ const crearData = async () => {
   });
 
   const cuentaB1 = await cuentas.create({
-    cliente_id: clienteA.get("id"),
+    cliente_id: clienteB.get("id"),
     tipo: CUENTAS_TIPO.CAJA_DE_AHORRO,
     numero_cuenta: "904334389865655",
     cbu: "8756645",
@@ -95,5 +95,5 @@ beforeAll(async () => {
 });
 
 it("Depositar dinero", () => {
-  depositarDinero("123456789", "");
+  depositarDinero("123456789", "8756645");
 });
