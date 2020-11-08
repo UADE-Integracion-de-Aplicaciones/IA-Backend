@@ -6,6 +6,7 @@ const env = process.env.NODE_ENV || "development";
 const config = require(__dirname + "/../config/config.json")[env];
 const makeModelsAssociations = require(__dirname +
   "/../../models/associations");
+const createDefaultData = require(__dirname + "/../../models/default_data");
 const db = {};
 
 let sequelize;
@@ -46,8 +47,9 @@ Object.keys(db).forEach((modelName) => {
 
 makeModelsAssociations(sequelize);
 
-const syncDb = (force = false) => {
-  return sequelize.sync({ force });
+const syncDb = async (force = false) => {
+  await sequelize.sync({ force });
+  return createDefaultData(db);
   //console.log("Drop and re-sync db.");
   //var test = require("./api/test/SampleTestData");
   //if (forceSync) {

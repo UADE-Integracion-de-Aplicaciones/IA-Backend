@@ -1,7 +1,7 @@
 const { syncDb } = require("../src/sequelize/models");
 
 beforeAll(() => {
-  return syncDb(true);
+  //return syncDb(true);
 });
 
 it("Testing to see if Jest works", () => {
