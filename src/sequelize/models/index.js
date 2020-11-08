@@ -58,7 +58,4 @@ const syncDb = (force = false) => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-var usuarios = require('./Usuarios')(sequelize,Sequelize);
-db.usuarios = usuarios
-
 module.exports = { db, syncDb };
