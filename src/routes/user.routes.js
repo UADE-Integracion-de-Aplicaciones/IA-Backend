@@ -5,9 +5,7 @@ module.exports = (app) => {
     app.get('/login', (req,res) => {
             // #swagger.tags = ['Usuario']
             // #swagger.description = 'Endpoint para crear un usuario.'
-
-            // #swagger.parameters['nombreUsuario'] = { description: 'nombre de usuario.', type: 'string' }
-            const nombreUsuario = req.query.nombreUsuario
+            // #swagger.parameters['nombreUsuario'] = { description: 'nombre de usuario.'}
             // #swagger.parameters['clave'] = { description: 'clave de usuario.', type: 'string' }
             userController.login(req, res)}
         ); 

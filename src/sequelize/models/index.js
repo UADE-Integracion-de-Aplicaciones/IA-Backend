@@ -40,7 +40,7 @@ Object.keys(db).forEach((modelName) => {
   }
 });
 
-const syncDb = (force = false) => {
+const syncDb = (force = true) => {
   return sequelize.sync({ force });
   //console.log("Drop and re-sync db.");
   //var test = require("./api/test/SampleTestData");
@@ -51,5 +51,8 @@ const syncDb = (force = false) => {
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+
+var usuarios = require('./Usuarios')(sequelize,Sequelize);
+db.usuarios = usuarios
 
 module.exports = { db, syncDb };

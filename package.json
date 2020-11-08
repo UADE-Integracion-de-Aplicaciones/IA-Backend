@@ -11,7 +11,8 @@
     "lint": "eslint 'src/**/*.js' --fix",
     "format": "prettier-eslint 'server/**/*.{js,json}' --write",
     "compose:test": "cd docker && docker-compose -f docker-compose-test up",
-    "compose:local": "cd docker && docker-compose -f docker-compose-locel up"
+    "compose:local": "cd docker && docker-compose -f docker-compose-local.yml up",
+    "compose:smalldb": "cd docker && docker-compose -f docker-compose-smalldb.yml up"
   },
   "repository": {
     "type": "git",

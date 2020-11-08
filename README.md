@@ -19,3 +19,8 @@ Y entrar a localhost:8080/doc
 Para levantar la base de datos + servidor local, expone en puerto 8080
 
 npm run compose:local
+
+
+Para usar la db local y usar el nodemon con los cambios 
+1. montar la db de cocker  npm run compose:local
+2. Ejecutar npm start
