@@ -1,10 +1,11 @@
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, { DataTypes, Sequelize }) => {
   const Empleados = sequelize.define(
     "empleados",
     {
       id: {
-        primaryKey: true,
         type: DataTypes.UUID,
+        primaryKey: true,
+        defaultValue: Sequelize.UUIDV4,
       },
       nombre: {
         type: DataTypes.STRING,
@@ -16,9 +17,11 @@ module.exports = (sequelize, DataTypes) => {
       },
       fecha_nacimiento: {
         type: DataTypes.DATEONLY,
+        allowNull: false,
       },
       fecha_ingreso: {
         type: DataTypes.DATEONLY,
+        allowNull: false,
       },
       cargo: {
         type: DataTypes.STRING,
@@ -26,12 +29,14 @@ module.exports = (sequelize, DataTypes) => {
       },
       usuario_id: {
         type: DataTypes.UUID,
-      },
-      fecha_creacion: {
-        type: DataTypes.DATE,
+        allowNull: false,
       },
     },
-    {}
+    {
+      timestamps: true,
+      createdAt: "fecha_creacion",
+      updatedAt: "fecha_actualizacion",
+    }
   );
   return Empleados;
 };

@@ -1,10 +1,11 @@
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, { DataTypes, Sequelize }) => {
   const Clientes = sequelize.define(
     "clientes",
     {
       id: {
-        primaryKey: true,
         type: DataTypes.UUID,
+        primaryKey: true,
+        defaultValue: Sequelize.UUIDV4,
       },
       tipo: {
         type: DataTypes.STRING,
@@ -56,6 +57,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       fecha_nacimiento: {
         type: DataTypes.DATEONLY,
+        allowNull: false,
       },
       pregunta1: {
         type: DataTypes.STRING,
@@ -84,11 +86,15 @@ module.exports = (sequelize, DataTypes) => {
       usuario_id: {
         type: DataTypes.UUID,
       },
-      fecha_creacion: {
-        type: DataTypes.DATEONLY,
-      },
     },
-    {}
+    {
+      timestamps: true,
+      createdAt: "fecha_creacion",
+      updatedAt: "fecha_actualizacion",
+      paranoid: true,
+      deletedAt: "fecha_borrado",
+    }
   );
+
   return Clientes;
 };

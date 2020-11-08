@@ -1,14 +1,15 @@
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, { DataTypes }) => {
   const MovimientosCuentas = sequelize.define(
     "movimientos_cuentas",
     {
       id: {
         type: DataTypes.INTEGER,
-        autoIncrement: true,
         primaryKey: true,
+        autoIncrement: true,
       },
       cuenta_id: {
         type: DataTypes.UUID,
+        allowNull: false,
       },
       concepto_movimiento_id: {
         type: DataTypes.INTEGER,
@@ -24,14 +25,17 @@ module.exports = (sequelize, DataTypes) => {
       },
       movimiento_cuenta_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
       },
-      fecha_creacion: {
-        type: DataTypes.DATE,
+      usuario_creador_id: {
+        type: DataTypes.UUID,
         allowNull: false,
       },
     },
-    {}
+    {
+      timestamps: true,
+      createdAt: "fecha_creacion",
+      updatedAt: false,
+    }
   );
   return MovimientosCuentas;
 };
