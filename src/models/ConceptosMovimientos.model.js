@@ -1,10 +1,10 @@
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, { DataTypes }) => {
   const ConceptosMovimientos = sequelize.define(
     "conceptos_movimientos",
     {
       id: {
-        primaryKey: true,
         type: DataTypes.INTEGER,
+        primaryKey: true,
         autoIncrement: true,
       },
       descripcion: {
@@ -15,11 +15,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      fecha_creacion: {
-        type: DataTypes.DATE,
-      },
     },
-    {}
+    {
+      timestamps: true,
+      createdAt: "fecha_creacion",
+      updatedAt: false,
+    }
   );
   return ConceptosMovimientos;
 };

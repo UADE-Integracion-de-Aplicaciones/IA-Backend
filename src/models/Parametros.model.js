@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, { DataTypes }) => {
   const Parametros = sequelize.define(
     "parametros",
     {
@@ -15,14 +15,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      fecha_creacion: {
-        type: DataTypes.DATE,
-      },
-      fecha_actualizacion: {
-        type: DataTypes.DATE,
-      },
     },
-    {}
+    {
+      timestamps: true,
+      createdAt: "fecha_creacion",
+      updatedAt: "fecha_actualizacion",
+    }
   );
   return Parametros;
 };

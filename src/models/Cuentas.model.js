@@ -1,10 +1,11 @@
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, { DataTypes, Sequelize }) => {
   const Cuentas = sequelize.define(
     "cuentas",
     {
       id: {
-        primaryKey: true,
         type: DataTypes.UUID,
+        primaryKey: true,
+        defaultValue: Sequelize.UUIDV4,
       },
       cliente_id: {
         type: DataTypes.UUID,
@@ -33,7 +34,13 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.UUID,
       },
     },
-    {}
+    {
+      timestamps: true,
+      createdAt: "fecha_creacion",
+      updatedAt: "fecha_actualizacion",
+      paranoid: true,
+      deletedAt: "fecha_borrado",
+    }
   );
   return Cuentas;
 };

@@ -1,11 +1,11 @@
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, { DataTypes }) => {
   const CodigosAutorizacion = sequelize.define(
     "codigos_autorizacion",
     {
       id: {
         type: DataTypes.INTEGER,
-        autoIncrement: true,
         primaryKey: true,
+        autoIncrement: true,
       },
       cliente_id: {
         type: DataTypes.UUID,
@@ -26,12 +26,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         allowNull: false,
       },
-      fecha_creacion: {
-        type: DataTypes.DATE,
-        allowNull: false,
-      },
     },
-    {}
+    {
+      timestamps: true,
+      createdAt: "fecha_creacion",
+      updatedAt: "fecha_actualizacion",
+    }
   );
   return CodigosAutorizacion;
 };
