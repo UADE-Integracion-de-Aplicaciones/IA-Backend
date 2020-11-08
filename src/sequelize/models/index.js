@@ -4,6 +4,8 @@ const Sequelize = require("sequelize");
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || "development";
 const config = require(__dirname + "/../config/config.json")[env];
+const makeModelsAssociations = require(__dirname +
+  "/../../models/associations");
 const db = {};
 
 let sequelize;
@@ -23,14 +25,16 @@ const modelsPath = __dirname + "/../../models";
 fs.readdirSync(modelsPath)
   .filter((file) => {
     return (
-      file.indexOf(".") !== 0 && file !== basename && file.slice(-3) === ".js"
+      file.indexOf(".") !== 0 &&
+      file !== basename &&
+      file.slice(-9) === ".model.js"
     );
   })
   .forEach((file) => {
-    const model = require(path.join(modelsPath, file))(
-      sequelize,
-      Sequelize.DataTypes
-    );
+    const model = require(path.join(modelsPath, file))(sequelize, {
+      DataTypes: Sequelize.DataTypes,
+      Sequelize,
+    });
     db[model.name] = model;
   });
 
@@ -40,7 +44,9 @@ Object.keys(db).forEach((modelName) => {
   }
 });
 
-const syncDb = (force = true) => {
+makeModelsAssociations(sequelize);
+
+const syncDb = (force = false) => {
   return sequelize.sync({ force });
   //console.log("Drop and re-sync db.");
   //var test = require("./api/test/SampleTestData");

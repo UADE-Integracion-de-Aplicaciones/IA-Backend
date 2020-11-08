@@ -1,14 +1,15 @@
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, { DataTypes }) => {
   const Facturas = sequelize.define(
     "facturas",
     {
       id: {
         type: DataTypes.INTEGER,
-        autoIncrement: true,
         primaryKey: true,
+        autoIncrement: true,
       },
       cuenta_id: {
         type: DataTypes.UUID,
+        allowNull: false,
       },
       codigo_pago_electronico: {
         type: DataTypes.STRING,
@@ -30,11 +31,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: false,
       },
-      fecha_creacion: {
-        type: DataTypes.DATE,
-      },
     },
-    {}
+    {
+      timestamps: true,
+      createdAt: "fecha_creacion",
+      updatedAt: "fecha_actualizacion",
+    }
   );
   return Facturas;
 };
