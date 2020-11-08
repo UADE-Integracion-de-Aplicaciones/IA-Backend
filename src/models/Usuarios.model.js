@@ -1,3 +1,7 @@
+'use strict';
+
+const { v4: uuidv4 } = require('uuid');
+
 module.exports = (sequelize, { DataTypes, Sequelize }) => {
   const Usuario = sequelize.define(
     "usuarios",
@@ -5,9 +9,9 @@ module.exports = (sequelize, { DataTypes, Sequelize }) => {
       usuario_id: {
         type: DataTypes.UUID,
         primaryKey: true,
-        defaultValue: Sequelize.UUIDV4,
+        defaultValue: (uuidv4())
       },
-      nombre_usuario: {
+      batatas: {
         type: DataTypes.STRING,
         allowNull: false,
       },
@@ -17,11 +21,11 @@ module.exports = (sequelize, { DataTypes, Sequelize }) => {
       },
     },
     {
-      timestamps: true,
-      createdAt: "fecha_creacion",
-      updatedAt: "fecha_actualizacion",
-      paranoid: true,
-      deletedAt: "fecha_borrado",
+      // timestamps: true,
+      // createdAt: "fecha_creacion",
+      // updatedAt: "fecha_actualizacion",
+      // paranoid: true,
+      // deletedAt: "fecha_borrado",
     }
   );
   return Usuario;
