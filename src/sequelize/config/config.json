@@ -2,23 +2,25 @@
   "development": {
     "username": "postgres",
     "password": "postgres",
-    "database": "postgres",
+    "database": "banco",
     "host": "localhost",
     "dialect": "postgres",
     "define": {
       "freezeTableName": true
-    }
+    },
+    "logging": false
   },
   "test": {
     "username": "postgres",
-    "password": "Abcde12345!",
-    "database": "banco",
-    "host": "127.0.0.1",
+    "password": "postgres",
+    "database": "database_test",
+    "host": "db_test",
     "dialect": "postgres",
     "omitNull": true,
     "define": {
       "freezeTableName": true
-    }
+    },
+    "logging": false
   },
   "production": {
     "username": "docker",
@@ -29,6 +31,7 @@
     "omitNull": true,
     "define": {
       "freezeTableName": true
-    }
+    },
+    "logging": false
   }
 }
