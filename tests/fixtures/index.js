@@ -1,6 +1,5 @@
 const { CLIENTES_TIPO, CUENTAS_TIPO } = require("../../src/daos/common");
-const { depositarDineroEnCuenta } = require("../../src/daos/movimientos.dao");
-const { db, syncDb } = require("../../src/sequelize/models");
+const { db } = require("../../src/sequelize/models");
 const { clientes, cuentas, empleados, usuarios, roles } = db;
 
 const crearData = async () => {
@@ -89,14 +88,17 @@ const crearData = async () => {
   });
 };
 
-beforeAll(async () => {
-  await syncDb(true);
+const cargarData = async () => {
   await crearData();
-});
 
-it("Depositar dinero", async () => {
   const usuario = await usuarios.findOne({
     where: { nombre_usuario: "alejandro.otero" },
   });
-  await depositarDineroEnCuenta("123456789", "8756645", usuario, 12000);
-});
+
+  return { usuario };
+};
+
+module.exports = {
+  crearData,
+  cargarData,
+};
