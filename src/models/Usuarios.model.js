@@ -20,13 +20,7 @@ module.exports = (sequelize, { DataTypes, Sequelize }) => {
         allowNull: false,
       },
     },
-    {
-      // timestamps: true,
-      // createdAt: "fecha_creacion",
-      // updatedAt: "fecha_actualizacion",
-      // paranoid: true,
-      // deletedAt: "fecha_borrado",
-    }
+    {}
   );
   return Usuario;
 };
