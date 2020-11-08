@@ -11,7 +11,7 @@ module.exports = (sequelize, { DataTypes, Sequelize }) => {
         primaryKey: true,
         defaultValue: (uuidv4())
       },
-      batatas: {
+      nombreUsuario: {
         type: DataTypes.STRING,
         allowNull: false,
       },
@@ -21,11 +21,6 @@ module.exports = (sequelize, { DataTypes, Sequelize }) => {
       },
     },
     {
-      // timestamps: true,
-      // createdAt: "fecha_creacion",
-      // updatedAt: "fecha_actualizacion",
-      // paranoid: true,
-      // deletedAt: "fecha_borrado",
     }
   );
   return Usuario;

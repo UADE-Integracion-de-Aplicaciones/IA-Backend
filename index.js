@@ -1,6 +1,7 @@
 const express = require("express");
 const logger = require("morgan");
 const bodyParser = require("body-parser");
+var cors = require('cors');
 
 const swaggerAutogen = require("swagger-autogen")();
 
@@ -15,12 +16,13 @@ const app = express();
 (async () => {
   await syncDb(false);
 })();
+app.use(express.json());
 
 app.use(logger("dev"));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true })); //Setea true para recibir reuest en el url
+app.use(cors()) //Habilita conexion segura HTTPS
 
 //Seteamos los endpoints, cada uno llama a un archivo de endppoints distinto
-require("./src/routes/user.routes.js")(app);
 app.get("/", (req, res) => res.status(200).send("Hello World!"));
 
 const port = parseInt(process.env.PORT, 10) || 8080;
@@ -30,3 +32,4 @@ app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 app.use("/doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
 require("./src/routes/client.routes")(app);
+require("./src/routes/user.routes")(app);
