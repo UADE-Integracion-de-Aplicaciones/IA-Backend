@@ -1,4 +1,7 @@
 'use strict';
+
+const client = require('../controllers/client');
+
 module.exports = (app) => {
     var clientController = require('../controllers/client');
 
@@ -16,4 +19,6 @@ module.exports = (app) => {
         clientController.create(req, res)
     }); 
     app.put('/client', (req,res) => clientController.modify(req, res)); 
+
+    app.get('/client/verificar', (req, res) => clientController.verificarCliente(req, res));
 }
