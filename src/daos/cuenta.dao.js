@@ -7,7 +7,7 @@ module.exports = {
         const {tipo, cliete_id, fondo_descubierto, saldo, empleado_creador_id} = payload;  
         const numero_cuenta = this.generarNumeroCuenta();
         const cbu = this.generarCBU(numero_cuenta);
-        return await client.create ({
+        return await cuenta.create ({
             tipo: tipo, cliete_id: cliete_id, numero_cuenta: numero_cuenta, cbu: cbu, fondo_descubierto: fondo_descubierto, saldo:saldo, empleado_creador_id: empleado_creador_id
         })
     },
