@@ -6,7 +6,7 @@ module.exports = {
 
         return await user
             .create ({
-                nombreUsuario: payload.nombreUsuario,
+                nombre_usuario: payload.nombre_usuario,
                 clave: payload.clave,
             })
     },

@@ -1,11 +1,17 @@
+const moment = require('moment');
 const clientesDao = require('../daos/clientes.dao');
 const clientsDao = require('../daos/clientes.dao');
 
 module.exports = {
     create(req, res) {
-        const {tipo, cuit, dni, nombre, apellido, email, domicilio_barrio, domicilio_calle, domicilio_ciudad, domicilio_numero, domicilio_piso, apartamento, fecha_nacimiento, pregunta1,pregunta1_respuesta, pregunta2, pregunta2_respuesta, pregunta3, pregunta3_respuesta, usuario_id} = req.query;
-        clientsDao.crear(tipo, cuit, dni, nombre, apellido, email, domicilio_barrio, domicilio_calle, domicilio_ciudad, domicilio_numero, domicilio_piso, apartamento, fecha_nacimiento, pregunta1,pregunta1_respuesta, pregunta2, pregunta2_respuesta, pregunta3, pregunta3_respuesta, usuario_id)
-            .then(cliente => {                
+        const {tipo, cuit, dni, nombre, apellido, email, domicilio_barrio, domicilio_calle, domicilio_ciudad, domicilio_numero, domicilio_piso, domicilio_apartamento, fecha_nacimiento, pregunta1,pregunta1_respuesta, pregunta2, pregunta2_respuesta, pregunta3, pregunta3_respuesta, usuario_id} = req.query;
+        var fechaNacimiento = moment(fecha_nacimiento).format('YYYY-MM-DD');
+        clientsDao.crear(tipo, cuit, dni, nombre, apellido, email, domicilio_barrio, domicilio_calle, domicilio_ciudad, domicilio_numero, domicilio_piso, domicilio_apartamento, fechaNacimiento, pregunta1,pregunta1_respuesta, pregunta2, pregunta2_respuesta, pregunta3, pregunta3_respuesta, usuario_id)
+            .then(cliente => {           
+                if (!cliente) {
+                    res.status(401).send("Ocurrio un error en la creacion del cliente")
+                    return ;
+                }     
                 res.status(200).send(cliente)
                 return cliente
             })
@@ -22,7 +28,7 @@ module.exports = {
             return ;
         }
 
-        clientesDao.buscarPorId(id)
+        clientsDao.buscarPorId(id)
             .then(cliente => {
                 if (!cliente || cliente === undefined || cliente === null) {
                     res.status(300).send("Cliente no encontrado")

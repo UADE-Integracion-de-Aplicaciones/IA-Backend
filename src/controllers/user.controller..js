@@ -23,9 +23,9 @@ module.exports = {
     },
 
     register(req, res) {
-        const { clave, nombreUsuario } = req.query
+        const { clave, nombre_usuario } = req.query
         
-        if (!req || !req.query || !clave || !nombreUsuario) {
+        if (!req || !req.query || !clave || !nombre_usuario ) {
             res.status(300).send(req.query)
             return ;
         }
