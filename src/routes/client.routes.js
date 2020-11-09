@@ -2,7 +2,7 @@
 module.exports = (app) => {
     var clientController = require('../controllers/client');
 
-    app.get('/client', (req,res) => clientController.getClient(req, res)); 
+    app.get('/client', (req,res) => clientController.buscarCliente(req, res)); 
     app.delete('/client', (req,res) => clientController.delete(req, res)); 
     app.post('/client', (req,res) => {
         // #swagger.tags = ['Cliente']

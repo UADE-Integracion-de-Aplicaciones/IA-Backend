@@ -1,13 +1,39 @@
 const Sequelize = require('sequelize');
-const client = require('../sequelize/models').client;
+const client = require('../sequelize/models').db.client;
 
 module.exports = {
-    async create(payload) {
-        const {tipo, cuit, dni,nombre, apellido, email, domicilio_ciudad, domicilio_calle, domicilio_barrio, domicilio_numero, domicilio_piso, apartamento, fecha_nacimiento, pregunta1, pregunta1_respuesta, pregunta2, pregunta2_respuesta, pregunta3, pregunta3_respuesta, usuario_id} = payload;
-
-        return await client.create ({
-            tipo: tipo, cuit: cuit, dni: dni,nombre: nombre, apellido: apellido, email: email, domicilio_ciudad: domicilio_ciudad, domicilio_calle: domicilio_calle, domicilio_barrio: domicilio_barrio, domicilio_numero: domicilio_numero, domicilio_piso: domicilio_piso, apartamento: apartamento, fecha_nacimiento: fecha_nacimiento, pregunta1: pregunta1, pregunta1_respuesta: pregunta1_respuesta, pregunta2: pregunta2, pregunta2_respuesta: pregunta2_respuesta, pregunta3: pregunta3, pregunta3_respuesta: pregunta3_respuesta, usuario_id: usuario_id
-        })
+    //Crea una transaccion / eposito de cuenta
+    async crear(tipo, cuit, dni, nombre, apellido, email, domicilio_barrio, domicilio_calle, domicilio_ciudad, domicilio_numero, domicilio_piso, domicilio_apartamento, fecha_nacimiento, pregunta1,pregunta1_respuesta, pregunta2, pregunta2_respuesta, pregunta3, pregunta3_respuesta, usuario_id) {
+        return await cliente
+            .create ({
+                tipo: tipo,
+                cuit: cuit,
+                dni: dni,
+                nombre: nombre,
+                apellido: apellido,
+                email: email,
+                domicilio_ciudad: domicilio_ciudad,
+                domicilio_calle: domicilio_calle,
+                domicilio_barrio: domicilio_barrio,
+                domicilio_numero: domicilio_numero,
+                domicilio_piso: domicilio_piso,
+                domicilio_apartamento: domicilio_apartamento,
+                fecha_nacimiento: fecha_nacimiento,
+                pregunta1: pregunta1,
+                pregunta1_respuesta: pregunta1_respuesta,
+                pregunta2: pregunta2,
+                pregunta2_respuesta: pregunta2_respuesta,
+                pregunta3: pregunta3,
+                pregunta3_respuesta: pregunta3_respuesta,
+                usuario_id: usuario_id
+            })
+            .then(cliente => {
+                console.log("bien!")
+                return cliente
+            })
+            .catch(error => {
+                console.log(error)
+            })
     },
 
     //TODO
