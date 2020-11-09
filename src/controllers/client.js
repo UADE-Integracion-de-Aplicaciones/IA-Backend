@@ -1,6 +1,5 @@
 const moment = require('moment');
-const clientesDao = require('../daos/clientes.dao');
-const clientsDao = require('../daos/clientes.dao');
+const clientsDao = require('../daos/client.dao');
 
 module.exports = {
     create(req, res) {

@@ -23,13 +23,13 @@ module.exports = {
     },
 
     register(req, res) {
-        const { clave, nombreUsuario } = req.query
+        const { nombre_usuario, clave, rol_id } = req.query
         
-        if (!req || !req.query || !clave || !nombreUsuario) {
+        if (!req || !req.query || !clave || !nombreUsuario || !rol_id) {
             res.status(300).send(req.query)
             return ;
         }
-        userDao.registrar(req.query)
+        userDao.registrar(nombre_usuario, clave, rol_id)
             .then(user => {
                 if (!user) {
                     res.status(300).send("Hubo un error en la creacion del usuario.")

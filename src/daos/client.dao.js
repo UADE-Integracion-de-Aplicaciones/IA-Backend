@@ -38,7 +38,7 @@ module.exports = {
 
     //TODO
     //Que campos se van a poder modificar?
-    update(payload) {
+    async update(payload) {
         const cliente = await this.buscarCliente(payload);
     },
 
