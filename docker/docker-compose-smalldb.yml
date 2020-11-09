@@ -12,7 +12,7 @@ services:
       - POSTGRES_PASSWORD=postgres #pragma: whitelist secret
       - POSTGRES_DB=banco
     volumes:
-      - ./db/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+      - ./smalldb/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
       - ./db/data.sql:/docker-entrypoint-initdb.d/2-data.sql
 
 networks:

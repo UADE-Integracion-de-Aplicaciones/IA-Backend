@@ -51,7 +51,7 @@ module.exports = (sequelize, { DataTypes, Sequelize }) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      apartamento: {
+      domicilio_apartamento: {
         type: DataTypes.STRING,
         allowNull: false,
       },
