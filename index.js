@@ -1,20 +1,35 @@
-const express = require('express')
-const logger = require("morgan")
-const bodyParser = require("body-parser")
+const express = require("express");
+const logger = require("morgan");
+const bodyParser = require("body-parser");
+var cors = require('cors');
+
+const swaggerAutogen = require("swagger-autogen")();
+
+const swaggerUi = require("swagger-ui-express");
+const swaggerFile = require("./resource/swagger/swagger_output.json");
+const { db, syncDb } = require("./src/sequelize/models");
 
 // This will be our application entry. We'll setup our server here.
-const http = require('http');
+const http = require("http");
 
-const app = express()
+const app = express();
+(async () => {
+  await syncDb(false);
+})();
+app.use(express.json());
 
-app.use(logger('dev'))
-app.use(bodyParser.json());
+app.use(logger("dev"));
+app.use(bodyParser.urlencoded({ extended: true })); //Setea true para recibir reuest en el url
+app.use(cors()) //Habilita conexion segura HTTPS
 
 //Seteamos los endpoints, cada uno llama a un archivo de endppoints distinto
-require("./src/routes/user.routes.js")(app);
-app.get('/', (req, res) => res.status(200).send('Hello World!'))
-
+app.get("/", (req, res) => res.status(200).send("Hello World!"));
 
 const port = parseInt(process.env.PORT, 10) || 8080;
-app.set('port', port);
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.set("port", port);
+app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+
+app.use("/doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
+
+require("./src/routes/client.routes")(app);
+require("./src/routes/user.routes")(app);
