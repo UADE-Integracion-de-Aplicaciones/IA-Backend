@@ -1,9 +1,15 @@
 const {
+  CantidadInvalidaError,
   ClienteNoExisteError,
   CuentaNoExisteError,
   DesconocidoError,
+  CuentaNoAsociadaAlClienteError,
+  CuentaConSaldoInsuficienteError,
 } = require("../daos/errors");
-const { depositarDineroEnCuenta } = require("../daos/transacciones.dao");
+const {
+  depositarDineroEnCuenta,
+  extraerDineroDeCuenta,
+} = require("../daos/transacciones.dao");
 
 module.exports = {
   async depositar(req, res) {
@@ -11,8 +17,8 @@ module.exports = {
     const { cargarData } = require("../../tests/fixtures");
     const { usuario } = await cargarData();
     ////////////
-    const { params, body } = req;
-    console.log(params);
+
+    const { body } = req;
     const { dni, cbu, cantidad } = body;
     try {
       await depositarDineroEnCuenta({
@@ -24,11 +30,41 @@ module.exports = {
 
       return res.status(200).json({ mensaje: "deposito realizado" });
     } catch (err) {
-      console.log(err);
-      if (
-        err.message === "el cliente no existe o no está activo" ||
-        err.message === "la cuenta no existe o no está activa"
-      ) {
+      const mensajes_error = [
+        CantidadInvalidaError.message,
+        ClienteNoExisteError.message,
+        CuentaNoExisteError.message,
+      ];
+      if (mensajes_error.includes(err.message)) {
+        return res.status(404).json({ mensaje: err });
+      } else {
+        return res.status(500).json({ mensaje: new DesconocidoError() });
+      }
+    }
+  },
+
+  async extraer(req, res) {
+    // TODO: eliminar cuando se tenga el iniciar session del usuario
+    const { cargarData } = require("../../tests/fixtures");
+    const { usuario } = await cargarData();
+    ////////////
+
+    const { body } = req;
+    const { numero_cuenta, dni, cantidad } = body;
+
+    try {
+      await extraerDineroDeCuenta({ numero_cuenta, dni, cantidad, usuario });
+
+      return res.status(200).json({ mensaje: "extracción realizada" });
+    } catch (err) {
+      const mensajes_error = [
+        CantidadInvalidaError.message,
+        ClienteNoExisteError.message,
+        CuentaNoExisteError.message,
+        CuentaNoAsociadaAlClienteError.message,
+        CuentaConSaldoInsuficienteError.message,
+      ];
+      if (mensajes_error.includes(err.message)) {
         return res.status(404).json({ mensaje: err });
       } else {
         return res.status(500).json({ mensaje: new DesconocidoError() });
