@@ -4,7 +4,7 @@ module.exports = (db) => {
   const conceptos = [
     {
       alias: "DEPOSITO",
-      descripcion: "Desposito",
+      descripcion: "Deposito",
     },
     {
       alias: "EXTRACCION",

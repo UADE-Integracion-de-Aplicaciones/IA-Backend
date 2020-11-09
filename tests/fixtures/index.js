@@ -72,7 +72,7 @@ const crearData = async () => {
     tipo: CUENTAS_TIPO.CAJA_DE_AHORRO,
     numero_cuenta: "546565465767643232",
     cbu: "43546565",
-    fondo_descubierto: 5000.0,
+    fondo_descubierto: 0.0,
     saldo: 5000.0,
     empleado_creador_id: empleadoA.get("id"),
   });
@@ -82,8 +82,18 @@ const crearData = async () => {
     tipo: CUENTAS_TIPO.CAJA_DE_AHORRO,
     numero_cuenta: "904334389865655",
     cbu: "8756645",
-    fondo_descubierto: 9000.0,
+    fondo_descubierto: 0.0,
     saldo: 150000.5,
+    empleado_creador_id: empleadoA.get("id"),
+  });
+
+  const cuentaB2 = await cuentas.create({
+    cliente_id: clienteB.get("id"),
+    tipo: CUENTAS_TIPO.CUENTA_CORRIENTE,
+    numero_cuenta: "544323902909083",
+    cbu: "54656322",
+    fondo_descubierto: 5000.0,
+    saldo: 30000.0,
     empleado_creador_id: empleadoA.get("id"),
   });
 };

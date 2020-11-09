@@ -29,8 +29,35 @@ class CuentaNoExisteError extends Error {
   }
 }
 
+class CantidadInvalidaError extends Error {
+  static message = "cantidad de dinero es inválida";
+  constructor() {
+    super(CantidadInvalidaError.message);
+    this.name = "CantidadInvalidaError";
+  }
+}
+
+class CuentaNoAsociadaAlClienteError extends Error {
+  static message = "cuenta inválida";
+  constructor() {
+    super(CuentaNoAsociadaAlClienteError.message);
+    this.name = "CuentaNoAsociadaAlClienteError";
+  }
+}
+
+class CuentaConSaldoInsuficienteError extends Error {
+  static message = "cuenta con saldo insuficiente";
+  constructor() {
+    super(CuentaConSaldoInsuficienteError.message);
+    this.name = "CuentaConSaldoInsuficienteError";
+  }
+}
+
 module.exports = {
   DesconocidoError,
   ClienteNoExisteError,
   CuentaNoExisteError,
+  CantidadInvalidaError,
+  CuentaNoAsociadaAlClienteError,
+  CuentaConSaldoInsuficienteError,
 };
