@@ -5,11 +5,11 @@
     "title": "Integracion de Aplicaciones - BANCO",
     "description": "Endpoints del proyecto del banco del grupo 5, para la amteria de Integracion de Aplicaciones - UADE"
   },
-  "host": "localhost:3000",
+  "host": "localhost:8080",
   "basePath": "/",
   "tags": [
     {
-      "name": "User",
+      "name": "Usuario",
       "description": "Endpoints"
     },
     {
@@ -83,6 +83,35 @@
             "name": "Endpoints without path or method"
           }
         ],
+        "description": "",
+        "parameters": [],
+        "responses": {}
+      }
+    },
+    "/login": {
+      "get": {
+        "tags": [
+          "Usuario"
+        ],
+        "description": "Endpoint para crear un usuario.",
+        "parameters": [
+          {
+            "name": "nombreUsuario",
+            "description": "nombre de usuario.",
+            "type": "string"
+          },
+          {
+            "name": "clave",
+            "description": "clave de usuario.",
+            "type": "string"
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/register": {
+      "post": {
+        "tags": [],
         "description": "",
         "parameters": [],
         "responses": {}

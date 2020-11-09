@@ -1,23 +1,37 @@
 {
   "development": {
-    "username": "root",
-    "password": null,
-    "database": "database_development",
+    "username": "postgres",
+    "password": "postgres",
+    "database": "postgres",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "postgres",
+    "omitNull": true,
+    "define": {
+      "freezeTableName": true
+    }
   },
   "test": {
-    "username": "root",
-    "password": null,
+    "username": "postgres",
+    "password": "postgres",
     "database": "database_test",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
+    "host": "db_test",
+    "dialect": "postgres",
+    "omitNull": true,
+    "define": {
+      "freezeTableName": true
+    },
+    "logging": false
   },
   "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
+    "username": "docker",
+    "password": "docker",
+    "database": "banco",
+    "host": "localhost",
+    "dialect": "postgres",
+    "omitNull": true,
+    "define": {
+      "freezeTableName": true
+    },
+    "logging": false
   }
 }

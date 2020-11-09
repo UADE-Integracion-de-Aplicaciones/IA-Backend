@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:10.7-alpine
+    restart: always
+    networks:
+      - ia_backend
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=postgres #pragma: whitelist secret
+      - POSTGRES_DB=banco
+    volumes:
+      - ./smalldb/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+      - ./db/data.sql:/docker-entrypoint-initdb.d/2-data.sql
+
+networks:
+  ia_backend:
+    driver: bridge
