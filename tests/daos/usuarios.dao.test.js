@@ -28,11 +28,11 @@
 
     const nombre_usuario = "usuario123";
     const clave = "clave123"
-    const rol_id = rol1.get('id')
+    const rol_id = await rol1.get('id')
     await registrar(nombre_usuario, clave, rol_id);
   
-    const usuario = usuarios.findOne({ where: {nombre_usuario: nombre_usuario} }) 
+    const usuario = await usuarios.findOne({ where: {nombre_usuario: nombre_usuario} }) 
     expect(usuario.get("nombre_usuario")).toBe(nombre_usuario);
     expect(usuario.get("clave")).toBe(clave);
-    expect(usuario.get("id")).toBe(rol_id);
+    expect(usuario.get("rol_id")).toBe(rol_id);
   });

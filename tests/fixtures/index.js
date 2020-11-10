@@ -9,7 +9,6 @@ const crearData = async () => {
   });
 
   const usuarioA = await usuarios.create({
-    id: "62377ff0-22b9-11eb-adc1-0242ac120002",
     nombre_usuario: "alejandro.otero",
     clave: "123",
     rol_id: rol1.get("id"),

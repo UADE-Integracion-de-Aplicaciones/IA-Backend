@@ -53,6 +53,7 @@ const GENERATE_SAMPLE_DATA = true;
 const syncDb = async (force = false) => {
   await sequelize.sync({ force });
 
+  if (process.env.NODE_ENV === "development")
   require("../../../tests/fixtures/index").crearData();
 };
 
