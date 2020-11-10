@@ -23,15 +23,15 @@
     "logging": false
   },
   "production": {
-    "username": "docker",
-    "password": "docker",
+    "username": "bankservice@bankservice",
+    "password": "Bank123#",
     "database": "banco",
-    "host": "localhost",
+    "host": "bankservice.postgres.database.azure.com",
     "dialect": "postgres",
     "omitNull": true,
     "define": {
       "freezeTableName": true
     },
-    "logging": false
+    "logging": true
   }
 }
