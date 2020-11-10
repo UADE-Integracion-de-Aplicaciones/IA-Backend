@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const client = require('../sequelize/models').db.client;
+const cliente = require('../sequelize/models').db.clientes;
 
 module.exports = {
     //Crea una transaccion / eposito de cuenta
@@ -42,8 +42,7 @@ module.exports = {
         const cliente = await this.buscarCliente(payload);
     },
 
-    async delete(req, res) {
-        const cliente = this.buscarCliente(payload);
+    async delete(cliente) {
         return await cliente.destroy();
     },
 
@@ -53,18 +52,18 @@ module.exports = {
     },
 
     //Recibe el payload (body del req) y chequea si tiene cuit o dni
-    buscarCliente(payload) {
-        if (payload.cuit)
-            return this.getClienteByCuit(payload.cuit)
-        else if (payload.dni)
-            return this.getClienteByDni(payload.dni)
-        else if (payload.id)
-            return this.getClienteById(payload.id)
+    async buscarCliente(tipo, valor) {
+        if (tipo === "cuit")
+            return await this.getClienteByCuit(valor)
+        else if (tipo === "dni")
+            return await this.getClienteByDni(valor)
+        else if (tipo=== "id")
+            return await this.getClienteById(valor)
         throw Error("No se encontro un campo valido")
     },
 
     getClienteById(id) {
-        return client.findOne({
+        return cliente.findOne({
             where: {
                 id: id
             }
@@ -72,7 +71,7 @@ module.exports = {
     },    
 
     getClienteByDni(dni) {
-        return client.findOne({
+        return cliente.findOne({
             where: {
                 dni: dni
             }
@@ -80,7 +79,7 @@ module.exports = {
     },
 
     getClienteByCuit(cuit) {
-        return client.findOne({
+        return cliente.findOne({
             where: {
                 cuit: cuit
             }

@@ -15,28 +15,17 @@
     {
       "name": "Cliente",
       "description": "Endpoints"
+    },
+    {
+      "name": "Transaccion",
+      "description": "Endpoints"
     }
   ],
   "schemes": [
     "http",
     "https"
   ],
-  "securityDefinitions": {
-    "api_key": {
-      "type": "apiKey",
-      "name": "api_key",
-      "in": "header"
-    },
-    "petstore_auth": {
-      "type": "oauth2",
-      "authorizationUrl": "https://petstore.swagger.io/oauth/authorize",
-      "flow": "implicit",
-      "scopes": {
-        "read_pets": "read your pets",
-        "write_pets": "modify pets in your account"
-      }
-    }
-  },
+  "securityDefinitions": {},
   "consumes": [
     "application/json"
   ],
@@ -45,46 +34,23 @@
   ],
   "paths": {
     "/client": {
-      "get": {
-        "tags": [],
-        "description": "",
-        "parameters": [],
-        "responses": {}
-      },
-      "post": {
-        "tags": [
-          "Cliente"
-        ],
-        "description": "Endpoint para crear un cliente.",
-        "parameters": [
-          {
-            "name": "id",
-            "description": "ID de cliente."
-          },
-          {
-            "name": "filtro",
-            "description": "Un filtro.",
-            "type": "string"
-          }
-        ],
-        "responses": {}
-      },
       "put": {
         "tags": [],
         "description": "",
         "parameters": [],
         "responses": {}
-      }
-    },
-    "/_undefined_path_0xa": {
-      "delete": {
+      },
+      "get": {
         "tags": [
+          "Cliente"
+        ],
+        "description": "Endpoint para eliminar un cliente.",
+        "parameters": [
           {
-            "name": "Endpoints without path or method"
+            "name": "id",
+            "description": "ID de cliente."
           }
         ],
-        "description": "",
-        "parameters": [],
         "responses": {}
       }
     },
@@ -93,12 +59,11 @@
         "tags": [
           "Usuario"
         ],
-        "description": "Endpoint para crear un usuario.",
+        "description": "Endpoint loggin de un usuario.",
         "parameters": [
           {
-            "name": "nombreUsuario",
-            "description": "nombre de usuario.",
-            "type": "string"
+            "name": "nombre_usuario",
+            "description": "nombre de usuario."
           },
           {
             "name": "clave",
@@ -111,6 +76,47 @@
     },
     "/register": {
       "post": {
+        "tags": [
+          "Usuario"
+        ],
+        "description": "Endpoint para registrar un usuario.",
+        "parameters": [
+          {
+            "name": "nombre_usuario",
+            "description": "nombre de usuario."
+          },
+          {
+            "name": "clave",
+            "description": "clave de usuario.",
+            "type": "string"
+          },
+          {
+            "name": "rol_id",
+            "description": "id del rol del usuario.",
+            "type": "string"
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/transacciones": {
+      "get": {
+        "tags": [],
+        "description": "",
+        "parameters": [],
+        "responses": {}
+      }
+    },
+    "/transacciones/depositar": {
+      "post": {
+        "tags": [],
+        "description": "",
+        "parameters": [],
+        "responses": {}
+      }
+    },
+    "/transacciones/extraer": {
+      "post": {
         "tags": [],
         "description": "",
         "parameters": [],
@@ -118,92 +124,5 @@
       }
     }
   },
-  "definitions": {
-    "User": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "example": "Jhon Doe"
-        },
-        "age": {
-          "type": "number",
-          "example": 29
-        },
-        "parents": {
-          "type": "object",
-          "properties": {
-            "father": {
-              "type": "string",
-              "example": "Simon Doe"
-            },
-            "mother": {
-              "type": "string",
-              "example": "Marie Doe"
-            }
-          }
-        },
-        "diplomas": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "school": {
-                "type": "string",
-                "example": "XYZ University"
-              },
-              "year": {
-                "type": "number",
-                "example": 2020
-              },
-              "completed": {
-                "type": "boolean",
-                "example": true
-              },
-              "internship": {
-                "type": "object",
-                "properties": {
-                  "hours": {
-                    "type": "number",
-                    "example": 290
-                  },
-                  "location": {
-                    "type": "string",
-                    "example": "XYZ Company"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "xml": {
-        "name": "User"
-      }
-    },
-    "AddUser": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "example": "Jhon Doe"
-        },
-        "age": {
-          "type": "number",
-          "example": 29
-        },
-        "about": {
-          "type": "string",
-          "example": ""
-        }
-      },
-      "required": [
-        "name",
-        "age"
-      ],
-      "xml": {
-        "name": "AddUser"
-      }
-    }
-  }
+  "definitions": {}
 }

@@ -2,14 +2,13 @@ const { CLIENTES_TIPO, CUENTAS_TIPO } = require("../../src/daos/common");
 const { db } = require("../../src/sequelize/models");
 const { clientes, cuentas, empleados, usuarios, roles } = db;
 
-const crearData = async () => {
+const generarDatos = async () => {
   const rol1 = await roles.create({
     descripcion: "Ejecutivo del Banco",
     alias: "EJECUTIVO",
   });
 
   const usuarioA = await usuarios.create({
-    id: "62377ff0-22b9-11eb-adc1-0242ac120002",
     nombre_usuario: "alejandro.otero",
     clave: "123",
     rol_id: rol1.get("id"),
@@ -99,17 +98,7 @@ const crearData = async () => {
   });
 };
 
-const cargarData = async () => {
-  await crearData();
-
-  const usuario = await usuarios.findOne({
-    where: { nombre_usuario: "alejandro.otero" },
-  });
-
-  return { usuario };
-};
 
 module.exports = {
-  crearData,
-  cargarData,
+  generarDatos
 };
