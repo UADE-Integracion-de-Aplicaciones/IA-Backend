@@ -1,4 +1,3 @@
-const Sequelize = require('sequelize');
 const user = require('../sequelize/models/').db.usuarios
 
 module.exports = {

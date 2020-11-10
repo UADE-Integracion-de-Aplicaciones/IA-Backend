@@ -9,8 +9,9 @@ const {
   CuentaConSaldoInsuficienteError,
 } = require("../../src/daos/errors");
 const {
-  depositarDineroEnCuenta,
   extraerDineroDeCuenta,
+  depositarEnCuentaPropia,
+  depositarEnCuentaDeTercero,
 } = require("../../src/daos/transacciones.dao");
 const { db, syncDb } = require("../../src/sequelize/models");
 const { cuentas, usuarios, movimientos_cuentas, conceptos_movimientos } = db;
@@ -21,16 +22,16 @@ beforeEach(async () => {
   await crearData();
 });
 
-it("(función) depositar dinero, debe funcionar", async () => {
-  const cbu = "8756645";
+it("(función) depositar dinero en cuenta propia, debe funcionar", async () => {
+  const numero_cuenta = "904334389865655";
   const dni = "123456789";
   const cantidad = 12000;
   const usuario = await usuarios.findOne({
     where: { nombre_usuario: "alejandro.otero" },
   });
-  await depositarDineroEnCuenta({ dni, cbu, usuario, cantidad });
+  await depositarEnCuentaPropia(numero_cuenta)({ dni, usuario, cantidad });
 
-  const cuenta = await cuentas.findOne({ where: { cbu } });
+  const cuenta = await cuentas.findOne({ where: { numero_cuenta } });
   const movimiento = await movimientos_cuentas.findOne({
     where: { cuenta_id: cuenta.get("id") },
   });
@@ -44,27 +45,70 @@ it("(función) depositar dinero, debe funcionar", async () => {
   expect(movimiento.get("cantidad")).toBe(cantidad.toFixed(4));
 });
 
-it("(función) depositar dinero para un cliente que no existe, debe fallar", async () => {
-  const cbu = "8756645";
+it("(función) depositar dinero en cuenta propia de un cliente que no existe, debe fallar", async () => {
+  const numero_cuenta = "904334389865655";
   const dni = "999";
   const cantidad = 10;
   const usuario = await usuarios.findOne({
     where: { nombre_usuario: "alejandro.otero" },
   });
   await expect(
-    depositarDineroEnCuenta({ dni, cbu, usuario, cantidad })
+    depositarEnCuentaPropia(numero_cuenta)({
+      dni,
+      usuario,
+      cantidad,
+    })
   ).rejects.toEqual(new ClienteNoExisteError());
 });
 
-it("(función) depositar dinero para una cuenta que no existe, debe fallar", async () => {
-  const cbu = "87566451";
+it("(función) depositar dinero en cuenta propia y en una cuenta que no existe, debe fallar", async () => {
+  const numero_cuenta = "9043343898656551";
   const dni = "123456789";
   const cantidad = 10;
   const usuario = await usuarios.findOne({
     where: { nombre_usuario: "alejandro.otero" },
   });
   await expect(
-    depositarDineroEnCuenta({ dni, cbu, usuario, cantidad })
+    depositarEnCuentaPropia(numero_cuenta)({
+      dni,
+      usuario,
+      cantidad,
+    })
+  ).rejects.toEqual(new CuentaNoExisteError());
+});
+
+it("(función) depositar dinero en cuenta de tercero, debe funcionar", async () => {
+  const cbu = "54656322";
+  const dni = "123456789";
+  const cantidad = 12000;
+  const usuario = await usuarios.findOne({
+    where: { nombre_usuario: "alejandro.otero" },
+  });
+  await depositarEnCuentaDeTercero(cbu)({ usuario, cantidad, dni });
+
+  const cuenta = await cuentas.findOne({ where: { cbu } });
+  const movimiento = await movimientos_cuentas.findOne({
+    where: { cuenta_id: cuenta.get("id") },
+  });
+  const concepto = await conceptos_movimientos.findOne({
+    where: { alias: MOVIMIENTOS_CUENTAS_CONCEPTO.DEPOSITO },
+  });
+
+  expect(cuenta.get("saldo")).toBe((30000 + cantidad).toFixed(4));
+  expect(movimiento.get("tipo")).toBe(MOVIMIENTOS_CUENTAS_TIPO.ACREDITA);
+  expect(movimiento.get("concepto_movimiento_id")).toBe(concepto.get("id"));
+  expect(movimiento.get("cantidad")).toBe(cantidad.toFixed(4));
+});
+
+it("(función) depositar dinero en cuenta de tercero, debe fallar", async () => {
+  const cbu = "546563221";
+  const dni = "999";
+  const cantidad = 10;
+  const usuario = await usuarios.findOne({
+    where: { nombre_usuario: "alejandro.otero" },
+  });
+  await expect(
+    depositarEnCuentaDeTercero(cbu)({ usuario, cantidad, dni })
   ).rejects.toEqual(new CuentaNoExisteError());
 });
 

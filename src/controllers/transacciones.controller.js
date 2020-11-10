@@ -7,7 +7,8 @@ const {
   CuentaConSaldoInsuficienteError,
 } = require("../daos/errors");
 const {
-  depositarDineroEnCuenta,
+  depositarEnCuentaPropia,
+  depositarEnCuentaDeTercero,
   extraerDineroDeCuenta,
 } = require("../daos/transacciones.dao");
 
@@ -19,14 +20,19 @@ module.exports = {
     ////////////
 
     const { body } = req;
-    const { dni, cbu, cantidad } = body;
+    const { dni, cantidad } = body;
+
+    let depositarFunction;
+    if (body.hasOwnProperty("numero_cuenta")) {
+      console.log("cuenta propia");
+      depositarFunction = depositarEnCuentaPropia(body.numero_cuenta);
+    } else if (body.hasOwnProperty("cbu")) {
+      console.log("cuenta de tercero");
+      depositarFunction = depositarEnCuentaDeTercero(body.cbu);
+    }
+
     try {
-      await depositarDineroEnCuenta({
-        dni,
-        cbu,
-        usuario,
-        cantidad,
-      });
+      await depositarFunction({ dni, usuario, cantidad });
 
       return res.status(200).json({ mensaje: "deposito realizado" });
     } catch (err) {
