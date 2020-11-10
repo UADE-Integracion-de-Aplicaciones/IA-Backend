@@ -85,20 +85,43 @@ const crearMovimiento = ({
   );
 };
 
-const depositarDineroEnCuenta = async ({ dni, cbu, usuario, cantidad }) => {
-  if (cantidad <= 0) {
-    throw new CantidadInvalidaError();
-  }
-
+const depositarEnCuentaPropia = (numero_cuenta) => async ({
+  dni,
+  usuario,
+  cantidad,
+}) => {
   const cliente = await buscarCliente(dni);
-  const cuenta = await buscarCuentaPorCbu(cbu);
 
   if (!cliente) {
     throw new ClienteNoExisteError();
   }
 
+  const cuenta = await buscarCuentaPorNumero(numero_cuenta);
+
   if (!cuenta) {
     throw new CuentaNoExisteError();
+  }
+
+  return depositarDineroEnCuenta({ cuenta, usuario, cantidad });
+};
+
+const depositarEnCuentaDeTercero = (cbu) => async ({
+  dni,
+  usuario,
+  cantidad,
+}) => {
+  const cuenta = await buscarCuentaPorCbu(cbu);
+
+  if (!cuenta) {
+    throw new CuentaNoExisteError();
+  }
+
+  return depositarDineroEnCuenta({ cuenta, usuario, cantidad });
+};
+
+const depositarDineroEnCuenta = async ({ cuenta, usuario, cantidad }) => {
+  if (cantidad <= 0) {
+    throw new CantidadInvalidaError();
   }
 
   const concepto = await buscarConcepto(MOVIMIENTOS_CUENTAS_CONCEPTO.DEPOSITO);
@@ -185,4 +208,8 @@ const extraerDineroDeCuenta = async ({
   }
 };
 
-module.exports = { depositarDineroEnCuenta, extraerDineroDeCuenta };
+module.exports = {
+  extraerDineroDeCuenta,
+  depositarEnCuentaPropia,
+  depositarEnCuentaDeTercero,
+};
