@@ -47,14 +47,14 @@ Object.keys(db).forEach((modelName) => {
 
 makeModelsAssociations(sequelize);
 
+
+const GENERATE_SAMPLE_DATA = true;
+
 const syncDb = async (force = false) => {
   await sequelize.sync({ force });
-  return createDefaultData(db);
-  //console.log("Drop and re-sync db.");
-  //var test = require("./api/test/SampleTestData");
-  //if (forceSync) {
-  //  test.createSampleData(); //Datasets con informacion pre cargada
-  //}
+
+  if (process.env.NODE_ENV === "development")
+  require("../../../tests/fixtures/index").crearData();
 };
 
 db.sequelize = sequelize;
