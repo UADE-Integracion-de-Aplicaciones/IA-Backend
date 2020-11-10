@@ -1,5 +1,3 @@
-const Sequelize = require('sequelize');
-const cuenta = require('../sequelize/models').cuenta;
 const cuentaDao = require('../daos/cuenta.dao');
 
 module.exports = {
@@ -23,7 +21,7 @@ module.exports = {
 
     //Que campos se van a poder modificar?
     update(req, res) {
-        await cuentaDao.update(req.body)
+        //await cuentaDao.update(req.body)
     },
 
     async delete(req, res) {

@@ -152,3 +152,4 @@ it("(función) extraer dinero de una cuenta caja de ahorro con saldo insuficient
     extraerDineroDeCuenta({ numero_cuenta, dni, cantidad, usuario })
   ).rejects.toEqual(new CuentaConSaldoInsuficienteError());
 });
+ 

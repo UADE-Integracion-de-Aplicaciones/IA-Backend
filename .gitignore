@@ -104,3 +104,7 @@ dist
 .tern-port
 
 package-lock.json
+
+# Uploads files from file endpoint
+
+Uploads

@@ -45,10 +45,10 @@ module.exports = {
     },
 
     //Que campos se van a poder modificar?
-    update(req, res) {
+    /*update(req, res) {
         await clientDao.update(req.body)
     },
-
+*/
     async delete(req, res) {
         await clientDao.delete(req.body)
         .then(() => res.status(200).send({message: "Se elimino el cliente correctamente"}))

@@ -12,10 +12,10 @@ module.exports = {
 
     //TODO
     //Que campos se van a poder modificar?
-    update(payload) {
+   /* update(payload) {
         const cliente = await this.buscarCliente(payload);
     },
-
+*/
     async delete(req, res) {
         const cliente = this.buscarCliente(payload);
         return await cliente.destroy();

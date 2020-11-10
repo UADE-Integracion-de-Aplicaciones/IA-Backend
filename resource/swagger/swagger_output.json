@@ -21,22 +21,7 @@
     "http",
     "https"
   ],
-  "securityDefinitions": {
-    "api_key": {
-      "type": "apiKey",
-      "name": "api_key",
-      "in": "header"
-    },
-    "petstore_auth": {
-      "type": "oauth2",
-      "authorizationUrl": "https://petstore.swagger.io/oauth/authorize",
-      "flow": "implicit",
-      "scopes": {
-        "read_pets": "read your pets",
-        "write_pets": "modify pets in your account"
-      }
-    }
-  },
+  "securityDefinitions": {},
   "consumes": [
     "application/json"
   ],
@@ -88,6 +73,14 @@
         "responses": {}
       }
     },
+    "/client/verificar": {
+      "get": {
+        "tags": [],
+        "description": "",
+        "parameters": [],
+        "responses": {}
+      }
+    },
     "/login": {
       "get": {
         "tags": [
@@ -97,8 +90,7 @@
         "parameters": [
           {
             "name": "nombreUsuario",
-            "description": "nombre de usuario.",
-            "type": "string"
+            "description": "nombre de usuario."
           },
           {
             "name": "clave",
@@ -111,99 +103,24 @@
     },
     "/register": {
       "post": {
-        "tags": [],
-        "description": "",
-        "parameters": [],
+        "tags": [
+          "Usuario"
+        ],
+        "description": "Endpoint para crear un usuario.",
+        "parameters": [
+          {
+            "name": "nombreUsuario",
+            "description": "nombre de usuario."
+          },
+          {
+            "name": "clave",
+            "description": "clave de usuario.",
+            "type": "string"
+          }
+        ],
         "responses": {}
       }
     }
   },
-  "definitions": {
-    "User": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "example": "Jhon Doe"
-        },
-        "age": {
-          "type": "number",
-          "example": 29
-        },
-        "parents": {
-          "type": "object",
-          "properties": {
-            "father": {
-              "type": "string",
-              "example": "Simon Doe"
-            },
-            "mother": {
-              "type": "string",
-              "example": "Marie Doe"
-            }
-          }
-        },
-        "diplomas": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "school": {
-                "type": "string",
-                "example": "XYZ University"
-              },
-              "year": {
-                "type": "number",
-                "example": 2020
-              },
-              "completed": {
-                "type": "boolean",
-                "example": true
-              },
-              "internship": {
-                "type": "object",
-                "properties": {
-                  "hours": {
-                    "type": "number",
-                    "example": 290
-                  },
-                  "location": {
-                    "type": "string",
-                    "example": "XYZ Company"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "xml": {
-        "name": "User"
-      }
-    },
-    "AddUser": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "example": "Jhon Doe"
-        },
-        "age": {
-          "type": "number",
-          "example": 29
-        },
-        "about": {
-          "type": "string",
-          "example": ""
-        }
-      },
-      "required": [
-        "name",
-        "age"
-      ],
-      "xml": {
-        "name": "AddUser"
-      }
-    }
-  }
+  "definitions": {}
 }

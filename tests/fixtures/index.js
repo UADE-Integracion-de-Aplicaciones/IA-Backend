@@ -1,6 +1,6 @@
 const { CLIENTES_TIPO, CUENTAS_TIPO } = require("../../src/daos/common");
 const { db } = require("../../src/sequelize/models");
-const { clientes, cuentas, empleados, usuarios, roles } = db;
+const { clientes, cuentas, empleados, usuarios, roles, facturas } = db;
 
 const crearData = async () => {
   const rol1 = await roles.create({
@@ -67,6 +67,28 @@ const crearData = async () => {
     pregunta3_respuesta: "respuesta 3",
   });
 
+  const clienteC = await clientes.create({
+    tipo: CLIENTES_TIPO.PERSONA_JURIDICA,
+    cuit: "2098684014",
+    dni: "9868401",
+    nombre: "FinTech SA",
+    apellido: "Grupo FinTech",
+    email: "fitech@gmail.com",
+    domicilio_ciudad: "Buenos Aires",
+    domicilio_calle: "Santa Fe",
+    domicilio_barrio: "PAlermo",
+    domicilio_numero: 4500,
+    domicilio_piso: "7",
+    domicilio_apartamento: "C",
+    fecha_nacimiento: "2014-01-01",
+    pregunta1: "pregunta 1",
+    pregunta1_respuesta: "respuesta 1",
+    pregunta2: "pregunta 2",
+    pregunta2_respuesta: "respuesta 2",
+    pregunta3: "pregunta 3",
+    pregunta3_respuesta: "respuesta 3",
+  });
+
   const cuentaA1 = await cuentas.create({
     cliente_id: clienteA.get("id"),
     tipo: CUENTAS_TIPO.CAJA_DE_AHORRO,
@@ -96,6 +118,27 @@ const crearData = async () => {
     saldo: 30000.0,
     empleado_creador_id: empleadoA.get("id"),
   });
+
+  const cuentaC1 = await cuentas.create({
+    cliente_id: clienteC.get("id"),
+    tipo: CUENTAS_TIPO.CAJA_DE_AHORRO,
+    numero_cuenta: "0912390435812",
+    cbu: "4354656109123904358125",
+    fondo_descubierto: 0.0,
+    saldo: 500000.0,
+    empleado_creador_id: empleadoA.get("id"),
+  });
+
+  const facturaF1 = await facturas.create({
+    cuenta_id: cuentaC1.get("id"),
+    codigo_pago_electronico:"123542130",
+    numero_factura:"0912390435812",
+    importe: 1234.0,
+    fecha_vencimiento: "2020-11-15",
+    fecha_pagado: null,
+  });
+
+  
 };
 
 const cargarData = async () => {

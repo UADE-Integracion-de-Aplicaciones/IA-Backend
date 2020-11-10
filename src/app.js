@@ -30,5 +30,7 @@ app.use("/doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 require("./routes/client.routes")(app);
 require("./routes/user.routes")(app);
 require("./routes/transacciones.routes")(app);
+require("./routes/cuenta.routes")(app);
+require("./routes/facturas.routes")(app);
 
 module.exports = app;
