@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "start": "nodemon src/index.js",
+    "start": "npm start src/index.js",
     "test": "jest --detectOpenHandles --verbose true",
     "test:watch": "jest --watch",
     "swagger-autogen": "node swagger.js",
