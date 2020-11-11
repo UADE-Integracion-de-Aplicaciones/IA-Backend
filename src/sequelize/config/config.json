@@ -7,9 +7,9 @@
     "dialect": "postgres",
     "omitNull": true,
     "define": {
-      "freezeTableName": true
+      "freezeTableName": false
     },
-    "logging": false
+    "logging": true
   },
   "test": {
     "username": "postgres",

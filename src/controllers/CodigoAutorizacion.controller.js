@@ -10,7 +10,8 @@ module.exports = {
             return ;
         }
 
-        codigoAutorizacionDao.buscarPorClienteId(cliente_id)
+        try {    
+            codigoAutorizacionDao.buscarPorClienteId(cliente_id)
             .then(codigoAutorizacion => {
                 const dayAfterExpiration = moment(codigoAutorizacion.fecha_expiracion).add(1, 'days')
                 if (codigo === codigoAutorizacion.codigo) {
@@ -27,12 +28,15 @@ module.exports = {
                 console.log(err)
                 res.status(400).send("Ocurrio un erorr en la verificacion")
             })
+        } catch (error) {
+            res.status(500).send("Fallo algo en la aplicacion");
+        }
     },
 
     generarCodigoRegistro(req, res) {
-        const { cliente_id } = req.query
+        const { user_id } = req.query
         
-        if (!req || !req.query || !cliente_id) {
+        if (!req || !req.query || !user_id) {
             res.status(300).send("Existe un dato faltante")
             return ;
         }
