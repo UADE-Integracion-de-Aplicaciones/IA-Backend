@@ -40,7 +40,7 @@ const protectedRouter = withJWTAuthMiddleware(app, process.env.APP_SECRET);
 
 app.use("/doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
-require("./routes")(protectedRouter);
+require("./routes")(app);
 require("./routes/client.routes")(protectedRouter);
 require("./routes/user.routes")(app);
 require("./routes/transacciones.routes")(protectedRouter);
