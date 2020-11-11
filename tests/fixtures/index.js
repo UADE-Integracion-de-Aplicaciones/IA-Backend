@@ -8,10 +8,21 @@ const crearData = async () => {
     alias: "EJECUTIVO",
   });
 
+  const rol2 = await roles.create({
+    descripcion: "Persona Física",
+    alias: "CLIENTE_PERSONA_FISICA",
+  });
+
   const usuarioA = await usuarios.create({
     nombre_usuario: "alejandro.otero",
     clave: "123",
     rol_id: rol1.get("id"),
+  });
+
+  const usuarioB = await usuarios.create({
+    nombre_usuario: "pedro.perez",
+    clave: "123",
+    rol_id: rol2.get("id"),
   });
 
   const empleadoA = await empleados.create({
@@ -43,6 +54,7 @@ const crearData = async () => {
     pregunta2_respuesta: "respuesta 2",
     pregunta3: "pregunta 3",
     pregunta3_respuesta: "respuesta 3",
+    usuario_id: usuarioB.get("id"),
   });
 
   const clienteB = await clientes.create({

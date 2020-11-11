@@ -217,18 +217,13 @@ const extraerDineroDeCuenta = async ({
 
 const pagarServicio = async ({
   facturas,
-  numero_cuenta,
+  cuenta,
   cantidad,
-  usuario,
+  usuario_debita,
+  usuario_acredita,
 }) => {
-  if (cantidad <= 0) {
-    throw new CantidadInvalidaError();
-  }
-
-  const cuenta_origen = await buscarCuentaPorNumero(numero_cuenta);
-  if (!cuenta_origen) {
-    throw new CuentaNoExisteError();
-  } else if (tieneSaldoEnCuentaParaPagar({ cuenta: cuenta_origen, cantidad })) {
+  const cuenta_origen = cuenta;
+  if (tieneSaldoEnCuentaParaPagar({ cuenta: cuenta_origen, cantidad })) {
     throw new CuentaConSaldoInsuficienteError();
   }
 
@@ -261,7 +256,7 @@ const pagarServicio = async ({
       concepto: concepto_pago_proveedor,
       tipo: MOVIMIENTOS_CUENTAS_TIPO.DEBITA,
       cantidad,
-      usuario,
+      usuario: usuario_debita,
       transaction,
     });
 
@@ -277,7 +272,7 @@ const pagarServicio = async ({
       concepto: concepto_pago_cliente,
       tipo: MOVIMIENTOS_CUENTAS_TIPO.ACREDITA,
       cantidad,
-      usuario,
+      usuario: usuario_acredita,
       transaction,
     });
 
@@ -295,15 +290,76 @@ const pagarServicio = async ({
 
     await transaction.commit();
   } catch (error) {
-    console.log(error);
     await transaction.rollback();
     throw new DesconocidoBDError();
   }
+};
+
+const pagarServicioComoCliente = async ({
+  numero_cuenta,
+  facturas,
+  cantidad,
+  usuario,
+}) => {
+  if (cantidad <= 0) {
+    throw new CantidadInvalidaError();
+  }
+
+  const cuenta = await buscarCuentaPorNumero(numero_cuenta);
+  if (!cuenta) {
+    throw new CuentaNoExisteError();
+  }
+
+  const usuario_debita = usuario;
+  const usuario_acredita = usuario;
+
+  await pagarServicio({
+    facturas,
+    cuenta,
+    cantidad,
+    usuario_debita,
+    usuario_acredita,
+  });
+};
+
+const pagarServicioComoBanco = (dni) => async ({
+  numero_cuenta,
+  facturas,
+  cantidad,
+  usuario,
+}) => {
+  if (cantidad <= 0) {
+    throw new CantidadInvalidaError();
+  }
+
+  const cuenta = await buscarCuentaPorNumero(numero_cuenta);
+  if (!cuenta) {
+    throw new CuentaNoExisteError();
+  }
+
+  const cliente = await buscarCliente(dni);
+  if (!cliente) {
+    throw new ClienteNoExisteError();
+  } else if (cuenta.get("cliente_id") !== cliente.get("id")) {
+    throw new CuentaNoAsociadaAlClienteError();
+  }
+
+  const usuario_debita = usuario;
+  const usuario_acredita = await cliente.getUsuario();
+
+  await pagarServicio({
+    facturas,
+    cuenta,
+    cantidad,
+    usuario_debita,
+    usuario_acredita,
+  });
 };
 
 module.exports = {
   extraerDineroDeCuenta,
   depositarEnCuentaPropia,
   depositarEnCuentaDeTercero,
-  pagarServicio,
+  pagarServicioComoCliente,
+  pagarServicioComoBanco,
 };

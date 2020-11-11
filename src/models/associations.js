@@ -1,7 +1,7 @@
 module.exports = (sequelize) => {
   const { models } = sequelize;
   models.clientes.belongsTo(models.usuarios, {
-    foreignKey: { name: "cliente_id" },
+    foreignKey: { name: "usuario_id", allowNull: true },
   });
   models.empleados.belongsTo(models.usuarios, {
     foreignKey: { name: "usuario_id", allowNull: false },
