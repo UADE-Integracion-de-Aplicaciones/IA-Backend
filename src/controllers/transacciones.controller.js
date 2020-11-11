@@ -3,21 +3,27 @@ const {
   ClienteNoExisteError,
   CuentaNoExisteError,
   DesconocidoError,
+  DesconocidoBDError,
   CuentaNoAsociadaAlClienteError,
   CuentaConSaldoInsuficienteError,
+  CantidadMenorQueTotalFacturasError,
+  CantidadMayorQueTotalFacturasError,
 } = require("../daos/errors");
 const {
   depositarEnCuentaPropia,
   depositarEnCuentaDeTercero,
   extraerDineroDeCuenta,
+  pagarServicio,
 } = require("../daos/transacciones.dao");
+const { buscarFacturasPorIds } = require("../daos/facturas.dao");
+
+// TODO: eliminar cuando se tenga el iniciar session del usuario
+const { obtenerUsuarioDePrueba } = require("../../tests/fixtures");
+////////////
 
 module.exports = {
   async depositar(req, res) {
-    // TODO: eliminar cuando se tenga el iniciar session del usuario
-    const { cargarData } = require("../../tests/fixtures");
-    const { usuario } = await cargarData();
-    ////////////
+    const usuario = await obtenerUsuarioDePrueba(); ////
 
     const { body } = req;
     const { dni, cantidad } = body;
@@ -32,17 +38,20 @@ module.exports = {
     }
 
     try {
-      await depositarFunction({ dni, usuario, cantidad });
+      const cantidadFloat = parseFloat(cantidad);
+      console.log(cantidadFloat);
+      await depositarFunction({ dni, usuario, cantidad: cantidadFloat });
 
       return res.status(200).json({ mensaje: "deposito realizado" });
-    } catch (err) {
+    } catch (error) {
       const mensajes_error = [
-        CantidadInvalidaError.message,
-        ClienteNoExisteError.message,
-        CuentaNoExisteError.message,
+        CantidadInvalidaError.mensaje,
+        ClienteNoExisteError.mensaje,
+        CuentaNoExisteError.mensaje,
+        DesconocidoBDError.mensaje,
       ];
-      if (mensajes_error.includes(err.message)) {
-        return res.status(404).json({ mensaje: err });
+      if (mensajes_error.includes(error.mensaje)) {
+        return res.status(404).json({ error });
       } else {
         return res.status(500).json({ mensaje: new DesconocidoError() });
       }
@@ -50,46 +59,70 @@ module.exports = {
   },
 
   async extraer(req, res) {
-    // TODO: eliminar cuando se tenga el iniciar session del usuario
-    const { cargarData } = require("../../tests/fixtures");
-    const { usuario } = await cargarData();
-    ////////////
+    const usuario = await obtenerUsuarioDePrueba(); ////
 
     const { body } = req;
     const { numero_cuenta, dni, cantidad } = body;
 
     try {
-      await extraerDineroDeCuenta({ numero_cuenta, dni, cantidad, usuario });
+      const cantidadFloat = parseFloat(cantidad);
+      await extraerDineroDeCuenta({
+        numero_cuenta,
+        dni,
+        cantidad: cantidadFloat,
+        usuario,
+      });
 
       return res.status(200).json({ mensaje: "extracción realizada" });
-    } catch (err) {
+    } catch (error) {
       const mensajes_error = [
-        CantidadInvalidaError.message,
-        ClienteNoExisteError.message,
-        CuentaNoExisteError.message,
-        CuentaNoAsociadaAlClienteError.message,
-        CuentaConSaldoInsuficienteError.message,
+        CantidadInvalidaError.mensaje,
+        ClienteNoExisteError.mensaje,
+        CuentaNoExisteError.mensaje,
+        CuentaNoAsociadaAlClienteError.mensaje,
+        CuentaConSaldoInsuficienteError.mensaje,
+        DesconocidoBDError.mensaje,
       ];
-      if (mensajes_error.includes(err.message)) {
-        return res.status(404).json({ mensaje: err });
+      if (mensajes_error.includes(error.mensaje)) {
+        return res.status(404).json({ error });
       } else {
         return res.status(500).json({ mensaje: new DesconocidoError() });
       }
     }
   },
 
-  create(req, res) {
-    return transaction
-      .create({})
-      .then((transaction) => res.status(200).send(transaction))
-      .catch((error) => res.status(400).send(error));
-  },
+  async pagarServicioComoCliente(req, res) {
+    const usuario = await obtenerUsuarioDePrueba(); ////
 
-  //Movimientos de una cuenta
-  getMovimientos(req, res) {
-    //
-    // logic
-    //
-    res.status(200).send("get movimientos");
+    const { body } = req;
+    const { facturas_ids, numero_cuenta, cantidad } = body;
+    console.log(body);
+
+    try {
+      const cantidadFloat = parseFloat(cantidad);
+      const facturas = await buscarFacturasPorIds(facturas_ids);
+      await pagarServicio({
+        facturas,
+        numero_cuenta,
+        cantidad: cantidadFloat,
+        usuario,
+      });
+      return res.status(200).json({ mensaje: "pago de servicios realizado" });
+    } catch (error) {
+      const mensajes_error = [
+        CantidadInvalidaError.mensaje,
+        CuentaNoExisteError.mensaje,
+        CuentaConSaldoInsuficienteError.mensaje,
+        CantidadMenorQueTotalFacturasError.mensaje,
+        CantidadMayorQueTotalFacturasError.mensaje,
+        DesconocidoBDError.mensaje,
+      ];
+
+      if (mensajes_error.includes(error.mensaje)) {
+        return res.status(404).json({ error });
+      } else {
+        return res.status(500).json({ mensaje: new DesconocidoError() });
+      }
+    }
   },
 };

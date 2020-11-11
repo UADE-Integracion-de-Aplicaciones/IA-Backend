@@ -23,10 +23,11 @@ app.use(bodyParser.urlencoded({ extended: true })); //Setea true para recibir re
 app.use(cors()); //Habilita conexion segura HTTPS
 
 //Seteamos los endpoints, cada uno llama a un archivo de endppoints distinto
-app.get("/", (req, res) => res.status(200).send("Hello World!"));
+//app.get("/", (req, res) => res.status(200).send("Hello World!"));
 
 app.use("/doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
+require("./routes")(app);
 require("./routes/client.routes")(app);
 require("./routes/user.routes")(app);
 require("./routes/transacciones.routes")(app);
