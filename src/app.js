@@ -14,7 +14,19 @@ const http = require("http");
 
 const app = express();
 (async () => {
-  await syncDb(true);
+  await syncDb(false);  
+
+    if (process.env.NODE_ENV === "development") {
+        try {
+            console.log("LOADING DATA")
+            await require("../tests/fixtures").crearData()
+            let lpt = await require('../tests/fixtures').obtenerUsuarioDePrueba();        
+            console.log(lpt.get("nombre_usuario"))
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
 })();
 app.use(express.json());
 
@@ -24,6 +36,7 @@ app.use(cors()); //Habilita conexion segura HTTPS
 
 //Seteamos los endpoints, cada uno llama a un archivo de endppoints distinto
 //app.get("/", (req, res) => res.status(200).send("Hello World!"));
+
 
 app.use("/doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 

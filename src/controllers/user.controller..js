@@ -1,18 +1,20 @@
 var env = require('node-env-file');
 
-const {bcrypt} = require("bcrypt");
-const {jwt} = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const userDao = require('../daos/user.dao');
 
 module.exports = {
     async login(req, res) {
-        const {nombreUsuario, clave} = req.query
+        const {nombre_usuario, clave} = req.query
 
-        if (!req || !req.query || !clave || !nombreUsuario)
+        if (!req || !req.query || !clave || !nombre_usuario){
             res.status(300).send("No existn credenciales")
+            return ;
+        }
             
-            userDao.getUserByUserName(nombreUsuario)
+            userDao.getUserByUserName(nombre_usuario)
                 .then(user => {                    
                         if (!user) {
                             res.status(301).send("Credenciales incompatibles")
@@ -26,7 +28,7 @@ module.exports = {
                             return
                         }
 
-                        generarMensajeExito("Se logeo con exito.", user);
+                        this.generarMensajeExito("Se logeo con exito.", user, res);
                     })
                 .catch(err => {
                     console.log(err)
@@ -38,8 +40,9 @@ module.exports = {
         try  {
             const { nombre_usuario, clave, rol_id } = req.query
         
-            if (!req || !req.query || !clave || !nombreUsuario || !rol_id) {
-                res.status(300).send(req.query)
+            console.log(nombre_usuario, clave)
+            if (!req || !req.query || !clave || !nombre_usuario || !rol_id) {
+                res.status(300).send("hubo un error")
                 return ;
             }
 
@@ -53,19 +56,20 @@ module.exports = {
                     }
                     console.log("User id",  user.id)
 
-                    generarMensajeExito("Usuario creado con exito.", user);
+                    this.generarMensajeExito("Usuario creado con exito.", user, res);
                 })
                 .catch(err => {
                     console.log(err)
                     res.status(400)
                 })
         } catch (error) {
+            console.log(error)
             return res.status(500).json({ message: "something wrong happened" });
         }
     },
     
-    generarMensajeExito(mensaje, user) {
-        const token = getToken({ userId: user.id });
+    generarMensajeExito(mensaje, user, res) {
+        const token = this.getToken({ userId: user.id });
         res.append("x-access-token", token).status(200).json({message: mensaje, user: user});
     },
 
