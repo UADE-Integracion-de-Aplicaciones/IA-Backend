@@ -13,7 +13,8 @@ const {
   depositarEnCuentaPropia,
   depositarEnCuentaDeTercero,
   extraerDineroDeCuenta,
-  pagarServicio,
+  pagarServicioComoCliente,
+  pagarServicioComoBanco,
 } = require("../daos/transacciones.dao");
 const { buscarFacturasPorIds } = require("../daos/facturas.dao");
 
@@ -91,25 +92,35 @@ module.exports = {
     }
   },
 
-  async pagarServicioComoCliente(req, res) {
+  async pagarServicio(req, res) {
     const usuario = await obtenerUsuarioDePrueba(); ////
 
     const { body } = req;
     const { facturas_ids, numero_cuenta, cantidad } = body;
-    console.log(body);
+
+    let pagarServicioFunction;
+    if (body.hasOwnProperty("dni")) {
+      pagarServicioFunction = pagarServicioComoBanco(body.dni);
+    } else {
+      pagarServicioFunction = pagarServicioComoCliente;
+    }
 
     try {
       const cantidadFloat = parseFloat(cantidad);
       const facturas = await buscarFacturasPorIds(facturas_ids);
-      await pagarServicio({
-        facturas,
+
+      await pagarServicioFunction({
         numero_cuenta,
+        facturas,
         cantidad: cantidadFloat,
         usuario,
       });
+
       return res.status(200).json({ mensaje: "pago de servicios realizado" });
     } catch (error) {
+      console.log(error);
       const mensajes_error = [
+        ClienteNoExisteError.mensaje,
         CantidadInvalidaError.mensaje,
         CuentaNoExisteError.mensaje,
         CuentaConSaldoInsuficienteError.mensaje,

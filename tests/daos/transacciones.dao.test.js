@@ -14,7 +14,8 @@ const {
   extraerDineroDeCuenta,
   depositarEnCuentaPropia,
   depositarEnCuentaDeTercero,
-  pagarServicio,
+  pagarServicioComoCliente,
+  pagarServicioComoBanco,
 } = require("../../src/daos/transacciones.dao");
 const { buscarFacturasPorCodigo } = require("../../src/daos/facturas.dao");
 const { db, syncDb } = require("../../src/sequelize/models");
@@ -201,7 +202,7 @@ it("(función) extraer dinero de una cuenta caja de ahorro con saldo insuficient
   ).rejects.toEqual(new CuentaConSaldoInsuficienteError());
 });
 
-it("(función) pagar servicio, debe funcionar", async () => {
+it("(función) pagar servicio como cliente, debe funcionar", async () => {
   const numero_cuenta = "546565465767643232";
   const facturas = await buscarFacturasPorCodigo("345653312325464");
   const cantidad = facturas.reduce(
@@ -212,7 +213,12 @@ it("(función) pagar servicio, debe funcionar", async () => {
     where: { nombre_usuario: "alejandro.otero" },
   });
 
-  await pagarServicio({ facturas, numero_cuenta, cantidad, usuario });
+  await pagarServicioComoCliente({
+    facturas,
+    numero_cuenta,
+    cantidad,
+    usuario,
+  });
 
   //verificar saldo de cuenta origen
   const cuenta_origen = await cuentas.findOne({ where: { numero_cuenta } });
@@ -246,7 +252,7 @@ it("(función) pagar servicio, debe funcionar", async () => {
   expect(parseFloat(movimiento_credito.get("cantidad"))).toBe(cantidad);
 });
 
-it("(función) pagar servicio con una cuenta que no existe, debe fallar", async () => {
+it("(función) pagar servicio como cliente con una cuenta que no existe, debe fallar", async () => {
   const numero_cuenta = "5465654657676432321";
   const facturas = await buscarFacturasPorCodigo("345653312325464");
   const cantidad = facturas.reduce(
@@ -258,11 +264,11 @@ it("(función) pagar servicio con una cuenta que no existe, debe fallar", async 
   });
 
   await expect(
-    pagarServicio({ facturas, numero_cuenta, cantidad, usuario })
+    pagarServicioComoCliente({ facturas, numero_cuenta, cantidad, usuario })
   ).rejects.toEqual(new CuentaNoExisteError());
 });
 
-it("(función) pagar servicio con una cuenta con saldo insuficiente, debe fallar", async () => {
+it("(función) pagar servicio como cliente con una cuenta con saldo insuficiente, debe fallar", async () => {
   const numero_cuenta = "76065842338329221";
   const facturas = await buscarFacturasPorCodigo("345653312325464");
   const cantidad = facturas.reduce(
@@ -274,11 +280,11 @@ it("(función) pagar servicio con una cuenta con saldo insuficiente, debe fallar
   });
 
   await expect(
-    pagarServicio({ facturas, numero_cuenta, cantidad, usuario })
+    pagarServicioComoCliente({ facturas, numero_cuenta, cantidad, usuario })
   ).rejects.toEqual(new CuentaConSaldoInsuficienteError());
 });
 
-it("(función) pagar servicio con una cantidad menor al importe total de las facturas, debe fallar", async () => {
+it("(función) pagar servicio como cliente con una cantidad menor al importe total de las facturas, debe fallar", async () => {
   const numero_cuenta = "546565465767643232";
   const facturas = await buscarFacturasPorCodigo("345653312325464");
   const cantidad = facturas.reduce(
@@ -290,11 +296,11 @@ it("(función) pagar servicio con una cantidad menor al importe total de las fac
   });
 
   await expect(
-    pagarServicio({ facturas, numero_cuenta, cantidad, usuario })
+    pagarServicioComoCliente({ facturas, numero_cuenta, cantidad, usuario })
   ).rejects.toEqual(new CantidadMenorQueTotalFacturasError());
 });
 
-it("(función) pagar servicio con una cantidad mayor al importe total de las facturas, debe fallar", async () => {
+it("(función) pagar servicio como cliente con una cantidad mayor al importe total de las facturas, debe fallar", async () => {
   const numero_cuenta = "546565465767643232";
   const facturas = await buscarFacturasPorCodigo("345653312325464");
   const cantidad = facturas.reduce(
@@ -306,6 +312,40 @@ it("(función) pagar servicio con una cantidad mayor al importe total de las fac
   });
 
   await expect(
-    pagarServicio({ facturas, numero_cuenta, cantidad, usuario })
+    pagarServicioComoCliente({ facturas, numero_cuenta, cantidad, usuario })
   ).rejects.toEqual(new CantidadMayorQueTotalFacturasError());
+});
+
+it("(función) pagar servicio como ejecutivo del banco cuando el cliente no existe, debe fallar", async () => {
+  const dni = "999999999999";
+  const numero_cuenta = "546565465767643232";
+  const facturas = await buscarFacturasPorCodigo("345653312325464");
+  const cantidad = facturas.reduce(
+    (suma, factura) => suma + parseFloat(factura.get("importe")),
+    10.0
+  );
+  const usuario = await usuarios.findOne({
+    where: { nombre_usuario: "alejandro.otero" },
+  });
+
+  await expect(
+    pagarServicioComoBanco(dni)({ facturas, numero_cuenta, cantidad, usuario })
+  ).rejects.toEqual(new ClienteNoExisteError());
+});
+
+it("(función) pagar servicio como ejecutivo del banco con una cuenta no asociada al cliente, debe fallar", async () => {
+  const dni = "987654321";
+  const numero_cuenta = "546565465767643232";
+  const facturas = await buscarFacturasPorCodigo("345653312325464");
+  const cantidad = facturas.reduce(
+    (suma, factura) => suma + parseFloat(factura.get("importe")),
+    10.0
+  );
+  const usuario = await usuarios.findOne({
+    where: { nombre_usuario: "alejandro.otero" },
+  });
+
+  await expect(
+    pagarServicioComoBanco(dni)({ facturas, numero_cuenta, cantidad, usuario })
+  ).rejects.toEqual(new CuentaNoAsociadaAlClienteError());
 });
