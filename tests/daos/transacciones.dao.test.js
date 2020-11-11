@@ -201,7 +201,7 @@ it("(función) extraer dinero de una cuenta caja de ahorro con saldo insuficient
   ).rejects.toEqual(new CuentaConSaldoInsuficienteError());
 });
 
-fit("(función) pagar servicio, debe funcionar", async () => {
+it("(función) pagar servicio, debe funcionar", async () => {
   const numero_cuenta = "546565465767643232";
   const facturas = await buscarFacturasPorCodigo("345653312325464");
   const cantidad = facturas.reduce(
