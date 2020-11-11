@@ -1,46 +1,77 @@
+var env = require('node-env-file');
+
+const {bcrypt} = require("bcrypt");
+const {jwt} = require("jsonwebtoken");
+
 const userDao = require('../daos/user.dao');
 
 module.exports = {
-    login(req, res) {
+    async login(req, res) {
         const {nombreUsuario, clave} = req.query
 
-        if (!req || !req.body || !clave || !nombreUsuario)
+        if (!req || !req.query || !clave || !nombreUsuario)
             res.status(300).send("No existn credenciales")
             
-            console.log(req.query, nombreUsuario, clave);
             userDao.getUserByUserName(nombreUsuario)
+                .then(user => {                    
+                        if (!user) {
+                            res.status(301).send("Credenciales incompatibles")
+                            return
+                        }
+
+                        const passwordCheck = bcrypt.compare(clave, user.clave);
+
+                        if (!passwordCheck){
+                            res.status(302).send("Credenciales incompatibles")
+                            return
+                        }
+
+                        generarMensajeExito("Se logeo con exito.", user);
+                    })
+                .catch(err => {
+                    console.log(err)
+                    res.status(400).send("Ocurrio algo")
+                })
+    },
+
+    async register(req, res) {
+        try  {
+            const { nombre_usuario, clave, rol_id } = req.query
+        
+            if (!req || !req.query || !clave || !nombreUsuario || !rol_id) {
+                res.status(300).send(req.query)
+                return ;
+            }
+
+            const secret = await bcrypt.hash(clave, 8);
+
+            userDao.registrar(nombre_usuario, secret, rol_id)
                 .then(user => {
-                    console.log(user.clave, clave, user)
-                    if (user && user.clave === clave)
-                        res.status(200).send("Se encontro el usuario")
-                    else 
-                        res.status(301).send("Credenciales incompatibles")
+                    if (!user) {
+                        res.status(300).send("Hubo un error en la creacion del usuario.")
+                        return ;
+                    }
+                    console.log("User id",  user.id)
+
+                    generarMensajeExito("Usuario creado con exito.", user);
                 })
                 .catch(err => {
                     console.log(err)
                     res.status(400)
                 })
+        } catch (error) {
+            return res.status(500).json({ message: "something wrong happened" });
+        }
+    },
+    
+    generarMensajeExito(mensaje, user) {
+        const token = getToken({ userId: user.id });
+        res.append("x-access-token", token).status(200).json({message: mensaje, user: user});
     },
 
-    register(req, res) {
-        const { nombre_usuario, clave, rol_id } = req.query
-        
-        if (!req || !req.query || !clave || !nombreUsuario || !rol_id) {
-            res.status(300).send(req.query)
-            return ;
-        }
-        userDao.registrar(nombre_usuario, clave, rol_id)
-            .then(user => {
-                if (!user) {
-                    res.status(300).send("Hubo un error en la creacion del usuario.")
-                    return ;
-                }
-
-                res.status(200).send("Usuario creado con exito.")
-            })
-            .catch(err => {
-                console.log(err)
-                res.status(400)
-            })
+    getToken(data) {
+        return jwt.sign(data, process.env.APP_SECRET, {
+        expiresIn: process.env.JWT_EXPIRATION,
+        });
     }
 };
