@@ -11,12 +11,16 @@ module.exports = (db) => {
       descripcion: "Extracción",
     },
     {
-      alias: "COMISION_POR_TRANSACCION",
-      descripcion: "Comisión por Transacción",
-    },
-    {
       alias: "PAGO_A_PROVEEDOR",
       descripcion: "Pago a Proveedor",
+    },
+    {
+      alias: "PAGO_DE_CLIENTE",
+      descripcion: "Pago de Cliente",
+    },
+    {
+      alias: "COMISION_POR_TRANSACCION",
+      descripcion: "Comisión por Transacción",
     },
     {
       alias: "MANTENIMIENTO_DE_CUENTA",
