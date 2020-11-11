@@ -36,6 +36,7 @@
     "dotenv": "^8.2.0",
     "env": "0.0.2",
     "express": "^4.17.1",
+    "express-kun": "^1.0.24",
     "jsonwebtoken": "^8.5.1",
     "lstat": "^1.0.0",
     "moment": "^2.29.1",

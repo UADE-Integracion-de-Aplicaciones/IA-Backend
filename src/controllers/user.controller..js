@@ -14,26 +14,25 @@ module.exports = {
             return ;
         }
             
-            userDao.getUserByUserName(nombre_usuario)
-                .then(user => {                    
-                        if (!user) {
-                            res.status(301).send("Credenciales incompatibles")
-                            return
-                        }
+        userDao.getUserByUserName(nombre_usuario)
+            .then(user => {                    
+                    if (!user) {
+                        res.status(301).send("Credenciales incompatibles")
+                        return ;
+                    }
 
-                        const passwordCheck = bcrypt.compare(clave, user.clave);
+                    const passwordCheck = bcrypt.compare(clave, user.clave);
 
-                        if (!passwordCheck){
-                            res.status(302).send("Credenciales incompatibles")
-                            return
-                        }
+                    if (!passwordCheck){
+                        res.status(302).send("Credenciales incompatibles")
+                        return
+                    }
 
-                        this.generarMensajeExito("Se logeo con exito.", user, res);
-                    })
-                .catch(err => {
-                    console.log(err)
-                    res.status(400).send("Ocurrio algo")
-                })
+                    this.generarMensajeExito("Se logeo con exito.", user, res);
+            }).catch(err => {
+                console.log(err)
+                res.status(400).send("Ocurrio algo")
+            })
     },
 
     async register(req, res) {
@@ -69,6 +68,7 @@ module.exports = {
     },
     
     generarMensajeExito(mensaje, user, res) {
+        console.log(user.id)
         const token = this.getToken({ userId: user.id });
         res.append("x-access-token", token).status(200).json({message: mensaje, user: user});
     },

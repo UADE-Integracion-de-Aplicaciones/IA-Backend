@@ -10,7 +10,7 @@ module.exports = {
         return await crearCodigo(cliente_id, codigo, fechaExpiracion)
     },
 
-    buscarPorClienteId(cliente_id) {
+    async buscarPorClienteId(cliente_id) {
         return await codigoAutorizacion.findOne({ where: { cliente_id: cliente_id } })
     }
 };

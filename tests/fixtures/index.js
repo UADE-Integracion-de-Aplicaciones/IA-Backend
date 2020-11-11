@@ -34,28 +34,27 @@ const crearData = async () => {
   //   usuario_id: usuarioA.get("id"),
   // });
 
-  // const clienteA = await clientes.create({
-  //   tipo: CLIENTES_TIPO.PERSONA_FISICA,
-  //   cuit: "65544333",
-  //   dni: "123456789",
-  //   nombre: "Pedro",
-  //   apellido: "Perez",
-  //   email: "pedroperez@gmail.com",
-  //   domicilio_ciudad: "Buenos Aires",
-  //   domicilio_calle: "Santa Fe",
-  //   domicilio_barrio: "Recoleta",
-  //   domicilio_numero: 1425,
-  //   domicilio_piso: "8",
-  //   domicilio_apartamento: "D",
-  //   fecha_nacimiento: "2000-11-01",
-  //   pregunta1: "pregunta 1",
-  //   pregunta1_respuesta: "respuesta 1",
-  //   pregunta2: "pregunta 2",
-  //   pregunta2_respuesta: "respuesta 2",
-  //   pregunta3: "pregunta 3",
-  //   pregunta3_respuesta: "respuesta 3",
-  //   usuario_id: usuarioB.get("id"),
-  // });
+  const clienteA = await clientes.create({
+    tipo: CLIENTES_TIPO.PERSONA_FISICA,
+    cuit: "65544333",
+    dni: "123456789",
+    nombre: "Pedro",
+    apellido: "Perez",
+    email: "pedroperez@gmail.com",
+    domicilio_ciudad: "Buenos Aires",
+    domicilio_calle: "Santa Fe",
+    domicilio_barrio: "Recoleta",
+    domicilio_numero: 1425,
+    domicilio_piso: "8",
+    domicilio_apartamento: "D",
+    fecha_nacimiento: "2000-11-01",
+    pregunta1: "pregunta 1",
+    pregunta1_respuesta: "respuesta 1",
+    pregunta2: "pregunta 2",
+    pregunta2_respuesta: "respuesta 2",
+    pregunta3: "pregunta 3",
+    pregunta3_respuesta: "respuesta 3",
+  });
 
   // const clienteB = await clientes.create({
   //   tipo: CLIENTES_TIPO.PERSONA_FISICA,
@@ -190,7 +189,16 @@ const cargarData = async () => {
 
 const obtenerUsuarioDePrueba = () => {
   return usuarios.findOne({
-    where: { nombre_usuario: "alejandro.otero" },
+    where: { nombre_usuario: "alejandro.otero" }
+  });
+};
+
+const obtenerClienteDePrueba = () => {
+  return clientes.findOne({
+    include: [{
+      model: usuarios,
+      where: { nombre_usuario: "alejandro.otero" },
+    }] 
   });
 };
 
@@ -198,4 +206,5 @@ module.exports = {
   crearData,
   cargarData,
   obtenerUsuarioDePrueba,
+  obtenerClienteDePrueba
 };
