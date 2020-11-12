@@ -13,9 +13,8 @@ const planificarTareas = require("../src/tasks/scheduling");
       let lpt = await require("../tests/fixtures").obtenerUsuarioDePrueba();
       // console.log(lpt.get("id"),lpt.get("nombre_usuario"))
       let cliente = await require("../tests/fixtures").obtenerClienteDePrueba();
-      // console.log(cliente.usuario, cliente.id)
+      console.log(cliente.usuario, cliente.id)
       let empleados = await require("../tests/fixtures").obtenerEmpleadoPrueba();
-      console.log(empleados)
     } catch (error) {
       console.log(error);
     }

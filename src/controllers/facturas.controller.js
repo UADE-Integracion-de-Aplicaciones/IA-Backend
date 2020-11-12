@@ -9,7 +9,8 @@ module.exports = {
             await facturasDao.cargarFacturas(path, numero_cuenta, columns);
             res.status(200).json({ mensaje: "Facturas cargadas" });
         }catch (err) {
-            res.status(400).json({ mensaje: err });
+            console.log(err)
+            res.status(500).json({ mensaje: err });
         }
     },
      
