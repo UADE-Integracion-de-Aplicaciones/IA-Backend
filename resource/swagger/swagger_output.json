@@ -15,6 +15,10 @@
     {
       "name": "Cliente",
       "description": "Endpoints"
+    },
+    {
+      "name": "Transaccion",
+      "description": "Endpoints"
     }
   ],
   "schemes": [
@@ -30,54 +34,23 @@
   ],
   "paths": {
     "/client": {
-      "get": {
-        "tags": [],
-        "description": "",
-        "parameters": [],
-        "responses": {}
-      },
-      "post": {
-        "tags": [
-          "Cliente"
-        ],
-        "description": "Endpoint para crear un cliente.",
-        "parameters": [
-          {
-            "name": "id",
-            "description": "ID de cliente."
-          },
-          {
-            "name": "filtro",
-            "description": "Un filtro.",
-            "type": "string"
-          }
-        ],
-        "responses": {}
-      },
       "put": {
         "tags": [],
         "description": "",
         "parameters": [],
         "responses": {}
-      }
-    },
-    "/_undefined_path_0xa": {
-      "delete": {
+      },
+      "get": {
         "tags": [
+          "Cliente"
+        ],
+        "description": "Endpoint para eliminar un cliente.",
+        "parameters": [
           {
-            "name": "Endpoints without path or method"
+            "name": "id",
+            "description": "ID de cliente."
           }
         ],
-        "description": "",
-        "parameters": [],
-        "responses": {}
-      }
-    },
-    "/client/verificar": {
-      "get": {
-        "tags": [],
-        "description": "",
-        "parameters": [],
         "responses": {}
       }
     },
@@ -86,10 +59,10 @@
         "tags": [
           "Usuario"
         ],
-        "description": "Endpoint para crear un usuario.",
+        "description": "Endpoint loggin de un usuario.",
         "parameters": [
           {
-            "name": "nombreUsuario",
+            "name": "nombre_usuario",
             "description": "nombre de usuario."
           },
           {
@@ -106,18 +79,47 @@
         "tags": [
           "Usuario"
         ],
-        "description": "Endpoint para crear un usuario.",
+        "description": "Endpoint para registrar un usuario.",
         "parameters": [
           {
-            "name": "nombreUsuario",
+            "name": "nombre_usuario",
             "description": "nombre de usuario."
           },
           {
             "name": "clave",
             "description": "clave de usuario.",
             "type": "string"
+          },
+          {
+            "name": "rol_id",
+            "description": "id del rol del usuario.",
+            "type": "string"
           }
         ],
+        "responses": {}
+      }
+    },
+    "/transacciones": {
+      "get": {
+        "tags": [],
+        "description": "",
+        "parameters": [],
+        "responses": {}
+      }
+    },
+    "/transacciones/depositar": {
+      "post": {
+        "tags": [],
+        "description": "",
+        "parameters": [],
+        "responses": {}
+      }
+    },
+    "/transacciones/extraer": {
+      "post": {
+        "tags": [],
+        "description": "",
+        "parameters": [],
         "responses": {}
       }
     }

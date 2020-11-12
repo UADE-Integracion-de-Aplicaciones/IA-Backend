@@ -1,23 +1,31 @@
 class Error {
-  constructor(message) {
-    this.message = message;
-    this.name = "Error";
+  constructor(mensaje) {
+    this.mensaje = mensaje;
+    this.nombre = "Error";
   }
 }
 
 class DesconocidoError extends Error {
-  static message = "algo anduvo mal";
+  static mensaje = "algo anduvo mal";
   constructor() {
-    super(DesconocidoError.message);
-    this.name = "DesconocidoError";
+    super(DesconocidoError.mensaje);
+    this.nombre = "DesconocidoError";
+  }
+}
+
+class DesconocidoBDError extends Error {
+  static mensaje = "algo anduvo mal";
+  constructor() {
+    super(DesconocidoBDError.mensaje);
+    this.nombre = "DesconocidoBDError";
   }
 }
 
 class ClienteNoExisteError extends Error {
-  static message = "el cliente no existe o no está activo";
+  static mensaje = "el cliente no existe o no está activo";
   constructor() {
-    super(ClienteNoExisteError.message);
-    this.name = "ClienteNoExisteError";
+    super(ClienteNoExisteError.mensaje);
+    this.nombre = "ClienteNoExisteError";
   }
 }
 
@@ -30,10 +38,10 @@ class FacturaNoExisteError extends Error {
 }
 
 class CuentaNoExisteError extends Error {
-  static message = "la cuenta no existe o no está activa";
+  static mensaje = "la cuenta no existe o no está activa";
   constructor() {
-    super(CuentaNoExisteError.message);
-    this.name = "CuentaNoExisteError";
+    super(CuentaNoExisteError.mensaje);
+    this.nombre = "CuentaNoExisteError";
   }
 }
 
@@ -46,26 +54,42 @@ class ArchivoVacio extends Error {
 }
 
 class CantidadInvalidaError extends Error {
-  static message = "cantidad de dinero es inválida";
+  static mensaje = "cantidad de dinero es inválida";
   constructor() {
-    super(CantidadInvalidaError.message);
-    this.name = "CantidadInvalidaError";
+    super(CantidadInvalidaError.mensaje);
+    this.nombre = "CantidadInvalidaError";
   }
 }
 
 class CuentaNoAsociadaAlClienteError extends Error {
-  static message = "cuenta inválida";
+  static mensaje = "cuenta inválida";
   constructor() {
-    super(CuentaNoAsociadaAlClienteError.message);
-    this.name = "CuentaNoAsociadaAlClienteError";
+    super(CuentaNoAsociadaAlClienteError.mensaje);
+    this.nombre = "CuentaNoAsociadaAlClienteError";
   }
 }
 
 class CuentaConSaldoInsuficienteError extends Error {
-  static message = "cuenta con saldo insuficiente";
+  static mensaje = "cuenta con saldo insuficiente";
   constructor() {
-    super(CuentaConSaldoInsuficienteError.message);
-    this.name = "CuentaConSaldoInsuficienteError";
+    super(CuentaConSaldoInsuficienteError.mensaje);
+    this.nombre = "CuentaConSaldoInsuficienteError";
+  }
+}
+
+class CantidadMenorQueTotalFacturasError extends Error {
+  static mensaje = "la cantidad es menor que el importe total de las facturas";
+  constructor() {
+    super(CantidadMenorQueTotalFacturasError.mensaje);
+    this.nombre = "CantidadMenorQueTotalFacturasError";
+  }
+}
+
+class CantidadMayorQueTotalFacturasError extends Error {
+  static mensaje = "la cantidad es mayor que el importe total de las facturas";
+  constructor() {
+    super(CantidadMayorQueTotalFacturasError.mensaje);
+    this.nombre = "CantidadMayorQueTotalFacturasError";
   }
 }
 
@@ -87,12 +111,15 @@ class NumeroFacturaNoExisteError extends Error {
 
 
 module.exports = {
+  DesconocidoBDError,
   DesconocidoError,
   ClienteNoExisteError,
   CuentaNoExisteError,
   CantidadInvalidaError,
   CuentaNoAsociadaAlClienteError,
   CuentaConSaldoInsuficienteError,
+  CantidadMenorQueTotalFacturasError,
+  CantidadMayorQueTotalFacturasError,
   ArchivoVacio,
   FacturaNoExisteError,
   CodigoPagoElectronicoNoExisteError,

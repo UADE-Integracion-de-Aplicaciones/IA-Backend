@@ -4,14 +4,24 @@ const {
   CUENTAS_TIPO,
 } = require("./common");
 const {
+  DesconocidoBDError,
   ClienteNoExisteError,
   CuentaNoExisteError,
   CantidadInvalidaError,
   CuentaNoAsociadaAlClienteError,
   CuentaConSaldoInsuficienteError,
+  CantidadMenorQueTotalFacturasError,
+  CantidadMayorQueTotalFacturasError,
 } = require("./errors");
 const { db } = require("../sequelize/models");
-const { clientes, cuentas, movimientos_cuentas, conceptos_movimientos } = db;
+const {
+  clientes,
+  cuentas,
+  movimientos_cuentas,
+  conceptos_movimientos,
+  usuarios,
+  parametros,
+} = db;
 
 const buscarCliente = (dni) => {
   return clientes.findOne({ where: { dni } });
@@ -65,6 +75,17 @@ const disminuirSaldoDeCuenta = ({ cuenta, cantidad, transaction }) => {
   return actualizarSaldoDeCuenta({ cuenta, cantidad, operacion, transaction });
 };
 
+const tieneSaldoEnCuentaParaPagar = ({ cuenta, cantidad }) => {
+  if (cuenta.get("tipo") == CUENTAS_TIPO.CUENTA_CORRIENTE) {
+    const saldo_real =
+      parseFloat(cuenta.get("saldo")) +
+      parseFloat(cuenta.get("fondo_descubierto"));
+    return saldo_real < cantidad;
+  } else if (cuenta.get("tipo") == CUENTAS_TIPO.CAJA_DE_AHORRO) {
+    return parseFloat(cuenta.get("saldo")) < cantidad;
+  }
+};
+
 const crearMovimiento = ({
   cuenta,
   concepto,
@@ -73,6 +94,7 @@ const crearMovimiento = ({
   cantidad,
   transaction,
 }) => {
+  console.log(cuenta, concepto, tipo, usuario, cantidad);
   return movimientos_cuentas.create(
     {
       cuenta_id: cuenta.get("id"),
@@ -85,20 +107,68 @@ const crearMovimiento = ({
   );
 };
 
-const depositarDineroEnCuenta = async ({ dni, cbu, usuario, cantidad }) => {
-  if (cantidad <= 0) {
-    throw new CantidadInvalidaError();
-  }
+const cobrarComisionPorTransaccion = async (movimiento, { transaction }) => {
+  const usuario = await usuarios.findOne({
+    where: { nombre_usuario: "system.admin.0" },
+  });
 
+  const parametro = await parametros.findOne({
+    where: { parametro: "COMISION_TRANSACCION_PROVEEDOR" },
+  });
+
+  const concepto = await buscarConcepto("COMISION_POR_TRANSACCION");
+  const tipo = MOVIMIENTOS_CUENTAS_TIPO.DEBITA;
+  const cuenta = await movimiento.getCuenta();
+  const cantidad =
+    parseFloat(movimiento.get("cantidad")) * parseFloat(parametro.get("valor"));
+
+  return crearMovimiento({
+    cuenta,
+    concepto,
+    tipo,
+    usuario,
+    cantidad,
+    transaction,
+  });
+};
+
+const depositarEnCuentaPropia = (numero_cuenta) => async ({
+  dni,
+  usuario,
+  cantidad,
+}) => {
   const cliente = await buscarCliente(dni);
-  const cuenta = await buscarCuentaPorCbu(cbu);
 
   if (!cliente) {
     throw new ClienteNoExisteError();
   }
 
+  const cuenta = await buscarCuentaPorNumero(numero_cuenta);
+
   if (!cuenta) {
     throw new CuentaNoExisteError();
+  }
+
+  return depositarDineroEnCuenta({ cuenta, usuario, cantidad });
+};
+
+const depositarEnCuentaDeTercero = (cbu) => async ({
+  dni,
+  usuario,
+  cantidad,
+}) => {
+  const cuenta = await buscarCuentaPorCbu(cbu);
+
+  if (!cuenta) {
+    throw new CuentaNoExisteError();
+  }
+
+  return depositarDineroEnCuenta({ cuenta, usuario, cantidad });
+};
+
+const depositarDineroEnCuenta = async ({ cuenta, usuario, cantidad }) => {
+  if (cantidad <= 0) {
+    throw new CantidadInvalidaError();
   }
 
   const concepto = await buscarConcepto(MOVIMIENTOS_CUENTAS_CONCEPTO.DEPOSITO);
@@ -120,6 +190,7 @@ const depositarDineroEnCuenta = async ({ dni, cbu, usuario, cantidad }) => {
     await transaction.commit();
   } catch (error) {
     await transaction.rollback();
+    throw new DesconocidoBDError();
   }
 };
 
@@ -148,17 +219,8 @@ const extraerDineroDeCuenta = async ({
     throw new CuentaNoAsociadaAlClienteError();
   }
 
-  if (cuenta.get("tipo") == CUENTAS_TIPO.CUENTA_CORRIENTE) {
-    const saldo_real =
-      parseFloat(cuenta.get("saldo")) +
-      parseFloat(cuenta.get("fondo_descubierto"));
-    if (saldo_real < cantidad) {
-      throw new CuentaConSaldoInsuficienteError();
-    }
-  } else if (cuenta.get("tipo") == CUENTAS_TIPO.CAJA_DE_AHORRO) {
-    if (cuenta.get("saldo") < cantidad) {
-      throw new CuentaConSaldoInsuficienteError();
-    }
+  if (tieneSaldoEnCuentaParaPagar({ cuenta, cantidad })) {
+    throw new CuentaConSaldoInsuficienteError();
   }
 
   const concepto = await buscarConcepto(
@@ -182,7 +244,159 @@ const extraerDineroDeCuenta = async ({
     await transaction.commit();
   } catch (error) {
     await transaction.rollback();
+    throw new DesconocidoBDError();
   }
 };
 
-module.exports = { depositarDineroEnCuenta, extraerDineroDeCuenta };
+const pagarServicio = async ({
+  facturas,
+  cuenta,
+  cantidad,
+  usuario_debita,
+  usuario_acredita,
+}) => {
+  const cuenta_origen = cuenta;
+  if (tieneSaldoEnCuentaParaPagar({ cuenta: cuenta_origen, cantidad })) {
+    throw new CuentaConSaldoInsuficienteError();
+  }
+
+  const importeTotal = facturas.reduce(
+    (suma, factura) => suma + parseFloat(factura.get("importe")),
+    0.0
+  );
+  if (cantidad < importeTotal) {
+    throw new CantidadMenorQueTotalFacturasError();
+  } else if (cantidad > importeTotal) {
+    throw new CantidadMayorQueTotalFacturasError();
+  }
+
+  //TODO: validar si hay alguna factura vencida
+  //TODO: validar que las facturas no hayan sido pagadas anteriormente
+
+  const cuenta_destino = await facturas[0].getCuenta();
+
+  const concepto_pago_proveedor = await buscarConcepto(
+    MOVIMIENTOS_CUENTAS_CONCEPTO.PAGO_A_PROVEEDOR
+  );
+  const concepto_pago_cliente = await buscarConcepto(
+    MOVIMIENTOS_CUENTAS_CONCEPTO.PAGO_DE_CLIENTE
+  );
+  const transaction = await db.sequelize.transaction();
+
+  try {
+    await crearMovimiento({
+      cuenta: cuenta_origen,
+      concepto: concepto_pago_proveedor,
+      tipo: MOVIMIENTOS_CUENTAS_TIPO.DEBITA,
+      cantidad,
+      usuario: usuario_debita,
+      transaction,
+    });
+
+    await actualizarSaldoDeCuenta({
+      cuenta: cuenta_origen,
+      cantidad,
+      operacion: MOVIMIENTOS_CUENTAS_TIPO.DEBITA,
+      transaction,
+    });
+
+    const movimiento = await crearMovimiento({
+      cuenta: cuenta_destino,
+      concepto: concepto_pago_cliente,
+      tipo: MOVIMIENTOS_CUENTAS_TIPO.ACREDITA,
+      cantidad,
+      usuario: usuario_acredita,
+      transaction,
+    });
+
+    const comision = await cobrarComisionPorTransaccion(movimiento, {
+      transaction,
+    });
+
+    await actualizarSaldoDeCuenta({
+      cuenta: cuenta_destino,
+      cantidad: cantidad - parseFloat(comision.get("cantidad")),
+      operacion: MOVIMIENTOS_CUENTAS_TIPO.ACREDITA,
+      transaction,
+    });
+
+    const facturasUpdatePromises = facturas.map((fact) =>
+      fact.update({ fecha_pagado: new Date() }, { transaction })
+    );
+    await Promise.all(facturasUpdatePromises);
+
+    await transaction.commit();
+  } catch (error) {
+    await transaction.rollback();
+    throw new DesconocidoBDError();
+  }
+};
+
+const pagarServicioComoCliente = async ({
+  numero_cuenta,
+  facturas,
+  cantidad,
+  usuario,
+}) => {
+  if (cantidad <= 0) {
+    throw new CantidadInvalidaError();
+  }
+
+  const cuenta = await buscarCuentaPorNumero(numero_cuenta);
+  if (!cuenta) {
+    throw new CuentaNoExisteError();
+  }
+
+  const usuario_debita = usuario;
+  const usuario_acredita = usuario;
+
+  await pagarServicio({
+    facturas,
+    cuenta,
+    cantidad,
+    usuario_debita,
+    usuario_acredita,
+  });
+};
+
+const pagarServicioComoBanco = (dni) => async ({
+  numero_cuenta,
+  facturas,
+  cantidad,
+  usuario,
+}) => {
+  if (cantidad <= 0) {
+    throw new CantidadInvalidaError();
+  }
+
+  const cuenta = await buscarCuentaPorNumero(numero_cuenta);
+  if (!cuenta) {
+    throw new CuentaNoExisteError();
+  }
+
+  const cliente = await buscarCliente(dni);
+  if (!cliente) {
+    throw new ClienteNoExisteError();
+  } else if (cuenta.get("cliente_id") !== cliente.get("id")) {
+    throw new CuentaNoAsociadaAlClienteError();
+  }
+
+  const usuario_debita = usuario;
+  const usuario_acredita = await cliente.getUsuario();
+
+  await pagarServicio({
+    facturas,
+    cuenta,
+    cantidad,
+    usuario_debita,
+    usuario_acredita,
+  });
+};
+
+module.exports = {
+  extraerDineroDeCuenta,
+  depositarEnCuentaPropia,
+  depositarEnCuentaDeTercero,
+  pagarServicioComoCliente,
+  pagarServicioComoBanco,
+};

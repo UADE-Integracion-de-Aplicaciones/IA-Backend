@@ -1,18 +1,24 @@
-const user = require('../sequelize/models/').db.usuarios
+const { db } = require("../../src/sequelize/models");
+const { clientes, cuentas, empleados, usuarios, roles } = db;
 
 module.exports = {
     //Crea una transaccion / eposito de cuenta
-    async registrar(payload) {
-
-        return await user
+    async registrar(nombre_usuario, clave, rol_id) {
+        return await usuarios
             .create ({
-                nombre_usuario: payload.nombre_usuario,
-                clave: payload.clave,
+                nombre_usuario:nombre_usuario,
+                clave:clave,
+                rol_id:rol_id
             })
     },
 
     //Movimientos de una cuenta
     async getUserByUserName(userName) {
-        return await user.findOne({ where: { nombreUsuario: userName } })
+        return await usuarios.findOne({
+            where: { nombre_usuario: userName },
+            include: {
+                model: roles,
+            }
+          })
     },
 };

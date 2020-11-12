@@ -8,10 +8,21 @@ const crearData = async () => {
     alias: "EJECUTIVO",
   });
 
+  const rol2 = await roles.create({
+    descripcion: "Persona Física",
+    alias: "CLIENTE_PERSONA_FISICA",
+  });
+
   const usuarioA = await usuarios.create({
     nombre_usuario: "alejandro.otero",
     clave: "123",
     rol_id: rol1.get("id"),
+  });
+
+  const usuarioB = await usuarios.create({
+    nombre_usuario: "abc",
+    clave: "123",
+    rol_id: rol2.get("id"),
   });
 
   const empleadoA = await empleados.create({
@@ -69,18 +80,18 @@ const crearData = async () => {
 
   const clienteC = await clientes.create({
     tipo: CLIENTES_TIPO.PERSONA_JURIDICA,
-    cuit: "2098684014",
-    dni: "9868401",
-    nombre: "FinTech SA",
-    apellido: "Grupo FinTech",
-    email: "fitech@gmail.com",
+    cuit: "154657667",
+    dni: "5465766",
+    nombre: "Tomas",
+    apellido: "Tevez",
+    email: "tomastevez@gmail.com",
     domicilio_ciudad: "Buenos Aires",
-    domicilio_calle: "Santa Fe",
-    domicilio_barrio: "PAlermo",
-    domicilio_numero: 4500,
+    domicilio_calle: "Parana",
+    domicilio_barrio: "San Nicolas",
+    domicilio_numero: 35,
     domicilio_piso: "7",
-    domicilio_apartamento: "C",
-    fecha_nacimiento: "2014-01-01",
+    domicilio_apartamento: "B",
+    fecha_nacimiento: "1997-06-03",
     pregunta1: "pregunta 1",
     pregunta1_respuesta: "respuesta 1",
     pregunta2: "pregunta 2",
@@ -96,6 +107,16 @@ const crearData = async () => {
     cbu: "43546565",
     fondo_descubierto: 0.0,
     saldo: 5000.0,
+    empleado_creador_id: empleadoA.get("id"),
+  });
+
+  const cuentaA2 = await cuentas.create({
+    cliente_id: clienteA.get("id"),
+    tipo: CUENTAS_TIPO.CUENTA_CORRIENTE,
+    numero_cuenta: "76065842338329221",
+    cbu: "7606584",
+    fondo_descubierto: 1.0,
+    saldo: 1000.0,
     empleado_creador_id: empleadoA.get("id"),
   });
 
@@ -121,37 +142,72 @@ const crearData = async () => {
 
   const cuentaC1 = await cuentas.create({
     cliente_id: clienteC.get("id"),
-    tipo: CUENTAS_TIPO.CAJA_DE_AHORRO,
-    numero_cuenta: "0912390435812",
-    cbu: "4354656109123904358125",
-    fondo_descubierto: 0.0,
-    saldo: 500000.0,
+    tipo: CUENTAS_TIPO.CUENTA_CORRIENTE,
+    numero_cuenta: "657642322323",
+    cbu: "0988745342",
+    fondo_descubierto: 10000.0,
+    saldo: 100.0,
     empleado_creador_id: empleadoA.get("id"),
   });
 
-  const facturaF1 = await facturas.create({
+  const factura1 = await facturas.create({
     cuenta_id: cuentaC1.get("id"),
-    codigo_pago_electronico:"123542130",
-    numero_factura:"0912390435812",
-    importe: 1234.0,
-    fecha_vencimiento: "2020-11-15",
-    fecha_pagado: null,
+    codigo_pago_electronico: "345653312325464",
+    numero_factura: "1",
+    importe: 890.54,
+    fecha_vencimiento: "2020-11-20",
   });
 
-  
+  const factura2 = await facturas.create({
+    cuenta_id: cuentaC1.get("id"),
+    codigo_pago_electronico: "345653312325464",
+    numero_factura: "2",
+    importe: 1100.3,
+    fecha_vencimiento: "2020-12-10",
+  });
+
+  const factura3 = await facturas.create({
+    cuenta_id: cuentaC1.get("id"),
+    codigo_pago_electronico: "345653312325464",
+    numero_factura: "3",
+    importe: 450.7,
+    fecha_vencimiento: "2020-12-10",
+  });
+
+  const factura4 = await facturas.create({
+    cuenta_id: cuentaC1.get("id"),
+    codigo_pago_electronico: "546768754343443",
+    numero_factura: "4",
+    importe: 1000.0,
+    fecha_vencimiento: "2020-12-10",
+  });
+
 };
 
 const cargarData = async () => {
   await crearData();
+};
 
-  const usuario = await usuarios.findOne({
+const obtenerUsuarioDePrueba = () => {
+  return usuarios.findOne({
     where: { nombre_usuario: "alejandro.otero" },
   });
+};
 
-  return { usuario };
+const obtenerClienteDePrueba = () => {
+  return clientes.findOne({
+    include: [
+      {
+        model: usuarios,
+        where: { nombre_usuario: "alejandro.otero" },
+      },
+    ],
+  });
 };
 
 module.exports = {
   crearData,
   cargarData,
+  obtenerUsuarioDePrueba,
+  obtenerClienteDePrueba,
 };

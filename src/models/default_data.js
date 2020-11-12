@@ -1,5 +1,16 @@
-module.exports = (db) => {
-  const { conceptos_movimientos } = db;
+module.exports = async (db) => {
+  const { conceptos_movimientos, parametros, roles, usuarios } = db;
+
+  const rol0 = await roles.create({
+    descripcion: "Administrador",
+    alias: "SYSTEM_ADMINS",
+  });
+
+  const usuarioSystemAdmin = await usuarios.create({
+    nombre_usuario: "system.admin.0",
+    clave: "fghjkhjh#454676877",
+    rol_id: rol0.get("id"),
+  });
 
   const conceptos = [
     {
@@ -11,12 +22,16 @@ module.exports = (db) => {
       descripcion: "Extracción",
     },
     {
-      alias: "COMISION_POR_TRANSACCION",
-      descripcion: "Comisión por Transacción",
-    },
-    {
       alias: "PAGO_A_PROVEEDOR",
       descripcion: "Pago a Proveedor",
+    },
+    {
+      alias: "PAGO_DE_CLIENTE",
+      descripcion: "Pago de Cliente",
+    },
+    {
+      alias: "COMISION_POR_TRANSACCION",
+      descripcion: "Comisión por Transacción",
     },
     {
       alias: "MANTENIMIENTO_DE_CUENTA",
@@ -36,5 +51,16 @@ module.exports = (db) => {
     conceptos_movimientos.create(data)
   );
 
-  return Promise.all(conceptosPromises);
+  const parametros_por_defecto = [
+    {
+      parametro: "COMISION_TRANSACCION_PROVEEDOR",
+      valor: 0.05,
+    },
+  ];
+
+  const parametrosPromises = parametros_por_defecto.map((data) =>
+    parametros.create(data)
+  );
+
+  return Promise.all(conceptosPromises + parametrosPromises);
 };
