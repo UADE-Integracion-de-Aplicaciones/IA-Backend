@@ -29,6 +29,6 @@ require("./routes/clientes.routes")(protectedRouter);
 require("./routes/transacciones.routes")(protectedRouter);
 require("./routes/codigoAutorizacion.routes")(protectedRouter);
 require("./routes/cuenta.routes")(protectedRouter);
-require("./routes/facturas.routes")(protectedRouter);
+require("./routes/facturas.routes")(app);
 
 module.exports = app;

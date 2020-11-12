@@ -2,7 +2,7 @@ const { db } = require("../sequelize/models");
 const { facturas, cuentas } = db;
 const csv = require('csv-parser')
 const fs = require('fs');
-const { CuentaNoExisteError, ArchivoVacio, FacturaNoExisteError } = require("./errors");
+const { CuentaNoExisteError, ArchivoVacio, FacturaNoExisteError, CodigoPagoElectronicoNoExisteError } = require("./errors");
 
 const cargarFacturas = async(sourceFilePath, numero_cuenta, columns) =>{
     const cuenta = await cuentas.findOne({
@@ -53,10 +53,9 @@ const cargarFacturas = async(sourceFilePath, numero_cuenta, columns) =>{
 };
 
 module.exports = {
-
     crear,
     cargarFacturas,
-
+    
     async getFactura(payload){
         const factura = buscarFactura(payload);
         if(!factura){
@@ -77,13 +76,7 @@ module.exports = {
     },
 
      async getFacturaByCodigoPagoElectronico(codigo_pago_electronico) {
-        const codigo = facturas.findOne({  where: { codigo_pago_electronico: codigo_pago_electronico } })
-        if(!codigo){
-            return codigo
-        }
-        else{
-            throw new CodigoPagoElectronicoNoExisteError()
-        }
+        return await facturas.findOne({  where: { codigo_pago_electronico: codigo_pago_electronico } })
     },    
 
      getFacturaByNumeroFactura(numero_factura) {
