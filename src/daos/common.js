@@ -29,6 +29,7 @@ const DEFAULTS = {
     valor: "10",
     unidad: "minutes",
   },
+  CRON_EJECUCION_TAREAS: "*/20 * * * *",
 };
 
 module.exports = {

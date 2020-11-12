@@ -7,26 +7,8 @@ const swaggerAutogen = require("swagger-autogen")();
 
 const swaggerUi = require("swagger-ui-express");
 const swaggerFile = require("../resource/swagger/swagger_output.json");
-const { db, syncDb } = require("./sequelize/models");
 
 const app = express();
-(async () => {
-  await syncDb(false);  
-
-    if (process.env.NODE_ENV === "development") {
-        try {
-            console.log("LOADING DATA")
-            await require("../tests/fixtures").crearData()
-            let lpt = await require('../tests/fixtures').obtenerUsuarioDePrueba();        
-            console.log(lpt.get("id"),lpt.get("nombre_usuario"))
-            let cliente  = await require('../tests/fixtures').obtenerClienteDePrueba();
-            console.log(cliente.usuario, cliente.id)
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-})();
 app.use(express.json());
 
 app.use(logger("dev"));
