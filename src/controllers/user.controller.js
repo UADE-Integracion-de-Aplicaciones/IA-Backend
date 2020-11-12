@@ -74,6 +74,7 @@ module.exports = {
   generarMensajeExito(mensaje, user, res) {
     const token = this.getToken({ userId: user.id });
     const userRespuesta = {
+      nombre_usuario: user.nombre_usuario,
       rol: user.role.get("alias"),
       "x-access-token": token,
     };
