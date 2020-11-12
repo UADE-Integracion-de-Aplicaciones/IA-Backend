@@ -1,9 +1,3 @@
-const { syncDb } = require("../sequelize/models");
-const { cargarData } = require("../../tests/fixtures");
-
-const execute = async () => {
-  await syncDb();
-  await cargarData();
-};
+const execute = require("./cargar_datos_prueba");
 
 execute();
