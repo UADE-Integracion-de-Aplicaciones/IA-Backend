@@ -21,9 +21,6 @@ module.exports = (sequelize) => {
   models.movimientos_cuentas.belongsTo(models.cuentas, {
     foreignKey: { name: "cuenta_id", allowNull: false },
   });
-  models.cuentas.hasMany(models.movimientos_cuentas, {
-    foreignKey: { name: "cuenta_id", allowNull: true },
-  });
   models.movimientos_cuentas.belongsTo(models.conceptos_movimientos, {
     foreignKey: { name: "concepto_movimiento_id", allowNull: false },
   });
