@@ -74,12 +74,42 @@ module.exports = {
     generarMensajeExito(mensaje, user, res) {
         console.log(user.id)
         const token = this.getToken({ userId: user.id });
-        res.append("x-access-token", token).status(200).json({message: mensaje, user: user});
+        res.status(200).json({message: mensaje, user: user, "x-access-token": token});
     },
 
     getToken(data) {
         return jwt.sign(data, process.env.APP_SECRET, {
         expiresIn: process.env.JWT_EXPIRATION,
         });
+    },
+
+    async verificarUsuario(req, res) {
+        try {
+            const { id } = req.body
+            
+            if (!id) {
+                res.status(301).send("Parametros inexistentes o incompatibles.")
+                return ;
+            }
+            
+            await userDao.getUserById(id)
+                .then(usuario => {
+                    if (usuario) {
+                        if (usuario.id) {
+                          res.status(200).send(usuario)
+                          return usuario
+                        }
+                        res.status(300).send("No se pudo encontrar un usuario.")
+                        return ;
+                    } else {
+                        res.status(400).send("Ocurrio un problema al buscar el usuario")
+                    }
+                }).catch(error => {
+                    console.log(error)
+                    res.status(401).send("Error al buscar usuario")
+                });
+          } catch (error) {
+            res.status(500).send("Ocurrio un problema en el servidor al buscar el usuario por id")
+          }
     }
 };
