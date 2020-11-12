@@ -19,7 +19,13 @@ const {
 } = require("../../src/daos/transacciones.dao");
 const { buscarFacturasPorCodigo } = require("../../src/daos/facturas.dao");
 const { db, syncDb } = require("../../src/sequelize/models");
-const { cuentas, usuarios, movimientos_cuentas, conceptos_movimientos } = db;
+const {
+  cuentas,
+  usuarios,
+  movimientos_cuentas,
+  conceptos_movimientos,
+  parametros,
+} = db;
 const { crearData } = require("../fixtures");
 
 beforeEach(async () => {
@@ -220,12 +226,20 @@ it("(función) pagar servicio como cliente, debe funcionar", async () => {
     usuario,
   });
 
+  const parametro = await parametros.findOne({
+    where: { parametro: "COMISION_TRANSACCION_PROVEEDOR" },
+  });
+  const comision = cantidad * parseFloat(parametro.get("valor"));
+  const cantidad_neta = cantidad - comision;
+
   //verificar saldo de cuenta origen
   const cuenta_origen = await cuentas.findOne({ where: { numero_cuenta } });
   expect(parseFloat(cuenta_origen.get("saldo"))).toBe(5000.0 - cantidad);
   //verificar saldo cuenta de destino
   const cuenta_destino = await facturas[0].getCuenta();
-  expect(parseFloat(cuenta_destino.get("saldo"))).toBe(100.0 + cantidad);
+  expect(parseFloat(cuenta_destino.get("saldo")).toFixed(2)).toBe(
+    (100.0 + cantidad_neta).toFixed(2)
+  );
   //revisar los movimientos, uno para debitar y otro para acreditar
   const concepto_pago_proveedor = await conceptos_movimientos.findOne({
     where: { alias: MOVIMIENTOS_CUENTAS_CONCEPTO.PAGO_A_PROVEEDOR },
@@ -250,6 +264,20 @@ it("(función) pagar servicio como cliente, debe funcionar", async () => {
     },
   });
   expect(parseFloat(movimiento_credito.get("cantidad"))).toBe(cantidad);
+
+  const concepto_comision_por_transaccion = await conceptos_movimientos.findOne(
+    {
+      where: { alias: MOVIMIENTOS_CUENTAS_CONCEPTO.COMISION_POR_TRANSACCION },
+    }
+  );
+  const movimiento_debito2 = await movimientos_cuentas.findOne({
+    where: {
+      cuenta_id: cuenta_destino.get("id"),
+      concepto_movimiento_id: concepto_comision_por_transaccion.get("id"),
+      tipo: MOVIMIENTOS_CUENTAS_TIPO.DEBITA,
+    },
+  });
+  expect(parseFloat(movimiento_debito2.get("cantidad"))).toBe(comision);
 });
 
 it("(función) pagar servicio como cliente con una cuenta que no existe, debe fallar", async () => {

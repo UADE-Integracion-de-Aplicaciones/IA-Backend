@@ -14,7 +14,14 @@ const {
   CantidadMayorQueTotalFacturasError,
 } = require("./errors");
 const { db } = require("../sequelize/models");
-const { clientes, cuentas, movimientos_cuentas, conceptos_movimientos } = db;
+const {
+  clientes,
+  cuentas,
+  movimientos_cuentas,
+  conceptos_movimientos,
+  usuarios,
+  parametros,
+} = db;
 
 const buscarCliente = (dni) => {
   return clientes.findOne({ where: { dni } });
@@ -87,6 +94,7 @@ const crearMovimiento = ({
   cantidad,
   transaction,
 }) => {
+  console.log(cuenta, concepto, tipo, usuario, cantidad);
   return movimientos_cuentas.create(
     {
       cuenta_id: cuenta.get("id"),
@@ -97,6 +105,31 @@ const crearMovimiento = ({
     },
     { transaction }
   );
+};
+
+const cobrarComisionPorTransaccion = async (movimiento, { transaction }) => {
+  const usuario = await usuarios.findOne({
+    where: { nombre_usuario: "system.admin.0" },
+  });
+
+  const parametro = await parametros.findOne({
+    where: { parametro: "COMISION_TRANSACCION_PROVEEDOR" },
+  });
+
+  const concepto = await buscarConcepto("COMISION_POR_TRANSACCION");
+  const tipo = MOVIMIENTOS_CUENTAS_TIPO.DEBITA;
+  const cuenta = await movimiento.getCuenta();
+  const cantidad =
+    parseFloat(movimiento.get("cantidad")) * parseFloat(parametro.get("valor"));
+
+  return crearMovimiento({
+    cuenta,
+    concepto,
+    tipo,
+    usuario,
+    cantidad,
+    transaction,
+  });
 };
 
 const depositarEnCuentaPropia = (numero_cuenta) => async ({
@@ -267,7 +300,7 @@ const pagarServicio = async ({
       transaction,
     });
 
-    await crearMovimiento({
+    const movimiento = await crearMovimiento({
       cuenta: cuenta_destino,
       concepto: concepto_pago_cliente,
       tipo: MOVIMIENTOS_CUENTAS_TIPO.ACREDITA,
@@ -276,9 +309,13 @@ const pagarServicio = async ({
       transaction,
     });
 
+    const comision = await cobrarComisionPorTransaccion(movimiento, {
+      transaction,
+    });
+
     await actualizarSaldoDeCuenta({
       cuenta: cuenta_destino,
-      cantidad,
+      cantidad: cantidad - parseFloat(comision.get("cantidad")),
       operacion: MOVIMIENTOS_CUENTAS_TIPO.ACREDITA,
       transaction,
     });
