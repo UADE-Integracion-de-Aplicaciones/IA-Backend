@@ -9,7 +9,6 @@ module.exports = {
   async login(req, res) {
     const { body } = req;
     const { nombre_usuario, clave } = body;
-    console.log(body);
 
     try {
       if (!clave || !nombre_usuario) {
@@ -29,57 +28,57 @@ module.exports = {
 
       this.generarMensajeExito("Se logeo con exito.", user, res);
     } catch (error) {
-      console.log(err);
+      console.log(error);
       return res.status(400).json({ mensaje: "ocurrio algo" });
     }
   },
 
   async register(req, res) {
+    const { body } = req;
+    const { nombre_usuario, clave, codigo_autorizacion } = body;
+    console.log(body);
+
+    if (!clave || !nombre_usuario || !codigo_autorizacion) {
+      return res.status(300).json({ mensaje: "faltan datos" });
+    }
+
     try {
-      const { nombre_usuario, clave, rol_id } = req.query;
-
-      if (!req || !req.query || !clave || !nombre_usuario || !rol_id) {
-        res.status(300).send("Faltan parametros");
-        return;
-      }
-
       const secret = await bcrypt.hash(clave, 8);
       const existeUsuario = await userDao.getUserByUserName(nombre_usuario);
 
       if (existeUsuario) {
-        res
+        return res
           .status(302)
-          .send("El nombre de usuario ya ha sido escogio por otra persona");
-        return;
+          .json({ mensaje: "nombre de usuario no disponible" });
       }
 
-      userDao
-        .registrar(nombre_usuario, secret, rol_id)
-        .then((user) => {
-          if (!user) {
-            res.status(301).send("Hubo un error en la creacion del usuario.");
-            return;
-          }
-          console.log("User id", user.id);
+      const user = await userDao.registrar({
+        nombre_usuario,
+        clave: secret,
+        rol_id: 3,
+      });
 
-          this.generarMensajeExito("Usuario creado con exito.", user, res);
-        })
-        .catch((err) => {
-          console.log(err);
-          res.status(400);
-        });
+      if (!user) {
+        return res
+          .status(301)
+          .json({ mensaje: "hubo un error en la creacion del usuario" });
+      }
+      console.log("user id", user.id);
+
+      res.status(200).json({ message: "usuario creado con exito" });
     } catch (error) {
-      console.log(error);
-      return res.status(500).json({ message: "something wrong happened" });
+      return res.status(500).json({ message: error });
     }
   },
 
   generarMensajeExito(mensaje, user, res) {
-    console.log(user.id);
     const token = this.getToken({ userId: user.id });
-    res
-      .status(200)
-      .json({ message: mensaje, user: user, "x-access-token": token });
+    const userRespuesta = {
+      rol: user.role.get("alias"),
+      "x-access-token": token,
+    };
+
+    res.status(200).json({ message: mensaje, user: userRespuesta });
   },
 
   getToken(data) {
