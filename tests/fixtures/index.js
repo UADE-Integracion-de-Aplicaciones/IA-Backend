@@ -1,3 +1,4 @@
+const bcrypt = require("bcrypt");
 const { CLIENTES_TIPO, CUENTAS_TIPO } = require("../../src/daos/common");
 const { db } = require("../../src/sequelize/models");
 const { clientes, cuentas, empleados, usuarios, roles, facturas } = db;
@@ -15,13 +16,13 @@ const crearData = async () => {
 
   const usuarioA = await usuarios.create({
     nombre_usuario: "alejandro.otero",
-    clave: "123",
+    clave: await bcrypt.hash("123", 8),
     rol_id: rol1.get("id"),
   });
 
   const usuarioB = await usuarios.create({
     nombre_usuario: "abc",
-    clave: "123",
+    clave: await bcrypt.hash("123", 8),
     rol_id: rol2.get("id"),
   });
 
