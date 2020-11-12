@@ -1,16 +1,16 @@
 const { db } = require("../sequelize/models");
 const {
-  buscarCuentasParaMantenimiento,
-  cobrarComisionPorMantenimientoCuenta,
+  buscarCajasDeAhorroConSaldo,
+  pagarInteresPorDineroEnCuenta,
 } = require("../daos/transacciones.dao");
 
 module.exports = async () => {
-  console.log("Tarea de Cobro por Mantenimiento de Cuentas");
-  const cuentas = await buscarCuentasParaMantenimiento();
+  console.log("Tarea de Pagar Interes Por Dinero En Cuenta");
+  const cuentas = await buscarCajasDeAhorroConSaldo();
 
   const transaction = await db.sequelize.transaction();
   const promises = cuentas.map((c) =>
-    cobrarComisionPorMantenimientoCuenta(c, { transaction })
+    pagarInteresPorDineroEnCuenta(c, { transaction })
   );
 
   try {

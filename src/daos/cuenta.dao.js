@@ -1,14 +1,14 @@
 const { db } = require("../sequelize/models");
-const { cuentas } = db;
+const { cuentas, movimientos_cuentas } = db;
 const movimientos = require('../sequelize/models').momivimientoscuentass;
 
 module.exports = {
     async create(payload) {
-        const {tipo, cliete_id, fondo_descubierto, saldo, empleado_creador_id} = payload;  
+        const {tipo, cliente_id, fondo_descubierto, saldo, empleado_creador_id} = payload;  
         const numero_cuenta = this.generarNumerocuentas();
         const cbu = this.generarCBU(numero_cuenta);
         return await cuentas.create ({
-            tipo: tipo, cliete_id: cliete_id, numero_cuenta: numero_cuenta, cbu: cbu, fondo_descubierto: fondo_descubierto, saldo:saldo, empleado_creador_id: empleado_creador_id
+            tipo: tipo, cliente_id: cliente_id, numero_cuenta: numero_cuenta, cbu: cbu, fondo_descubierto: fondo_descubierto, saldo:saldo, empleado_creador_id: empleado_creador_id
         })
     },
 
@@ -30,9 +30,9 @@ module.exports = {
     },
 
     async getSaldo(payload){
-        const cuentas = this.buscarcuentas(payload);
+        const cuenta = await this.buscarcuentas(payload);
         //let saldo = cuentas.findAll({ attributes: 'saldo'})
-        return cuentas.get('saldo')
+        return cuenta.saldo
     },
 
     // Por ahora devuelve todos los movimientos con ese ID
@@ -64,18 +64,24 @@ module.exports = {
 
     //Recibe el payload (body del req) y chequea si tiene numero de cuentas o cbu
     buscarcuentas(payload) {
-        if (payload.numero_cuentas)
-            return this.getcuentasByNumerocuentas(payload.numero_cuentas)
+        console.log(payload)
+        if (payload.numero_cuenta)
+            return this.getcuentasByNumerocuentas(payload.numero_cuenta)
         else if (payload.cbu)
             return this.getcuentasByCBU(payload.cbu)
         throw Error("No se encontro un campo valido")
     },
 
-    getcuentasByNumerocuentas(numero_cuentas) {
+    getcuentasByNumerocuentas(numero_cuenta) {
         return cuentas.findOne({
             where: {
-                numero_cuentas: numero_cuentas
-            }
+                numero_cuenta: numero_cuenta
+            }, 
+            include: [
+                {
+                    model: movimientos_cuentas,
+                }
+            ]
         })
     },    
 

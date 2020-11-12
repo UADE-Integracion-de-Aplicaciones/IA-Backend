@@ -1,3 +1,3 @@
-const execute = require("./mantenimiento_de_cuentas");
+const ejecutar = require("./mantenimiento_de_cuentas");
 
-execute();
+ejecutar();

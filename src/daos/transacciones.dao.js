@@ -98,7 +98,7 @@ const crearMovimiento = ({
   cantidad,
   transaction,
 }) => {
-  console.log(cuenta, concepto, tipo, usuario, cantidad);
+  //console.log(cuenta, concepto, tipo, usuario, cantidad);
   return movimientos_cuentas.create(
     {
       cuenta_id: cuenta.get("id"),
@@ -136,32 +136,8 @@ const cobrarComisionPorTransaccion = async (movimiento, { transaction }) => {
   });
 };
 
-const cobrarComisionPorMantenimientoCuenta = async (
-  cuenta,
-  { transaction }
-) => {
-  const usuario = await usuarios.findOne({
-    where: { nombre_usuario: "system.admin.0" },
-  });
-  const parametro = await parametros.findOne({
-    where: { parametro: "COMISION_MANTENIMIENTO_DE_CUENTA" },
-  });
-  const concepto = await buscarConcepto("MANTENIMIENTO_DE_CUENTA");
-  const tipo = MOVIMIENTOS_CUENTAS_TIPO.DEBITA;
-  const cantidad = parseFloat(parametro.get("valor"));
-
-  return crearMovimiento({
-    cuenta,
-    concepto,
-    tipo,
-    usuario,
-    cantidad,
-    transaction,
-  });
-};
-
 const buscarCuentasParaMantenimiento = () => {
-  const { valor, unidad } = DEFAULTS.TIEMPO_MANTENIMIENTO_CUENTAS;
+  const { valor, unidad } = DEFAULTS.ANTIGUEDAD_CUENTA_PARA_MANTENIMIENTO;
   return cuentas.findAll({
     where: {
       fecha_creacion: {
@@ -169,6 +145,102 @@ const buscarCuentasParaMantenimiento = () => {
       },
     },
   });
+};
+
+const buscarCuentasConFondoDescubierto = () => {
+  return cuentas.findAll({
+    where: {
+      tipo: CUENTAS_TIPO.CUENTA_CORRIENTE,
+      saldo: {
+        [Op.lte]: 0,
+      },
+    },
+  });
+};
+
+const buscarCajasDeAhorroConSaldo = () => {
+  return cuentas.findAll({
+    where: {
+      tipo: CUENTAS_TIPO.CAJA_DE_AHORRO,
+      saldo: {
+        [Op.gte]: 0,
+      },
+    },
+  });
+};
+
+const cobrarComisionPorMantenimientoCuenta = async (
+  cuenta,
+  { transaction }
+) => {
+  const parametroNombre = "COMISION_MANTENIMIENTO_DE_CUENTA";
+  const conceptoAlias = "MANTENIMIENTO_DE_CUENTA";
+  const tipo = MOVIMIENTOS_CUENTAS_TIPO.DEBITA;
+
+  return aplicarTasa(
+    { cuenta, parametroNombre, conceptoAlias, tipo },
+    { transaction }
+  );
+};
+
+const cobrarInteresPorFondoDescubierto = async (cuenta, { transaction }) => {
+  const parametroNombre = "TASA_POR_FONDO_DESCUBIERTO";
+  const conceptoAlias = "FONDO_DESCUBIERTO";
+  const tipo = MOVIMIENTOS_CUENTAS_TIPO.DEBITA;
+
+  return aplicarTasa(
+    { cuenta, parametroNombre, conceptoAlias, tipo },
+    { transaction }
+  );
+};
+
+const pagarInteresPorDineroEnCuenta = async (cuenta, { transaction }) => {
+  const parametroNombre = "TASA_POR_DINERO_EN_CUENTA";
+  const conceptoAlias = "DINERO_EN_CUENTA";
+  const tipo = MOVIMIENTOS_CUENTAS_TIPO.ACREDITA;
+
+  return aplicarTasa(
+    { cuenta, parametroNombre, conceptoAlias, tipo },
+    { transaction }
+  );
+};
+
+const aplicarTasa = async (
+  { cuenta, parametroNombre, conceptoAlias, tipo },
+  { transaction }
+) => {
+  const usuario = await usuarios.findOne({
+    where: { nombre_usuario: "system.admin.0" },
+  });
+  const parametro = await parametros.findOne({
+    where: { parametro: parametroNombre },
+  });
+  const concepto = await buscarConcepto(conceptoAlias);
+  const valor = parseFloat(parametro.get("valor"));
+
+  let cantidad;
+  if (parametroNombre === "COMISION_MANTENIMIENTO_DE_CUENTA") {
+    // es monto fijo
+    cantidad = valor;
+  } else {
+    cantidad = Math.abs(parseFloat(cuenta.get("saldo")) * valor);
+    console.log(cantidad);
+  }
+
+  await crearMovimiento({
+    cuenta,
+    concepto,
+    tipo,
+    usuario,
+    cantidad,
+    transaction,
+  });
+
+  if (tipo === MOVIMIENTOS_CUENTAS_TIPO.DEBITA) {
+    return disminuirSaldoDeCuenta({ cuenta, cantidad, transaction });
+  } else {
+    return aumentarSaldoDeCuenta({ cuenta, cantidad, transaction });
+  }
 };
 
 const depositarEnCuentaPropia = (numero_cuenta) => async ({
@@ -440,4 +512,8 @@ module.exports = {
   pagarServicioComoBanco,
   cobrarComisionPorMantenimientoCuenta,
   buscarCuentasParaMantenimiento,
+  cobrarInteresPorFondoDescubierto,
+  buscarCuentasConFondoDescubierto,
+  pagarInteresPorDineroEnCuenta,
+  buscarCajasDeAhorroConSaldo,
 };
