@@ -25,11 +25,11 @@ const MOVIMIENTOS_CUENTAS_TIPO = {
 };
 
 const DEFAULTS = {
-  TIEMPO_MANTENIMIENTO_CUENTAS: {
+  ANTIGUEDAD_CUENTA_PARA_MANTENIMIENTO: {
     valor: "10",
     unidad: "minutes",
   },
-  CRON_EJECUCION_TAREAS: "*/20 * * * *",
+  CRON_EJECUCION_TAREAS: "0 0 * * *",
 };
 
 module.exports = {

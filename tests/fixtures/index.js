@@ -150,6 +150,46 @@ const crearData = async () => {
     empleado_creador_id: empleadoA.get("id"),
   });
 
+  const cuentaC2 = await cuentas.create({
+    cliente_id: clienteC.get("id"),
+    tipo: CUENTAS_TIPO.CUENTA_CORRIENTE,
+    numero_cuenta: "78985434323",
+    cbu: "2343567687",
+    fondo_descubierto: 10000.0,
+    saldo: -3000.0,
+    empleado_creador_id: empleadoA.get("id"),
+  });
+
+  const cuentaC3 = await cuentas.create({
+    cliente_id: clienteC.get("id"),
+    tipo: CUENTAS_TIPO.CUENTA_CORRIENTE,
+    numero_cuenta: "78985434323",
+    cbu: "2343567687",
+    fondo_descubierto: 10000.0,
+    saldo: -3000.0,
+    empleado_creador_id: empleadoA.get("id"),
+  });
+
+  const cuentaC4 = await cuentas.create({
+    cliente_id: clienteC.get("id"),
+    tipo: CUENTAS_TIPO.CUENTA_CORRIENTE,
+    numero_cuenta: "8784343434",
+    cbu: "09987644332",
+    fondo_descubierto: 8000.0,
+    saldo: -2000.0,
+    empleado_creador_id: empleadoA.get("id"),
+  });
+
+  const cuentaC5 = await cuentas.create({
+    cliente_id: clienteC.get("id"),
+    tipo: CUENTAS_TIPO.CUENTA_CORRIENTE,
+    numero_cuenta: "8784343434",
+    cbu: "09987644332",
+    fondo_descubierto: 2000.0,
+    saldo: -2000.0,
+    empleado_creador_id: empleadoA.get("id"),
+  });
+
   const factura1 = await facturas.create({
     cuenta_id: cuentaC1.get("id"),
     codigo_pago_electronico: "345653312325464",

@@ -60,6 +60,10 @@ module.exports = async (db) => {
       parametro: "COMISION_MANTENIMIENTO_DE_CUENTA",
       valor: 3.5,
     },
+    {
+      parametro: "TASA_POR_FONDO_DESCUBIERTO",
+      valor: 2.2,
+    },
   ];
 
   const parametrosPromises = parametros_por_defecto.map((data) =>
