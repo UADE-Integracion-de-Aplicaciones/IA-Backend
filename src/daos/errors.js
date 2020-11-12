@@ -29,11 +29,27 @@ class ClienteNoExisteError extends Error {
   }
 }
 
+class FacturaNoExisteError extends Error {
+  static message = "no existe factura asociada a ese codigo electronico o a ese numero de factura";
+  constructor() {
+    super(FacturaNoExisteError.message);
+    this.name = "FacturaNoExisteError";
+  }
+}
+
 class CuentaNoExisteError extends Error {
   static mensaje = "la cuenta no existe o no está activa";
   constructor() {
     super(CuentaNoExisteError.mensaje);
     this.nombre = "CuentaNoExisteError";
+  }
+}
+
+class ArchivoVacio extends Error {
+  static message = "el archivo esta vacio";
+  constructor() {
+    super(ArchivoVacio.message);
+    this.name = "ArchivoVacioError";
   }
 }
 
@@ -77,6 +93,23 @@ class CantidadMayorQueTotalFacturasError extends Error {
   }
 }
 
+class CodigoPagoElectronicoNoExisteError extends Error {
+  static message = "el codigo proporcionado es incorrecto";
+  constructor() {
+    super(CodigoPagoElectronicoNoExisteError.message);
+    this.name = "CodigoPagoElectronicoNoExisteError";
+  }
+}
+
+class NumeroFacturaNoExisteError extends Error {
+  static message = "el numero de factura es incorrecto";
+  constructor() {
+    super(NumeroFacturaNoExisteError.message);
+    this.name = "NumeroFacturaNoExisteError";
+  }
+}
+
+
 module.exports = {
   DesconocidoBDError,
   DesconocidoError,
@@ -87,4 +120,8 @@ module.exports = {
   CuentaConSaldoInsuficienteError,
   CantidadMenorQueTotalFacturasError,
   CantidadMayorQueTotalFacturasError,
+  ArchivoVacio,
+  FacturaNoExisteError,
+  CodigoPagoElectronicoNoExisteError,
+  NumeroFacturaNoExisteError,
 };

@@ -47,11 +47,9 @@ module.exports = {
             })
     },
 
-    modify(req, res) {
-        //
-        // logic
-        //
-        res.status(200).send("modify")
+    //Que campos se van a poder modificar?
+    /*update(req, res) {
+        await clientDao.update(req.body)
     },
 
     async delete(req, res) {
@@ -102,4 +100,6 @@ module.exports = {
             res.status(400).send("Ocurrio un problema al buscar el cliente")
         }
     }
+*/
+
 };

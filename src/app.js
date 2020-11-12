@@ -45,5 +45,7 @@ require("./routes/client.routes")(protectedRouter);
 require("./routes/user.routes")(app);
 require("./routes/transacciones.routes")(protectedRouter);
 require("./routes/CodigoAutorizacion.routes")(protectedRouter);
+require("./routes/cuenta.routes")(app);
+require("./routes/facturas.routes")(app);
 
 module.exports = app;

@@ -1,0 +1,4 @@
+codigo_pago_electronico,numero_factura,importe,fecha_vencimiento
+22231454,31454,1023.25 ,22/11/2020
+22212352,12352,2000,22/11/2020
+22245631,45631,1659,20/11/2020

@@ -79,6 +79,7 @@ module.exports = {
     },
 
     getClienteByCuit(cuit) {
+
         return cliente.findOne({
             where: {
                 cuit: cuit
@@ -86,3 +87,4 @@ module.exports = {
         })
     },
 };
+

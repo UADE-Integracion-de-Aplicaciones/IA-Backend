@@ -107,3 +107,7 @@ dist
 package-lock.json
 
 yarn.lock
+
+# Uploads files from file endpoint
+
+Uploads
