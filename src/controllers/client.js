@@ -5,7 +5,7 @@ module.exports = {
     create(req, res) {
         try {
             const {tipo, cuit, dni, nombre, apellido, email, domicilio_barrio, domicilio_calle, domicilio_ciudad, domicilio_numero, domicilio_piso, domicilio_apartamento, fecha_nacimiento, pregunta1,pregunta1_respuesta, pregunta2, pregunta2_respuesta, pregunta3, pregunta3_respuesta, usuario_id} = req.query;
-            var fechaNacimiento = moment(fecha_nacimiento).format('YYYY-MM-DD');
+            var fechaNacimiento = moment(fecha_nacimiento).format('DD-MM-YYYY');
             
             clientsDao.crear(tipo, cuit, dni, nombre, apellido, email, domicilio_barrio, domicilio_calle, domicilio_ciudad, domicilio_numero, domicilio_piso, domicilio_apartamento, fechaNacimiento, pregunta1,pregunta1_respuesta, pregunta2, pregunta2_respuesta, pregunta3, pregunta3_respuesta, usuario_id)
             .then(cliente => {           
@@ -72,7 +72,7 @@ module.exports = {
             })
             .catch(error => {
                 console.log(error)
-                res.status(400).send("Error en la modificacion del clinete")
+                res.status(400).send("Error en la modificacion del cliente")
             })
         } catch (error) {
             res.status(500).send("Error al intentar modificar un cliente")
