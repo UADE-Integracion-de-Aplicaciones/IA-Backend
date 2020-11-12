@@ -222,6 +222,7 @@ const crearData = async () => {
     importe: 1000.0,
     fecha_vencimiento: "2020-12-10",
   });
+
 };
 
 const cargarData = async () => {
@@ -245,9 +246,15 @@ const obtenerClienteDePrueba = () => {
   });
 };
 
+const obtenerEmpleadoPrueba = () => {
+  return empleados.findAll({
+  });
+};
+
 module.exports = {
   crearData,
   cargarData,
   obtenerUsuarioDePrueba,
   obtenerClienteDePrueba,
+  obtenerEmpleadoPrueba
 };
