@@ -76,8 +76,8 @@ module.exports = {
         throw Error("No se encontro un campo valido")
     },
 
-     getFacturaByCodigoPagoElectronico(codigo_pago_electronico) {
-        const codigo = facturas.findOne({  where: { codigo_pago_electronico } })
+     async getFacturaByCodigoPagoElectronico(codigo_pago_electronico) {
+        const codigo = facturas.findOne({  where: { codigo_pago_electronico: codigo_pago_electronico } })
         if(!codigo){
             return codigo
         }

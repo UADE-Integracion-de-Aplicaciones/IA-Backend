@@ -13,4 +13,12 @@ module.exports = {
         }
     },
      
+    async getFacturas(req, res) {
+        const { codigo_pago_electronico } = req.body;
+        try {
+            await facturasDao.getFacturaByCodigoPagoElectronico( codigo_pago_electronico )
+        } catch (err) {
+            res.status(500).json({ mensaje: "" });
+        }
+    }
 }

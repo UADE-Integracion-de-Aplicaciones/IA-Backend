@@ -24,7 +24,7 @@ module.exports = (sequelize, { DataTypes }) => {
         allowNull: false,
       },
       movimiento_cuenta_id: {
-        type: DataTypes.UUID,
+        type: DataTypes.INTEGER,
       },
       usuario_creador_id: {
         type: DataTypes.UUID,
