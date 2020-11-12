@@ -122,11 +122,12 @@ module.exports = {
     });
   },
 
-  async getClienteByCuit(cuit) {
-    return await cliente.findOne({
-      where: {
-        cuit: cuit,
-      },
-    });
-  },
+    async getClienteByCuit(cuit) {
+        return await cliente.findOne({
+            where: {
+                cuit: cuit
+            }
+        })
+    },
 };
+
