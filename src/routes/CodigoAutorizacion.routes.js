@@ -14,6 +14,6 @@ module.exports = (app) => {
                description: 'Un filtro.',
                type: 'string'
         } */
-        codigoAutController.generarCodigo(req, res)
+        codigoAutController.generarCodigoRegistro(req, res)
     }); 
 }

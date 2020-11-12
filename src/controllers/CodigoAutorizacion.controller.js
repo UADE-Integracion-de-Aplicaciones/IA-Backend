@@ -33,26 +33,31 @@ module.exports = {
         }
     },
 
-    generarCodigoRegistro(req, res) {
-        const { user_id } = req.query
-        
-        if (!req || !req.query || !user_id) {
-            res.status(300).send("Existe un dato faltante")
-            return ;
+    async generarCodigoRegistro(req, res) {
+        try {
+            
+            const { user_id } = req.query
+            
+            if (!req || !req.query || !user_id) {
+                res.status(300).send("Existe un dato faltante")
+                return ;
+            }
+
+            codigoAutorizacionDao.generarCodigo(cliente_id)
+                .then(codigo => {
+                    if (!codigo) {
+                        res.status(301).send("Hubo un error en la creacion del codigo.")
+                        return ;
+                    }
+
+                    res.status(200).send(codigo)
+                })
+                .catch(err => {
+                    console.log(err)
+                    res.status(400)
+                })
+        } catch (error) {
+            res.status(500).send("Error del servidor al generar el codigo de registro")
         }
-
-        codigoAutorizacionDao.generarCodigo(cliente_id)
-            .then(codigo => {
-                if (!codigo) {
-                    res.status(301).send("Hubo un error en la creacion del codigo.")
-                    return ;
-                }
-
-                res.status(200).send(codigo)
-            })
-            .catch(err => {
-                console.log(err)
-                res.status(400)
-            })
     }
 };

@@ -2,7 +2,7 @@
 module.exports = (app) => {
     var userController = require('../controllers/user.controller.');
 
-    app.get('/login', (req,res) => {
+    app.post('/login', (req,res) => {
         // #swagger.tags = ['Usuario']
         // #swagger.description = 'Endpoint loggin de un usuario.'
         // #swagger.parameters['nombre_usuario'] = { description: 'nombre de usuario.'}
@@ -18,4 +18,11 @@ module.exports = (app) => {
         // #swagger.parameters['rol_id'] = { description: 'id del rol del usuario.', type: 'string' }
         userController.register(req,res)
     });
+
+    app.get('/usuario', (req,res) => {
+        // #swagger.tags = ['Usuario']
+        // #swagger.description = 'Verifica si el usuario existe.'
+        // #swagger.parameters['id'] = { description: 'id de usuario.'}
+        userController.login(req, res)}
+    ); 
 }

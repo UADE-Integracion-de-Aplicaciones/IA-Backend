@@ -1,5 +1,3 @@
-const models = require("../sequelize/models");
-
 const CLIENTES_TIPO = {
   PERSONA_FISICA: "PERSONA_FISICA",
   PERSONA_JURIDICA: "PERSONA_JURIDICA",
@@ -26,7 +24,16 @@ const MOVIMIENTOS_CUENTAS_TIPO = {
   DEBITA: "DEBITA",
 };
 
+const DEFAULTS = {
+  TIEMPO_MANTENIMIENTO_CUENTAS: {
+    valor: "10",
+    unidad: "minutes",
+  },
+  CRON_EJECUCION_TAREAS: "*/20 * * * *",
+};
+
 module.exports = {
+  DEFAULTS,
   CLIENTES_TIPO,
   CUENTAS_TIPO,
   MOVIMIENTOS_CUENTAS_CONCEPTO,

@@ -36,10 +36,26 @@ module.exports = {
             })
     },
 
-    //TODO
-    //Que campos se van a poder modificar?
-    async update(payload) {
-        const cliente = await this.buscarCliente(payload);
+    async update(id, nombre, apellido, email, domicilio_barrio, domicilio_calle, domicilio_ciudad, domicilio_numero, domicilio_piso, domicilio_apartamento, fecha_nacimiento, pregunta1,pregunta1_respuesta, pregunta2, pregunta2_respuesta, pregunta3, pregunta3_respuesta) {
+        return await cliente
+            .update ({
+                nombre: nombre,
+                apellido: apellido,
+                email: email,
+                domicilio_ciudad: domicilio_ciudad,
+                domicilio_calle: domicilio_calle,
+                domicilio_barrio: domicilio_barrio,
+                domicilio_numero: domicilio_numero,
+                domicilio_piso: domicilio_piso,
+                domicilio_apartamento: domicilio_apartamento,
+                fecha_nacimiento: fecha_nacimiento,
+                pregunta1: pregunta1,
+                pregunta1_respuesta: pregunta1_respuesta,
+                pregunta2: pregunta2,
+                pregunta2_respuesta: pregunta2_respuesta,
+                pregunta3: pregunta3,
+                pregunta3_respuesta: pregunta3_respuesta,
+            }, {where: {id: id}});
     },
 
     async delete(cliente) {
@@ -62,25 +78,24 @@ module.exports = {
         throw Error("No se encontro un campo valido")
     },
 
-    getClienteById(id) {
-        return cliente.findOne({
+    async getClienteById(client_id) {
+        return await cliente.findOne({
             where: {
-                id: id
-            },
+                id: client_id
+            }
         })
     },    
 
-    getClienteByDni(dni) {
-        return cliente.findOne({
+    async getClienteByDni(dni) {
+        return await cliente.findOne({
             where: {
                 dni: dni
             }
         })
     },
 
-    getClienteByCuit(cuit) {
-
-        return cliente.findOne({
+    async getClienteByCuit(cuit) {
+        return await cliente.findOne({
             where: {
                 cuit: cuit
             }
