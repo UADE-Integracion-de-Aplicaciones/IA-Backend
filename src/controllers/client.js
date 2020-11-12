@@ -3,9 +3,10 @@ const clientsDao = require('../daos/client.dao');
 
 module.exports = {
     create(req, res) {
-        const {tipo, cuit, dni, nombre, apellido, email, domicilio_barrio, domicilio_calle, domicilio_ciudad, domicilio_numero, domicilio_piso, domicilio_apartamento, fecha_nacimiento, pregunta1,pregunta1_respuesta, pregunta2, pregunta2_respuesta, pregunta3, pregunta3_respuesta, usuario_id} = req.query;
-        var fechaNacimiento = moment(fecha_nacimiento).format('YYYY-MM-DD');
-        clientsDao.crear(tipo, cuit, dni, nombre, apellido, email, domicilio_barrio, domicilio_calle, domicilio_ciudad, domicilio_numero, domicilio_piso, domicilio_apartamento, fechaNacimiento, pregunta1,pregunta1_respuesta, pregunta2, pregunta2_respuesta, pregunta3, pregunta3_respuesta, usuario_id)
+        try {
+            const {tipo, cuit, dni, nombre, apellido, email, domicilio_barrio, domicilio_calle, domicilio_ciudad, domicilio_numero, domicilio_piso, domicilio_apartamento, fecha_nacimiento, pregunta1,pregunta1_respuesta, pregunta2, pregunta2_respuesta, pregunta3, pregunta3_respuesta, usuario_id} = req.query;
+            var fechaNacimiento = moment(fecha_nacimiento).format('YYYY-MM-DD');
+            clientsDao.crear(tipo, cuit, dni, nombre, apellido, email, domicilio_barrio, domicilio_calle, domicilio_ciudad, domicilio_numero, domicilio_piso, domicilio_apartamento, fechaNacimiento, pregunta1,pregunta1_respuesta, pregunta2, pregunta2_respuesta, pregunta3, pregunta3_respuesta, usuario_id)
             .then(cliente => {           
                 if (!cliente) {
                     res.status(401).send("Ocurrio un error en la creacion del cliente")
@@ -18,6 +19,9 @@ module.exports = {
                 console.log(error)
                 res.status(400).send("Ocurrio algo en la creacion del cliente")
             })
+        } catch (error) {
+            res.status(500).send("Serer error on creation of")
+        }
     },
 
     verificarCliente(req, res) {
@@ -59,7 +63,7 @@ module.exports = {
         }
 
         const cliente = await clientsDao.buscarCliente("id", id)
-
+        
         if (cliente) {
             if (cliente.id) {
                 clientsDao.delete(cliente)
