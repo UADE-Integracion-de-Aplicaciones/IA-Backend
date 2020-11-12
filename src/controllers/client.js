@@ -6,10 +6,11 @@ module.exports = {
         try {
             const {tipo, cuit, dni, nombre, apellido, email, domicilio_barrio, domicilio_calle, domicilio_ciudad, domicilio_numero, domicilio_piso, domicilio_apartamento, fecha_nacimiento, pregunta1,pregunta1_respuesta, pregunta2, pregunta2_respuesta, pregunta3, pregunta3_respuesta, usuario_id} = req.query;
             var fechaNacimiento = moment(fecha_nacimiento).format('YYYY-MM-DD');
+            
             clientsDao.crear(tipo, cuit, dni, nombre, apellido, email, domicilio_barrio, domicilio_calle, domicilio_ciudad, domicilio_numero, domicilio_piso, domicilio_apartamento, fechaNacimiento, pregunta1,pregunta1_respuesta, pregunta2, pregunta2_respuesta, pregunta3, pregunta3_respuesta, usuario_id)
             .then(cliente => {           
                 if (!cliente) {
-                    res.status(401).send("Ocurrio un error en la creacion del cliente")
+                    res.status(301).send("Ocurrio un error en la creacion del cliente")
                     return ;
                 }     
                 res.status(200).send(cliente)
@@ -24,34 +25,58 @@ module.exports = {
         }
     },
 
-    verificarCliente(req, res) {
-        const { id } = req.query
-        if (!id) {
-            res.status(301).send("Llamada faltante de datos")
-            return ;
-        }
-
-        clientsDao.buscarPorId(id)
-            .then(cliente => {
-                if (!cliente || cliente === undefined || cliente === null) {
-                    res.status(300).send("Cliente no encontrado")
-                    return ;
-                }
-
-                //TODO Falta cliente si esta activo
-
-            })
-            .catch(error => {
-                console.log(error)
-                res.status(400).send("Error inesperado en al busceda por id de cliente")
-            })
+    async verificarCliente(req, res) {
+        try {
+            const { id } = req.body
+            
+            if (!id) {
+                res.status(301).send("Parametros inexistentes o incompatibles.")
+                return ;
+            }
+            
+            await clientsDao.getClienteById(id)
+                .then(cliente => {
+                    if (cliente) {
+                        if (cliente.id) {
+                          res.status(200).send(cliente)
+                          return cliente
+                        }
+                        res.status(300).send("No se pudo encontrar un cliente.")
+                        return ;
+                    } else {
+                        res.status(400).send("Ocurrio un problema al buscar el cliente")
+                    }
+                }).catch(error => {
+                    console.log(error)
+                    res.status(401).send("Error al buscar cliente")
+                });
+          } catch (error) {
+            res.status(500).send("Ocurrio un problema en el servidor al buscar el cliente por id")
+          }
     },
 
     modify(req, res) {
-        //
-        // logic
-        //
-        res.status(200).send("modify")
+        try {
+            const {id,nombre, apellido, email, domicilio_barrio, domicilio_calle, domicilio_ciudad, domicilio_numero, domicilio_piso, domicilio_apartamento, fecha_nacimiento, pregunta1,pregunta1_respuesta, pregunta2, pregunta2_respuesta, pregunta3, pregunta3_respuesta} = req.body;
+            var fechaNacimiento = moment(fecha_nacimiento).format('YYYY-MM-DD');
+            
+            clientsDao.update( id, nombre, apellido, email, domicilio_barrio, domicilio_calle, domicilio_ciudad, domicilio_numero, domicilio_piso, domicilio_apartamento, fechaNacimiento, pregunta1,pregunta1_respuesta, pregunta2, pregunta2_respuesta, pregunta3, pregunta3_respuesta)
+            .then(cliente => {           
+                if (!cliente) {
+                    res.status(301).send("Ocurrio un error en la modificacion del cliente")
+                    return ;
+                }
+
+                res.status(200).send(cliente)
+                return cliente
+            })
+            .catch(error => {
+                console.log(error)
+                res.status(400).send("Error en la modificacion del clinete")
+            })
+        } catch (error) {
+            res.status(500).send("Error al intentar modificar un cliente")
+        }
     },
 
     async delete(req, res) {
@@ -63,7 +88,7 @@ module.exports = {
         }
 
         const cliente = await clientsDao.buscarCliente("id", id)
-        
+
         if (cliente) {
             if (cliente.id) {
                 clientsDao.delete(cliente)
@@ -77,29 +102,58 @@ module.exports = {
         }
     },
 
-    async buscarCliente(req, res) {
-        const {cuit, dni, id} = req.query
-        let tipo = ""
-        let valor = ""
-
-        if (cuit) { tipo = "cuit"; valor = cuit } 
-        else if (dni) { tipo = "dni"; valor = dni }
-        else if (id) { tipo = "id"; valor = id} 
-        else {
+    async buscarClientePorDni(req, res) {
+      try {
+        const { dni } = req.body
+        
+        if (!dni) {
             res.status(301).send("Parametros inexistentes o incompatibles.")
             return ;
         }
-        const cliente = await clientsDao.buscarCliente(tipo, valor)
 
-        if (cliente) {
-            if (cliente.id)
-                res.status(200).send(cliente)
-            else
-                res.status(300).send("No se pudo encontrar un cliente.")
+        await clientsDao.getClienteByDni(dni)
+            .then(cliente => {
+                if (cliente) {
+                    if (cliente.id)
+                        res.status(200).send(cliente)
+                    else
+                        res.status(300).send("No se pudo encontrar un cliente.")
+        
+                    return ;
+                } else {
+                    res.status(400).send("Ocurrio un problema al buscar el cliente")
+                }
+            }).catch(error => res.status(401).send("Error al buscar cliente"));
+      } catch (error) {
+        res.status(500).send("Ocurrio un problema en el servidor al buscar el cliente por dni")
+      }
+    },
 
-            return ;
-        } else {
-            res.status(400).send("Ocurrio un problema al buscar el cliente")
+    async buscarClientePorId(req, res) {
+        try {
+          const { id } = req.body
+          
+          if (!id) {
+              res.status(301).send("Parametros inexistentes o incompatibles.")
+              return ;
+          }
+  
+          await clientsDao.getClienteById(id)
+              .then(cliente => {
+                  if (cliente) {
+                      if (cliente.id) {
+                        res.status(200).send(cliente)
+                        return cliente
+                      }
+                      res.status(300).send("No se pudo encontrar un cliente.")
+                      return ;
+                  } else {
+                      res.status(400).send("Ocurrio un problema al buscar el cliente")
+                  }
+              }).catch(error => res.status(401).send("Error al buscar cliente"));
+        } catch (error) {
+          res.status(500).send("Ocurrio un problema en el servidor al buscar el cliente por id")
         }
-    }
+    },
+  
 };
