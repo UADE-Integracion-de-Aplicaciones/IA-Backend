@@ -1,4 +1,7 @@
+const { Sequelize } = require("sequelize");
+const { Op } = Sequelize;
 const {
+  DEFAULTS,
   MOVIMIENTOS_CUENTAS_TIPO,
   MOVIMIENTOS_CUENTAS_CONCEPTO,
   CUENTAS_TIPO,
@@ -22,6 +25,7 @@ const {
   usuarios,
   parametros,
 } = db;
+const moment = require("moment");
 
 const buscarCliente = (dni) => {
   return clientes.findOne({ where: { dni } });
@@ -129,6 +133,41 @@ const cobrarComisionPorTransaccion = async (movimiento, { transaction }) => {
     usuario,
     cantidad,
     transaction,
+  });
+};
+
+const cobrarComisionPorMantenimientoCuenta = async (
+  cuenta,
+  { transaction }
+) => {
+  const usuario = await usuarios.findOne({
+    where: { nombre_usuario: "system.admin.0" },
+  });
+  const parametro = await parametros.findOne({
+    where: { parametro: "COMISION_MANTENIMIENTO_DE_CUENTA" },
+  });
+  const concepto = await buscarConcepto("MANTENIMIENTO_DE_CUENTA");
+  const tipo = MOVIMIENTOS_CUENTAS_TIPO.DEBITA;
+  const cantidad = parseFloat(parametro.get("valor"));
+
+  return crearMovimiento({
+    cuenta,
+    concepto,
+    tipo,
+    usuario,
+    cantidad,
+    transaction,
+  });
+};
+
+const buscarCuentasParaMantenimiento = () => {
+  const { valor, unidad } = DEFAULTS.TIEMPO_MANTENIMIENTO_CUENTAS;
+  return cuentas.findAll({
+    where: {
+      fecha_creacion: {
+        [Op.gte]: moment().subtract(valor, unidad),
+      },
+    },
   });
 };
 
@@ -399,4 +438,6 @@ module.exports = {
   depositarEnCuentaDeTercero,
   pagarServicioComoCliente,
   pagarServicioComoBanco,
+  cobrarComisionPorMantenimientoCuenta,
+  buscarCuentasParaMantenimiento,
 };
