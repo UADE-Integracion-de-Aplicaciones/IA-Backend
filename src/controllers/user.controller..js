@@ -17,7 +17,8 @@ module.exports = {
         userDao.getUserByUserName(nombre_usuario)
             .then(user => {                    
                 if (!user) {
-                    res.status(301).send("Credenciales incompatibles")
+                    res.status(301).json({message: "Credenciales incompatibles"});
+                   // res.status(301).send("Credenciales incompatibles")
                     return ;
                 }
                 const passwordCheck = bcrypt.compare(clave, user.clave);
@@ -74,7 +75,7 @@ module.exports = {
     generarMensajeExito(mensaje, user, res) {
         console.log(user.id)
         const token = this.getToken({ userId: user.id });
-        res.status(200).json({message: mensaje, user: user, "x-access-token": token});
+        res.status(200).json({message: mensaje, user: user, "token": token});
     },
 
     getToken(data) {
