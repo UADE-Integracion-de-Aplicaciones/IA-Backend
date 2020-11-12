@@ -18,9 +18,9 @@ const app = express();
             console.log("LOADING DATA")
             await require("../tests/fixtures").crearData()
             let lpt = await require('../tests/fixtures').obtenerUsuarioDePrueba();        
-            console.log(lpt.get("id"),lpt.get("nombre_usuario"))
+            // console.log(lpt.get("id"),lpt.get("nombre_usuario"))
             let cliente  = await require('../tests/fixtures').obtenerClienteDePrueba();
-            console.log(cliente.usuario, cliente.id)
+            // console.log(cliente.usuario, cliente.id)
         } catch (error) {
             console.log(error)
         }

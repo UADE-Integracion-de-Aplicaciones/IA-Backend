@@ -1,5 +1,5 @@
 const { db } = require("../../src/sequelize/models");
-const { clientes, cuentas, empleados, usuarios, roles, facturas } = db;
+const { clientes, cuentas, empleados, usuarios, roles } = db;
 
 module.exports = {
     //Crea una transaccion / eposito de cuenta
@@ -16,6 +16,9 @@ module.exports = {
     async getUserByUserName(userName) {
         return await usuarios.findOne({
             where: { nombre_usuario: userName },
+            include: {
+                model: roles,
+            }
           })
     },
 };

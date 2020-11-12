@@ -66,7 +66,7 @@ module.exports = {
         return cliente.findOne({
             where: {
                 id: id
-            }
+            },
         })
     },    
 
