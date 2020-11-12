@@ -27,7 +27,7 @@ require("./routes/user.routes")(app);
 
 require("./routes/clientes.routes")(protectedRouter);
 require("./routes/transacciones.routes")(protectedRouter);
-require("./routes/codigoAutorizacion.routes")(protectedRouter);
+require("./routes/CodigoAutorizacion.routes")(protectedRouter);
 require("./routes/cuenta.routes")(protectedRouter);
 require("./routes/facturas.routes")(app);
 
