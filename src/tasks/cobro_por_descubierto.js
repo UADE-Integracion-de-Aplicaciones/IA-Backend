@@ -9,12 +9,12 @@ module.exports = async () => {
   const cuentas = await buscarCuentasConFondoDescubierto();
 
   const transaction = await db.sequelize.transaction();
-  const cobrarPromises = cuentas.map((c) =>
+  const promises = cuentas.map((c) =>
     cobrarInteresPorFondoDescubierto(c, { transaction })
   );
 
   try {
-    await Promise.all(cobrarPromises);
+    await Promise.all(promises);
     await transaction.commit();
   } catch (error) {
     await transaction.rollback();

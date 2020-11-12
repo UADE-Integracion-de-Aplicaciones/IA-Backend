@@ -12,6 +12,23 @@ module.exports = async (db) => {
     rol_id: rol0.get("id"),
   });
 
+  const roles_por_defecto = [
+    {
+      descripcion: "Ejecutivo del Banco",
+      alias: "BANCO_EJECUTIVO",
+    },
+    {
+      descripcion: "Persona Física",
+      alias: "CLIENTE_PERSONA_FISICA",
+    },
+    {
+      descripcion: "Persona Jurídica",
+      alias: "CLIENTE_PERSONA_JURIDICA",
+    },
+  ];
+
+  const rolesPromises = roles_por_defecto.map((data) => roles.create(data));
+
   const conceptos = [
     {
       alias: "DEPOSITO",
@@ -58,11 +75,15 @@ module.exports = async (db) => {
     },
     {
       parametro: "COMISION_MANTENIMIENTO_DE_CUENTA",
-      valor: 3.5,
+      valor: 0.035,
     },
     {
       parametro: "TASA_POR_FONDO_DESCUBIERTO",
-      valor: 2.2,
+      valor: 0.022,
+    },
+    {
+      parametro: "TASA_POR_DINERO_EN_CUENTA",
+      valor: 0.07,
     },
   ];
 
@@ -70,5 +91,5 @@ module.exports = async (db) => {
     parametros.create(data)
   );
 
-  return Promise.all(conceptosPromises + parametrosPromises);
+  return Promise.all(rolesPromises + conceptosPromises + parametrosPromises);
 };

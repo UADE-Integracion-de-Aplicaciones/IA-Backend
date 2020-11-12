@@ -98,7 +98,7 @@ const crearMovimiento = ({
   cantidad,
   transaction,
 }) => {
-  console.log(cuenta, concepto, tipo, usuario, cantidad);
+  //console.log(cuenta, concepto, tipo, usuario, cantidad);
   return movimientos_cuentas.create(
     {
       cuenta_id: cuenta.get("id"),
@@ -150,8 +150,20 @@ const buscarCuentasParaMantenimiento = () => {
 const buscarCuentasConFondoDescubierto = () => {
   return cuentas.findAll({
     where: {
+      tipo: CUENTAS_TIPO.CUENTA_CORRIENTE,
       saldo: {
         [Op.lte]: 0,
+      },
+    },
+  });
+};
+
+const buscarCajasDeAhorroConSaldo = () => {
+  return cuentas.findAll({
+    where: {
+      tipo: CUENTAS_TIPO.CAJA_DE_AHORRO,
+      saldo: {
+        [Op.gte]: 0,
       },
     },
   });
@@ -165,7 +177,7 @@ const cobrarComisionPorMantenimientoCuenta = async (
   const conceptoAlias = "MANTENIMIENTO_DE_CUENTA";
   const tipo = MOVIMIENTOS_CUENTAS_TIPO.DEBITA;
 
-  return cobrarTasa(
+  return aplicarTasa(
     { cuenta, parametroNombre, conceptoAlias, tipo },
     { transaction }
   );
@@ -176,13 +188,24 @@ const cobrarInteresPorFondoDescubierto = async (cuenta, { transaction }) => {
   const conceptoAlias = "FONDO_DESCUBIERTO";
   const tipo = MOVIMIENTOS_CUENTAS_TIPO.DEBITA;
 
-  return cobrarTasa(
+  return aplicarTasa(
     { cuenta, parametroNombre, conceptoAlias, tipo },
     { transaction }
   );
 };
 
-const cobrarTasa = async (
+const pagarInteresPorDineroEnCuenta = async (cuenta, { transaction }) => {
+  const parametroNombre = "TASA_POR_DINERO_EN_CUENTA";
+  const conceptoAlias = "DINERO_EN_CUENTA";
+  const tipo = MOVIMIENTOS_CUENTAS_TIPO.ACREDITA;
+
+  return aplicarTasa(
+    { cuenta, parametroNombre, conceptoAlias, tipo },
+    { transaction }
+  );
+};
+
+const aplicarTasa = async (
   { cuenta, parametroNombre, conceptoAlias, tipo },
   { transaction }
 ) => {
@@ -193,7 +216,16 @@ const cobrarTasa = async (
     where: { parametro: parametroNombre },
   });
   const concepto = await buscarConcepto(conceptoAlias);
-  const cantidad = parseFloat(parametro.get("valor"));
+  const valor = parseFloat(parametro.get("valor"));
+
+  let cantidad;
+  if (parametroNombre === "COMISION_MANTENIMIENTO_DE_CUENTA") {
+    // es monto fijo
+    cantidad = valor;
+  } else {
+    cantidad = Math.abs(parseFloat(cuenta.get("saldo")) * valor);
+    console.log(cantidad);
+  }
 
   await crearMovimiento({
     cuenta,
@@ -482,4 +514,6 @@ module.exports = {
   buscarCuentasParaMantenimiento,
   cobrarInteresPorFondoDescubierto,
   buscarCuentasConFondoDescubierto,
+  pagarInteresPorDineroEnCuenta,
+  buscarCajasDeAhorroConSaldo,
 };
