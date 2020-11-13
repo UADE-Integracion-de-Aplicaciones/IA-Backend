@@ -118,7 +118,6 @@ module.exports = {
 
       return res.status(200).json({ mensaje: "pago de servicios realizado" });
     } catch (error) {
-      console.log(error);
       const mensajes_error = [
         ClienteNoExisteError.mensaje,
         CantidadInvalidaError.mensaje,
