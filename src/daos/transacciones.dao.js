@@ -51,6 +51,7 @@ const actualizarSaldoDeCuenta = ({
   operacion,
   transaction,
 }) => {
+  //console.log(cuenta, cantidad, operacion);
   let saldo = parseFloat(cuenta.get("saldo"));
   if (operacion === MOVIMIENTOS_CUENTAS_TIPO.ACREDITA) {
     saldo += cantidad;
@@ -224,7 +225,6 @@ const aplicarTasa = async (
     cantidad = valor;
   } else {
     cantidad = Math.abs(parseFloat(cuenta.get("saldo")) * valor);
-    console.log(cantidad);
   }
 
   await crearMovimiento({

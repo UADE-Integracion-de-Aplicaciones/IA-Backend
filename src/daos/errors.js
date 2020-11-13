@@ -30,7 +30,8 @@ class ClienteNoExisteError extends Error {
 }
 
 class FacturaNoExisteError extends Error {
-  static message = "no existe factura asociada a ese codigo electronico o a ese numero de factura";
+  static message =
+    "no existe factura asociada a ese codigo electronico o a ese numero de factura";
   constructor() {
     super(FacturaNoExisteError.message);
     this.name = "FacturaNoExisteError";
@@ -45,10 +46,10 @@ class CuentaNoExisteError extends Error {
   }
 }
 
-class ArchivoVacio extends Error {
+class ArchivoVacioError extends Error {
   static message = "el archivo esta vacio";
   constructor() {
-    super(ArchivoVacio.message);
+    super(ArchivoVacioError.message);
     this.name = "ArchivoVacioError";
   }
 }
@@ -109,7 +110,6 @@ class NumeroFacturaNoExisteError extends Error {
   }
 }
 
-
 module.exports = {
   DesconocidoBDError,
   DesconocidoError,
@@ -120,7 +120,7 @@ module.exports = {
   CuentaConSaldoInsuficienteError,
   CantidadMenorQueTotalFacturasError,
   CantidadMayorQueTotalFacturasError,
-  ArchivoVacio,
+  ArchivoVacioError,
   FacturaNoExisteError,
   CodigoPagoElectronicoNoExisteError,
   NumeroFacturaNoExisteError,

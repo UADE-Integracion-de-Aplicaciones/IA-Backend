@@ -55,6 +55,7 @@ const crearData = async () => {
     pregunta2_respuesta: "respuesta 2",
     pregunta3: "pregunta 3",
     pregunta3_respuesta: "respuesta 3",
+    usuario_id: usuarioB.get("id"),
   });
 
   const clienteB = await clientes.create({
@@ -222,7 +223,6 @@ const crearData = async () => {
     importe: 1000.0,
     fecha_vencimiento: "2020-12-10",
   });
-
 };
 
 const cargarData = async () => {
@@ -247,8 +247,7 @@ const obtenerClienteDePrueba = () => {
 };
 
 const obtenerEmpleadoPrueba = () => {
-  return empleados.findAll({
-  });
+  return empleados.findAll({});
 };
 
 module.exports = {
@@ -256,5 +255,5 @@ module.exports = {
   cargarData,
   obtenerUsuarioDePrueba,
   obtenerClienteDePrueba,
-  obtenerEmpleadoPrueba
+  obtenerEmpleadoPrueba,
 };
