@@ -7,6 +7,12 @@ const swaggerAutogen = require("swagger-autogen")();
 
 const swaggerUi = require("swagger-ui-express");
 const swaggerFile = require("../resource/swagger/swagger_output.json");
+// NO MOVER DE AQUI POR FAVOR
+const { syncDb } = require("./sequelize/models");
+(async () => {
+  await syncDb(false);
+})();
+//
 
 const app = express();
 app.use(express.json());
