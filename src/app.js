@@ -20,7 +20,8 @@ app.use(cors()); //Habilita conexion segura HTTPS
 const { withJWTAuthMiddleware } = require("express-kun");
 const protectedRouter = withJWTAuthMiddleware(app, process.env.APP_SECRET);
 
-app.use("/doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
+app.use("/doc", swaggerUi.serve);
+app.get('/doc', swaggerUi.setup(swaggerFile))
 
 require("./routes")(app);
 require("./routes/user.routes")(app);
