@@ -13,6 +13,7 @@ const {
   buscarClientePorUsuario,
   asignarUsuario,
 } = require("../daos/clientes.dao");
+const { buscarEmpleadoPorUsuario } = require("../daos/empleados.dao");
 const { obtenerRolParaCliente } = require("../daos/roles.dao");
 const { Error, ClienteNoExisteError } = require("../daos/errors");
 
@@ -44,13 +45,19 @@ module.exports = {
       }
 
       const accessToken = obtenerAccessToken({ userId: user.id });
-      const cliente = await buscarClientePorUsuario(user);
+
+      let datosPersonal;
+      if (user.role.get("alias").startsWith("BANCO_")) {
+        datosPersonal = await buscarEmpleadoPorUsuario(user);
+      } else {
+        datosPersonal = await buscarClientePorUsuario(user);
+      }
 
       const respuesta = {
         nombre_usuario: user.get("nombre_usuario"),
         cliente: {
-          nombre: cliente.get("nombre"),
-          apellido: cliente.get("apellido"),
+          nombre: datosPersonal.get("nombre"),
+          apellido: datosPersonal.get("apellido"),
         },
         rol: user.role.get("alias"),
         "x-access-token": accessToken,
