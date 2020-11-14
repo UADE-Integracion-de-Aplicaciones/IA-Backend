@@ -7,6 +7,12 @@ const swaggerAutogen = require("swagger-autogen")();
 
 const swaggerUi = require("swagger-ui-express");
 const swaggerFile = require("../resource/swagger/swagger_output.json");
+// NO MOVER DE AQUI POR FAVOR
+const { syncDb } = require("./sequelize/models");
+(async () => {
+  await syncDb(false, false);
+})();
+//
 
 const app = express();
 app.use(express.json());
@@ -24,11 +30,10 @@ app.use("/doc", swaggerUi.serve);
 app.get('/doc', swaggerUi.setup(swaggerFile))
 
 require("./routes")(app);
-require("./routes/user.routes")(app);
+require("./routes/usuarios.routes")(app);
 
 require("./routes/clientes.routes")(protectedRouter);
 require("./routes/transacciones.routes")(protectedRouter);
-require("./routes/CodigoAutorizacion.routes")(protectedRouter);
 require("./routes/cuenta.routes")(protectedRouter);
 require("./routes/facturas.routes")(app);
 

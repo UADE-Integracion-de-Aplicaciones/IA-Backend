@@ -26,11 +26,10 @@ const {
   conceptos_movimientos,
   parametros,
 } = db;
-const { crearData } = require("../fixtures");
+const { cargarBDConDatosParaTest } = require("../fixtures");
 
 beforeEach(async () => {
-  await syncDb(true);
-  await crearData();
+  await cargarBDConDatosParaTest();
 });
 
 it("(función) depositar dinero en cuenta propia, debe funcionar", async () => {

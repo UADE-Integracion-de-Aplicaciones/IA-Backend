@@ -25,6 +25,7 @@ module.exports = (sequelize, { DataTypes }) => {
       usado: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
+        defaultValue: false,
       },
     },
     {

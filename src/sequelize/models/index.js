@@ -47,9 +47,11 @@ Object.keys(db).forEach((modelName) => {
 
 makeModelsAssociations(sequelize);
 
-const syncDb = async (force = false) => {
+const syncDb = async (force = false, datos_por_defecto = false) => {
   await sequelize.sync({ force });
-  return createDefaultData(db);
+  if (datos_por_defecto) {
+    await createDefaultData(db);
+  }
 };
 
 db.sequelize = sequelize;

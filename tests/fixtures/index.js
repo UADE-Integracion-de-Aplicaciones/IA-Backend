@@ -1,17 +1,27 @@
 const bcrypt = require("bcrypt");
+const moment = require("moment");
 const { CLIENTES_TIPO, CUENTAS_TIPO } = require("../../src/daos/common");
-const { db } = require("../../src/sequelize/models");
-const { clientes, cuentas, empleados, usuarios, roles, facturas } = db;
+const { db, syncDb } = require("../../src/sequelize/models");
+const {
+  clientes,
+  cuentas,
+  empleados,
+  usuarios,
+  roles,
+  facturas,
+  codigos_autorizacion,
+} = db;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 const crearData = async () => {
-  const rol1 = await roles.create({
-    descripcion: "Ejecutivo del Banco",
-    alias: "EJECUTIVO",
-  });
+  await sleep(200);
 
-  const rol2 = await roles.create({
-    descripcion: "Persona Física",
-    alias: "CLIENTE_PERSONA_FISICA",
+  const rol1 = await roles.findOne({ where: { alias: "BANCO_EJECUTIVO" } });
+  const rol2 = await roles.findOne({
+    where: { alias: "CLIENTE_PERSONA_FISICA" },
   });
 
   const usuarioA = await usuarios.create({
@@ -20,7 +30,7 @@ const crearData = async () => {
     rol_id: rol1.get("id"),
   });
 
-  const usuarioB = await usuarios.create({
+  const usuario_cliente_B = await usuarios.create({
     nombre_usuario: "abc",
     clave: await bcrypt.hash("123", 8),
     rol_id: rol2.get("id"),
@@ -57,6 +67,16 @@ const crearData = async () => {
     pregunta3_respuesta: "respuesta 3",
   });
 
+  const codigo_autoriza = await codigos_autorizacion.create({
+    cliente_id: clienteA.get("id"),
+    codigo: "CODIGO_871",
+    fecha_expiracion: moment()
+      .add(2, "days")
+      .format("YYYY-MM-DD"),
+    dias_vigencia: 2,
+    usado: false,
+  });
+
   const clienteB = await clientes.create({
     tipo: CLIENTES_TIPO.PERSONA_FISICA,
     cuit: "767545",
@@ -77,10 +97,11 @@ const crearData = async () => {
     pregunta2_respuesta: "respuesta 2",
     pregunta3: "pregunta 3",
     pregunta3_respuesta: "respuesta 3",
+    usuario_id: usuario_cliente_B.get("id"),
   });
 
   const clienteC = await clientes.create({
-    tipo: CLIENTES_TIPO.PERSONA_JURIDICA,
+    tipo: CLIENTES_TIPO.PROVEEDOR,
     cuit: "154657667",
     dni: "5465766",
     nombre: "Tomas",
@@ -222,10 +243,14 @@ const crearData = async () => {
     importe: 1000.0,
     fecha_vencimiento: "2020-12-10",
   });
-
 };
 
 const cargarData = async () => {
+  await crearData();
+};
+
+const cargarBDConDatosParaTest = async () => {
+  await syncDb(true, true);
   await crearData();
 };
 
@@ -247,8 +272,7 @@ const obtenerClienteDePrueba = () => {
 };
 
 const obtenerEmpleadoPrueba = () => {
-  return empleados.findAll({
-  });
+  return empleados.findAll({});
 };
 
 module.exports = {
@@ -256,5 +280,6 @@ module.exports = {
   cargarData,
   obtenerUsuarioDePrueba,
   obtenerClienteDePrueba,
-  obtenerEmpleadoPrueba
+  obtenerEmpleadoPrueba,
+  cargarBDConDatosParaTest,
 };
