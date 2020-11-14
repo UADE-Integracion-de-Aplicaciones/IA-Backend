@@ -120,4 +120,15 @@ module.exports = {
       },
     });
   },
+
+  buscarClientePorUsuario(usuario) {
+    const usuario_id = usuario.get("id");
+    return clientes.findOne({ where: { usuario_id } });
+  },
+
+  asignarUsuario({ cliente, usuario }) {
+    const id = cliente.get("id");
+    const usuario_id = usuario.get("id");
+    return clientes.update({ usuario_id }, { where: { id } });
+  },
 };
