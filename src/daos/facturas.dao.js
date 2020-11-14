@@ -5,7 +5,7 @@ const csv = require("csv-parser");
 const fs = require("fs");
 const {
   CuentaNoExisteError,
-  ArchivoVacio,
+  ArchivoVacioError,
   FacturaNoExisteError,
   CodigoPagoElectronicoNoExisteError,
 } = require("./errors");
@@ -38,7 +38,7 @@ const cargarFacturas = async (sourceFilePath, numero_cuenta, columns) => {
   var source = fs.createReadStream(sourceFilePath);
 
   if (!source) {
-    throw new ArchivoVacio();
+    throw new ArchivoVacioError();
   }
 
   var linesRead = 0;

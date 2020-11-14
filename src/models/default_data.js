@@ -22,8 +22,12 @@ module.exports = async (db) => {
       alias: "CLIENTE_PERSONA_FISICA",
     },
     {
-      descripcion: "Persona Jurídica",
-      alias: "CLIENTE_PERSONA_JURIDICA",
+      descripcion: "Empresa",
+      alias: "CLIENTE_EMPRESA",
+    },
+    {
+      descripcion: "Proveedor",
+      alias: "CLIENTE_PROVEEDOR",
     },
   ];
 

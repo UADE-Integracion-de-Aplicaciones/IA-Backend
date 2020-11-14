@@ -4,11 +4,11 @@ const { roles, usuarios } = db;
 const { crearData } = require("../fixtures");
 
 beforeEach(async () => {
-  await syncDb(true);
+  await syncDb(true, true);
   await crearData();
 });
 
-const { getUserByUserName, registrar } = require("../../src/daos/user.dao");
+const { getUserByUserName, registrar } = require("../../src/daos/usuarios.dao");
 
 it("(función) Obtener usuario.", async () => {
   const nombre_usuario = "alejandro.otero";
@@ -19,7 +19,6 @@ it("(función) Obtener usuario.", async () => {
 
 fit("(función) Registrar usuario.", async () => {
   const rol1 = await roles.findOne({ where: { alias: "BANCO_EJECUTIVO" } });
-  console.log(rol1);
   const nombre_usuario = "usuario123";
   const clave = "clave123";
   const rol_id = await rol1.get("id");

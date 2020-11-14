@@ -110,7 +110,32 @@ class NumeroFacturaNoExisteError extends Error {
   }
 }
 
+class CodigoDeAutorizacionInvalidoError extends Error {
+  static mensage = "código de autorización inválido";
+  constructor() {
+    super(CodigoDeAutorizacionInvalidoError.mensage);
+    this.nombre = "CodigoDeAutorizacionInvalidoError";
+  }
+}
+
+class ParametrosFaltantesError extends Error {
+  static mensage = "código de autorización inválido";
+  constructor() {
+    super(ParametrosFaltantesError.mensage);
+    this.nombre = "ParametrosFaltantesError";
+  }
+}
+
+class NombreUsuarioNoDisponibleError extends Error {
+  static mensage = "este usuario no existe";
+  constructor() {
+    super(NombreUsuarioNoDisponibleError.mensage);
+    this.nombre = "NombreUsuarioNoDisponibleError";
+  }
+}
+
 module.exports = {
+  Error,
   DesconocidoBDError,
   DesconocidoError,
   ClienteNoExisteError,
@@ -124,4 +149,7 @@ module.exports = {
   FacturaNoExisteError,
   CodigoPagoElectronicoNoExisteError,
   NumeroFacturaNoExisteError,
+  CodigoDeAutorizacionInvalidoError,
+  ParametrosFaltantesError,
+  NombreUsuarioNoDisponibleError,
 };

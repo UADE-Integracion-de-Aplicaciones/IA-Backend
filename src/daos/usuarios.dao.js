@@ -1,8 +1,7 @@
-const { db } = require("../../src/sequelize/models");
+const { db } = require("../sequelize/models");
 const { usuarios, roles } = db;
 
 module.exports = {
-  //Crea una transaccion / eposito de cuenta
   registrar({ nombre_usuario, clave, rol_id }) {
     return usuarios.create({
       nombre_usuario,
@@ -11,10 +10,9 @@ module.exports = {
     });
   },
 
-  //Movimientos de una cuenta
-  getUserByUserName(userName) {
+  buscarUsuarioPorNombreUsuario(nombre_usuario) {
     return usuarios.findOne({
-      where: { nombre_usuario: userName },
+      where: { nombre_usuario: nombre_usuario },
       include: {
         model: roles,
       },

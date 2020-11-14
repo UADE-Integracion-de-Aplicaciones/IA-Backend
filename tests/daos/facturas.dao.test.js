@@ -1,5 +1,5 @@
 /* const {
-    CodigoPagoElectronicoNoExisteError, 
+    CodigoPagoElectronicoNoExisteError,
     FacturaNoExisteError,
     NumeroFacturaNoExisteError
   } = require("../../src/daos/errors");
@@ -9,9 +9,9 @@ const {
   const { db, syncDb } = require("../../src/sequelize/models");
   const { cuentas, facturas, clientes } = db;
   const { crearData } = require("../fixtures");
-  
+
   beforeEach(async () => {
-    await syncDb(true);
+    await syncDb(true, true);
     await crearData();
   });
 
@@ -26,11 +26,11 @@ const {
     const cuenta_id = cuenta.get("id")
     const numero_cuenta = cuenta.get("numero_cuenta")
     const archivo = '../../tests/fixtures/csvEjemplo.csv'
-    
+
     await cargarFacturas(archivo, numero_cuenta);
-  
+
     const factura = await facturas.findOne({
-        where: { cuenta_id } 
+        where: { cuenta_id }
     })
 
     expect(factura).toBe(await facturas.findOne({ where: {cuenta_id}}));
@@ -47,11 +47,11 @@ const {
     const cuenta_id = cuenta.get("id")
     const numero_cuenta = cuenta.get("numero_cuenta")
     const archivo = '../../tests/fixtures/csvEjemploText.txt'
-    
+
     await cargarFacturas(archivo, numero_cuenta);
-    
+
     const factura = await facturas.findOne({
-        where: { cuenta_id } 
+        where: { cuenta_id }
     })
 
     await expect(
@@ -61,10 +61,10 @@ const {
 
   it("(función) buscar una factura por codigo pago electronico o numero de factura debe funcionar", async () => {
     const factura = await facturas.findOne({
-        where: { numero_factura: "0912390435812"  } 
+        where: { numero_factura: "0912390435812"  }
     })
     expect(getFacturaByNumeroFactura(factura.get('numero_factura'))).toBe("0912390435812");
-    expect(getFacturaByCodigoPagoElectronico(factura.get('codigo_pago_electronico'))).toBe("123542130");   
+    expect(getFacturaByCodigoPagoElectronico(factura.get('codigo_pago_electronico'))).toBe("123542130");
   });
 
   it("(función) buscar una factura por codigo pago electronico o numero de factura debe fallar", async () => {

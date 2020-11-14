@@ -10,7 +10,7 @@ const swaggerFile = require("../resource/swagger/swagger_output.json");
 // NO MOVER DE AQUI POR FAVOR
 const { syncDb } = require("./sequelize/models");
 (async () => {
-  await syncDb(false);
+  await syncDb(false, false);
 })();
 //
 
@@ -29,11 +29,10 @@ const protectedRouter = withJWTAuthMiddleware(app, process.env.APP_SECRET);
 app.use("/doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
 require("./routes")(app);
-require("./routes/user.routes")(app);
+require("./routes/usuarios.routes")(app);
 
 require("./routes/clientes.routes")(protectedRouter);
 require("./routes/transacciones.routes")(protectedRouter);
-require("./routes/CodigoAutorizacion.routes")(protectedRouter);
 require("./routes/cuenta.routes")(protectedRouter);
 require("./routes/facturas.routes")(app);
 
