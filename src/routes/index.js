@@ -1,7 +1,7 @@
-const { cargarData } = require("../../tests/fixtures");
+const { cargarBDConDatosParaTest } = require("../../tests/fixtures");
 
 const cargarDataDePrueba = async (req, res) => {
-  await cargarData();
+  await cargarBDConDatosParaTest();
   return res.status(200).json({ mensaje: "Ok!" });
 };
 
