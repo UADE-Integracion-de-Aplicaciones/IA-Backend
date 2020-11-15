@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { withMiddleware } = require("express-kun");
+const { withMiddleware, TokenError } = require("express-kun");
 
 const jwtAuthMiddleware = (
   secretKey,
@@ -25,7 +25,7 @@ const jwtAuthMiddleware = (
       }
       if (e instanceof jwt.JsonWebTokenError || e instanceof TokenError) {
         res.status(401).json({
-          message: "Invalid Token",
+          message: "Access token inválido",
           error: e.message,
         });
         return;
@@ -42,13 +42,13 @@ const jwtAuthMiddleware = (
 const getTokenFromBearer = (req) => {
   const { authorization } = req.headers;
   if (!authorization) {
-    throw new TokenError("No Authorization Header");
+    throw new TokenError("Falta el header 'Authorization'");
   }
   try {
     const token = authorization.split("Bearer ")[1];
     return token;
   } catch {
-    throw new TokenError("Invalid Token Format");
+    throw new TokenError("Formato del access token inválido");
   }
 };
 
