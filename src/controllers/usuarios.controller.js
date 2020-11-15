@@ -74,7 +74,6 @@ module.exports = {
     const { body } = req;
 
     const { dni, nombre_usuario, clave, codigo_autorizacion } = body;
-    console.log(body);
 
     try {
       if (!dni || !clave || !nombre_usuario || !codigo_autorizacion) {
