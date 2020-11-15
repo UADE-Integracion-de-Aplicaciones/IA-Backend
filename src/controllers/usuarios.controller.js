@@ -46,18 +46,19 @@ module.exports = {
 
       const accessToken = obtenerAccessToken({ usuario_id: user.id });
 
-      let datosPersonal;
+      let entidad;
       if (user.role.get("alias").startsWith("BANCO_")) {
-        datosPersonal = await buscarEmpleadoPorUsuario(user);
+        entidad = await buscarEmpleadoPorUsuario(user);
       } else {
-        datosPersonal = await buscarClientePorUsuario(user);
+        entidad = await buscarClientePorUsuario(user);
       }
 
       const respuesta = {
         nombre_usuario: user.get("nombre_usuario"),
-        cliente: {
-          nombre: datosPersonal.get("nombre"),
-          apellido: datosPersonal.get("apellido"),
+        entidad: {
+          id: entidad.get("id"),
+          nombre: entidad.get("nombre"),
+          apellido: entidad.get("apellido"),
         },
         rol: user.role.get("alias"),
         "x-access-token": accessToken,
