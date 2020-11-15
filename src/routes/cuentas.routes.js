@@ -8,14 +8,7 @@ module.exports = (app) => {
     cuentaController.getResumenCuenta(req, res)
   );
 
-  app.delete("/cuentas/delete", (req, res) =>
-    // #swagger.tags = ['Cuenta']
-    // #swagger.description = 'Endpoint para eliminar una cuenta.'
-    // #swagger.parameters['numero_cuenta'] = { description: 'Numero de cuenta.' }
-    cuentaController.delete(req, res)
-  );
-
-  app.put("/cuentas/update", (req, res) => cuentaController.update(req, res));
+  app.get("/cuentas", (req, res) => cuentaController.obtenerCuentas(req, res));
 
   app.post("/cuentas", (req, res) =>
     // #swagger.tags = ['Cuenta']

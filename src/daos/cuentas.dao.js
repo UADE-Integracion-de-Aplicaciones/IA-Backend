@@ -128,9 +128,14 @@ module.exports = {
     }
   },
 
-  async delete(payload) {
-    const cuentas = this.buscarcuentas(payload);
-    return await cuentas.destroy();
+  obtenerCuentas(cliente) {
+    if (!cliente) {
+      throw new ParametrosFaltantesError();
+    }
+
+    const cliente_id = cliente.get("id");
+
+    return cuentas.findAll({ where: { cliente_id } });
   },
 
   // Retorna la cuentas

@@ -18,4 +18,8 @@ module.exports = {
       },
     });
   },
+
+  buscarUsuarioPorId(id) {
+    return usuarios.findByPk(id);
+  },
 };

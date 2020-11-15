@@ -3,7 +3,9 @@ const { Error, ClienteNoExisteError } = require("../daos/errors");
 const {
   buscarClientePorId,
   obtenerCantidadDeCuentasPorCliente,
+  buscarClientePorUsuario,
 } = require("../daos/clientes.dao");
+const { buscarUsuarioPorId } = require("../daos/usuarios.dao");
 const { generarCodigoAutorizacion } = require("../daos/codigoAutorizacion.dao");
 
 module.exports = {
@@ -53,15 +55,39 @@ module.exports = {
     }
   },
 
-  async delete(req, res) {
-    await dao
-      .delete(req.body)
-      .then(() =>
-        res.status(200).send({ message: "Se elimino la cuenta correctamente" })
-      )
-      .catch((error) => res.status(400).send(error));
+  async obtenerCuentas(req, res) {
+    const { query } = req;
+
+    let cliente;
+    if (query.hasOwnProperty("cliente_id")) {
+      cliente_id = query.cliente_id;
+      cliente = await buscarClientePorId(cliente_id);
+    } else {
+      const { usuario_id } = res.locals.decoded;
+      const usuario = await buscarUsuarioPorId(usuario_id);
+      cliente = await buscarClientePorUsuario(usuario);
+    }
+
+    try {
+      if (!cliente) {
+        throw new ClienteNoExisteError();
+      }
+
+      const cuentas = await dao.obtenerCuentas(cliente);
+
+      const respuesta = cuentas.map((cuenta) => ({
+        numero_cuenta: cuenta.get("numero_cuenta"),
+        cbu: cuenta.get("cbu"),
+      }));
+
+      return res.status(200).json({ cuentas: respuesta });
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({ error });
+    }
   },
 
+  // numero de cuenta, cbu
   async getCuenta(req, res) {
     try {
       await dao
