@@ -44,7 +44,7 @@ module.exports = {
         throw new Error("credenciales incompatibles");
       }
 
-      const accessToken = obtenerAccessToken({ userId: user.id });
+      const accessToken = obtenerAccessToken({ usuario_id: user.id });
 
       let datosPersonal;
       if (user.role.get("alias").startsWith("BANCO_")) {
@@ -66,7 +66,7 @@ module.exports = {
       res.status(200).json({ message: "se logeo con exito", user: respuesta });
     } catch (error) {
       console.log(error);
-      return res.status(400).json({ mensaje: error });
+      return res.status(400).json({ error });
     }
   },
 

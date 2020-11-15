@@ -157,4 +157,9 @@ module.exports = {
     const usuario_id = usuario.get("id");
     return clientes.update({ usuario_id }, { where: { id } });
   },
+
+  obtenerCantidadDeCuentasPorCliente(cliente) {
+    const id = cliente.get("id");
+    return clientes.count({ where: { id } });
+  },
 };

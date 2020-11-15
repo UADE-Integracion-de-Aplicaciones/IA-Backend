@@ -1,6 +1,5 @@
 const moment = require("moment");
 const dao = require("../daos/clientes.dao");
-const { generarCodigoAutorizacion } = require("../daos/codigoAutorizacion.dao");
 const { Error } = require("../daos/errors");
 
 module.exports = {
@@ -79,12 +78,7 @@ module.exports = {
         pregunta3_respuesta,
       });
 
-      const codigo = await generarCodigoAutorizacion(cliente);
-      const codigo_autorizacion = codigo.get("codigo");
-
-      return res
-        .status(200)
-        .json({ mensaje: "cliente creado", codigo_autorizacion });
+      return res.status(200).json({ mensaje: "cliente creado" });
     } catch (error) {
       return res.status(400).json({ error });
     }
