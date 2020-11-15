@@ -300,4 +300,34 @@ module.exports = {
         .send("Ocurrio un problema en el servidor al buscar el cliente por id");
     }
   },
+
+    async buscarClientePorCuit(req, res) {
+    try {
+      const { cuit } = req.body;
+
+      if (!cuit) {
+        res.status(301).send("Parametros inexistentes o incompatibles.");
+        return;
+      }
+
+      await dao.buscarClientePorCuit(cuit)
+        .then((cliente) => {
+          if (cliente) {
+            if (cliente.id) {
+              res.status(200).send(cliente);
+              return cliente;
+            }
+            res.status(300).send("No se pudo encontrar un cliente.");
+            return;
+          } else {
+            res.status(400).send("Ocurrio un problema al buscar el cliente");
+          }
+        })
+        .catch((error) => res.status(401).send("Error al buscar cliente"));
+    } catch (error) {
+      res
+        .status(500)
+        .send("Ocurrio un problema en el servidor al buscar el cliente por id");
+    }
+  },
 };

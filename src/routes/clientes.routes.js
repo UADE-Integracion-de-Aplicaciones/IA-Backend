@@ -65,6 +65,14 @@ module.exports = (app) => {
     clientesController.buscarClientePorCbu(req, res);
   });
 
+  app.post("/clientes/cuit", (req, res) => {
+    // #swagger.tags = ['Clientes']
+    // #swagger.description = 'Endpoint para buscar un cliente por el CUIT.'
+    // #swagger.parameters['cuit'] = { description: 'CUIT de cliente.' }
+
+    clientesController.buscarClientePorCuit(req, res);
+  });
+
   app.post("/clientes/verificar", (req, res) =>
     // #swagger.tags = ['Clientes']
     // #swagger.description = 'Endpoint para verificar un cliente.'
