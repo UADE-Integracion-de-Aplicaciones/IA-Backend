@@ -188,14 +188,14 @@ module.exports = {
   },
 
   async delete(req, res) {
-    const { id } = req.query;
+    const { id } = req.body;
 
     if (!id) {
       res.status(301).send("Parametros inexistentes o incompatibles.");
       return;
     }
 
-    const cliente = await dao.buscarCliente("id", id);
+    const cliente = await dao.buscarClientePorId(id);
 
     if (cliente) {
       if (cliente.id) {
@@ -218,7 +218,38 @@ module.exports = {
       }
 
       await dao
-        .getClienteByDni(dni)
+        .buscarClientePorDni(dni)
+        .then((cliente) => {
+          if (cliente) {
+            if (cliente.id) res.status(200).send(cliente);
+            else res.status(300).send("No se pudo encontrar un cliente.");
+
+            return;
+          } else {
+            res.status(400).send("Ocurrio un problema al buscar el cliente");
+          }
+        })
+        .catch((error) => res.status(401).send("Error al buscar cliente"));
+    } catch (error) {
+      res
+        .status(500)
+        .send(
+          "Ocurrio un problema en el servidor al buscar el cliente por dni"
+        );
+    }
+  },
+
+  async buscarClientePorCbu(req, res) {
+    try {
+      const { cbu } = req.body;
+
+      if (!cbu) {
+        res.status(301).send("Parametros inexistentes o incompatibles.");
+        return;
+      }
+
+      await dao
+        .buscarClientePorCbu(cbu)
         .then((cliente) => {
           if (cliente) {
             if (cliente.id) res.status(200).send(cliente);
@@ -249,7 +280,7 @@ module.exports = {
       }
 
       await dao
-        .getClienteById(id)
+        .buscarClientePorId(id)
         .then((cliente) => {
           if (cliente) {
             if (cliente.id) {

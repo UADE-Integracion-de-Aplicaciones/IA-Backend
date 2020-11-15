@@ -132,6 +132,13 @@ module.exports = {
     });
   },
 
+  buscarClientePorCbu(cbu) {
+    return clientes.findOne({
+      where: {
+        cbu: cbu,
+      },
+    });
+  },
   buscarClientePorCuit(cuit) {
     return clientes.findOne({
       where: {

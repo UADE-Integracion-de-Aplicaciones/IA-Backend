@@ -22,7 +22,6 @@ app.use(bodyParser.urlencoded({ extended: true })); //Setea true para recibir re
 app.use(cors()); //Habilita conexion segura HTTPS
 
 //Seteamos los endpoints, cada uno llama a un archivo de endppoints distinto
-//app.get("/", (req, res) => res.status(200).send("Hello World!"));
 const { withJWTAuthMiddleware } = require("express-kun");
 const protectedRouter = withJWTAuthMiddleware(app, process.env.APP_SECRET);
 

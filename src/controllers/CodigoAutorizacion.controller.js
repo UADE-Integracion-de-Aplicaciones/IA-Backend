@@ -3,7 +3,7 @@ const codigoAutorizacionDao = require('../daos/codigoAutorizacion.dao');
 
 module.exports = {
     validarCodigo(req, res) {
-        const {cliente_id, codigo} = req.query
+        const {cliente_id, codigo} = req.body
 
         if (!req || !req.body || !codigo || !cliente_id){
             res.status(300).send("No se enviaron los parametros adecuados")

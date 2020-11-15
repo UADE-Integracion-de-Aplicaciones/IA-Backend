@@ -34,7 +34,7 @@
   ],
   "paths": {
     "/clientes": {
-      "get": {
+      "post": {
         "tags": [
           "Clientes"
         ],
@@ -190,7 +190,7 @@
         "responses": {}
       }
     },
-    "/register": {
+    "/clientes/usuario/registrar": {
       "post": {
         "tags": [
           "Usuario"
@@ -215,16 +215,120 @@
         "responses": {}
       }
     },
-    "/usuario": {
-      "get": {
+    "/cuenta/getResumen": {
+      "post": {
         "tags": [
-          "Usuario"
+          "Cuenta"
         ],
-        "description": "Verifica si el usuario existe.",
+        "description": "Endpoint para obtener resumen de una cuenta por numero de cuenta.",
+        "parameters": [
+          {
+            "name": "numero_cuenta",
+            "description": "Numero de cuenta."
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/cuenta/delete": {
+      "delete": {
+        "tags": [
+          "Cuenta"
+        ],
+        "description": "Endpoint para eliminar una cuenta.",
+        "parameters": [
+          {
+            "name": "numero_cuenta",
+            "description": "Numero de cuenta."
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/cuenta/update": {
+      "put": {
+        "tags": [],
+        "description": "",
+        "parameters": [],
+        "responses": {}
+      }
+    },
+    "/cuenta/create": {
+      "post": {
+        "tags": [
+          "Cuenta"
+        ],
+        "description": "Endpoint para crear una cuenta.",
         "parameters": [
           {
             "name": "id",
-            "description": "id de usuario."
+            "description": "ID de cliente."
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/cuenta/getCuenta": {
+      "get": {
+        "tags": [
+          "Cuenta"
+        ],
+        "description": "Endpoint para obtener una cuenta por numero de cuenta.",
+        "parameters": [
+          {
+            "name": "numero_cuenta",
+            "description": "Numero de cuenta."
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/cuenta/getSaldo": {
+      "get": {
+        "tags": [
+          "Cuenta"
+        ],
+        "description": "Endpoint para obtener el saldo de una cuenta por numero de cuenta.",
+        "parameters": [
+          {
+            "name": "numero_cuenta",
+            "description": "Numero de cuenta."
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/facturas/cargar": {
+      "post": {
+        "tags": [
+          "Facturas"
+        ],
+        "description": "Endpoint para cargar facturas a una cuenta del cliente.",
+        "parameters": [
+          {
+            "name": "numero_cuenta",
+            "description": "Numero de cuenta."
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/facturas": {
+      "get": {
+        "tags": [
+          "Facturas"
+        ],
+        "description": "Endpoint para buscar las facturas de un cliente por codigo de pago electronico o numero de factura.",
+        "parameters": [
+          {
+            "name": "codigo_pago_electronico",
+            "description": "Codigo de pago electronico de un servicio.",
+            "type": "string"
+          },
+          {
+            "name": "numero_factura",
+            "description": "Numero de factura de un servicio.",
+            "type": "string"
           }
         ],
         "responses": {}

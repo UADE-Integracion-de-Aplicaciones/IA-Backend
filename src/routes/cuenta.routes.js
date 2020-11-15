@@ -2,7 +2,7 @@
 module.exports = (app) => {
     var cuentaController = require('../controllers/cuenta.controller');
 
-    app.get('/cuenta/getResumen', (req,res) => 
+    app.post('/cuenta/getResumen', (req,res) => 
         // #swagger.tags = ['Cuenta']
         // #swagger.description = 'Endpoint para obtener resumen de una cuenta por numero de cuenta.'
         // #swagger.parameters['numero_cuenta'] = { description: 'Numero de cuenta.' }
