@@ -1,8 +1,13 @@
-const Sequelize = require("sequelize");
-const { clientes } = require("../sequelize/models").db;
+const { db } = require("../sequelize/models");
+const { clientes } = db;
+const { CLIENTES_TIPO } = require("../daos/common");
+const {
+  TipoDeClienteInvalidoError,
+  DniNoDisponible,
+  CuitNoDisponible,
+} = require("./errors");
 
 module.exports = {
-  //Crea una transaccion / eposito de cuenta
   async crear({
     tipo,
     cuit,
@@ -24,6 +29,20 @@ module.exports = {
     pregunta3,
     pregunta3_respuesta,
   }) {
+    if (!Object.keys(CLIENTES_TIPO).includes(tipo)) {
+      throw new TipoDeClienteInvalidoError();
+    }
+
+    const existeDNI = await clientes.findOne({ where: { dni } });
+    if (existeDNI) {
+      throw new DniNoDisponible();
+    }
+
+    const existeCUIT = await clientes.findOne({ where: { cuit } });
+    if (existeCUIT) {
+      throw new CuitNoDisponible();
+    }
+
     return clientes.create({
       tipo,
       cuit,

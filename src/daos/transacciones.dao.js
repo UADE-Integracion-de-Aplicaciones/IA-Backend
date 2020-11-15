@@ -15,6 +15,7 @@ const {
   CuentaConSaldoInsuficienteError,
   CantidadMenorQueTotalFacturasError,
   CantidadMayorQueTotalFacturasError,
+  ParametrosFaltantesError,
 } = require("./errors");
 const { db } = require("../sequelize/models");
 const {
@@ -174,6 +175,10 @@ const cobrarComisionPorMantenimientoCuenta = async (
   cuenta,
   { transaction }
 ) => {
+  if (!cuenta) {
+    throw new ParametrosFaltantesError();
+  }
+
   const parametroNombre = "COMISION_MANTENIMIENTO_DE_CUENTA";
   const conceptoAlias = "MANTENIMIENTO_DE_CUENTA";
   const tipo = MOVIMIENTOS_CUENTAS_TIPO.DEBITA;
@@ -185,6 +190,10 @@ const cobrarComisionPorMantenimientoCuenta = async (
 };
 
 const cobrarInteresPorFondoDescubierto = async (cuenta, { transaction }) => {
+  if (!cuenta) {
+    throw new ParametrosFaltantesError();
+  }
+
   const parametroNombre = "TASA_POR_FONDO_DESCUBIERTO";
   const conceptoAlias = "FONDO_DESCUBIERTO";
   const tipo = MOVIMIENTOS_CUENTAS_TIPO.DEBITA;
@@ -196,6 +205,10 @@ const cobrarInteresPorFondoDescubierto = async (cuenta, { transaction }) => {
 };
 
 const pagarInteresPorDineroEnCuenta = async (cuenta, { transaction }) => {
+  if (!cuenta) {
+    throw new ParametrosFaltantesError();
+  }
+
   const parametroNombre = "TASA_POR_DINERO_EN_CUENTA";
   const conceptoAlias = "DINERO_EN_CUENTA";
   const tipo = MOVIMIENTOS_CUENTAS_TIPO.ACREDITA;
@@ -248,6 +261,10 @@ const depositarEnCuentaPropia = (numero_cuenta) => async ({
   usuario,
   cantidad,
 }) => {
+  if (!dni || !usuario || !cantidad) {
+    throw new ParametrosFaltantesError();
+  }
+
   const cliente = await buscarCliente(dni);
 
   if (!cliente) {
@@ -268,6 +285,10 @@ const depositarEnCuentaDeTercero = (cbu) => async ({
   usuario,
   cantidad,
 }) => {
+  if (!dni || !usuario || !cantidad) {
+    throw new ParametrosFaltantesError();
+  }
+
   const cuenta = await buscarCuentaPorCbu(cbu);
 
   if (!cuenta) {
@@ -311,6 +332,10 @@ const extraerDineroDeCuenta = async ({
   cantidad,
   usuario,
 }) => {
+  if (!numero_cuenta || !dni || !cantidad || !usuario) {
+    throw new ParametrosFaltantesError();
+  }
+
   if (cantidad <= 0) {
     throw new CantidadInvalidaError();
   }
@@ -449,6 +474,10 @@ const pagarServicioComoCliente = async ({
   cantidad,
   usuario,
 }) => {
+  if (!numero_cuenta || !facturas || !cantidad || !usuario) {
+    throw new ParametrosFaltantesError();
+  }
+
   if (cantidad <= 0) {
     throw new CantidadInvalidaError();
   }
@@ -476,6 +505,10 @@ const pagarServicioComoBanco = (dni) => async ({
   cantidad,
   usuario,
 }) => {
+  if (!numero_cuenta || !facturas || !cantidad || !usuario) {
+    throw new ParametrosFaltantesError();
+  }
+
   if (cantidad <= 0) {
     throw new CantidadInvalidaError();
   }

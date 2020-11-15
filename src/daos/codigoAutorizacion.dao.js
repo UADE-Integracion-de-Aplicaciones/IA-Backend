@@ -7,9 +7,10 @@ const { CodigoDeAutorizacionInvalidoError } = require("./errors");
 const LONGITUD_CCODIGO = 6;
 const DIAS_VIGENCIA = 2;
 
-const crearCodigo = async (cliente_id, codigo, fechaExpiracion) => {
-  return await codigos_autorizacion.create({
-    cliente_id: cliente_id,
+const crearCodigoAutorizacion = (cliente, codigo, fechaExpiracion) => {
+  const cliente_id = cliente.get("id");
+  return codigos_autorizacion.create({
+    cliente_id,
     codigo: codigo,
     fecha_expiracion: fechaExpiracion,
     dias_vigencia: DIAS_VIGENCIA,
@@ -17,7 +18,7 @@ const crearCodigo = async (cliente_id, codigo, fechaExpiracion) => {
   });
 };
 
-const nuevoCodigo = (longitud) => {
+const generarCodigo = (longitud) => {
   var codigo = "";
   var caracteres =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -54,12 +55,12 @@ const validarCodigoAutorizacion = async ({ cliente, codigo }) => {
 module.exports = {
   validarCodigoAutorizacion,
 
-  async generarCodigo(cliente_id) {
-    const codigo = nuevoCodigo(LONGITUD_CCODIGO);
+  generarCodigoAutorizacion(cliente) {
+    const codigo = generarCodigo(LONGITUD_CCODIGO);
     const fechaExpiracion = moment()
       .add(DIAS_VIGENCIA, "days")
       .format("YYYY-MM-DD");
-    return await crearCodigo(cliente_id, codigo, fechaExpiracion);
+    return crearCodigoAutorizacion(cliente, codigo, fechaExpiracion);
   },
 
   async buscarPorClienteId(cliente_id) {

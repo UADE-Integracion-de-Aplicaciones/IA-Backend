@@ -134,6 +134,30 @@ class NombreUsuarioNoDisponibleError extends Error {
   }
 }
 
+class TipoDeClienteInvalidoError extends Error {
+  static mensage = "tipo de cliente inválido";
+  constructor() {
+    super(TipoDeClienteInvalidoError.mensage);
+    this.nombre = "TipoDeClienteInvalidoError";
+  }
+}
+
+class DniNoDisponible extends Error {
+  static mensage = "este dni ya existe en el sistema";
+  constructor() {
+    super(DniNoDisponible.mensage);
+    this.nombre = "DniNoDisponible";
+  }
+}
+
+class CuitNoDisponible extends Error {
+  static mensage = "este cuit ya existe en el sistema";
+  constructor() {
+    super(CuitNoDisponible.mensage);
+    this.nombre = "CuitNoDisponible";
+  }
+}
+
 module.exports = {
   Error,
   DesconocidoBDError,
@@ -152,4 +176,7 @@ module.exports = {
   CodigoDeAutorizacionInvalidoError,
   ParametrosFaltantesError,
   NombreUsuarioNoDisponibleError,
+  TipoDeClienteInvalidoError,
+  DniNoDisponible,
+  CuitNoDisponible,
 };

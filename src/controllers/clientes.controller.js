@@ -1,5 +1,7 @@
 const moment = require("moment");
-const clientsDao = require("../daos/clientes.dao");
+const dao = require("../daos/clientes.dao");
+const { generarCodigoAutorizacion } = require("../daos/codigoAutorizacion.dao");
+const { Error } = require("../daos/errors");
 
 module.exports = {
   async create(req, res) {
@@ -24,13 +26,38 @@ module.exports = {
       pregunta2_respuesta,
       pregunta3,
       pregunta3_respuesta,
-      usuario_id,
     } = body;
 
     try {
-      const fechaNacimiento = moment(fecha_nacimiento).format("YYYY-MM-DD");
+      if (
+        !tipo ||
+        !cuit ||
+        !dni ||
+        !nombre ||
+        !apellido ||
+        !email ||
+        !domicilio_barrio ||
+        !domicilio_calle ||
+        !domicilio_ciudad ||
+        !domicilio_numero ||
+        !domicilio_piso ||
+        !domicilio_apartamento ||
+        !pregunta1 ||
+        !pregunta1_respuesta ||
+        !pregunta2 ||
+        !pregunta2_respuesta ||
+        !pregunta3 ||
+        !pregunta3_respuesta
+      ) {
+        throw new Error("faltan datos");
+      }
 
-      await clientsDao.crear({
+      let fechaNacimiento;
+      if (fecha_nacimiento) {
+        fechaNacimiento = moment(fecha_nacimiento).format("YYYY-MM-DD");
+      }
+
+      const cliente = await dao.crear({
         tipo,
         cuit,
         dni,
@@ -51,9 +78,15 @@ module.exports = {
         pregunta3,
         pregunta3_respuesta,
       });
-      return res.status(200).json({ mensaje: "cliente creado" });
+
+      const codigo = await generarCodigoAutorizacion(cliente);
+      const codigo_autorizacion = codigo.get("codigo");
+
+      return res
+        .status(200)
+        .json({ mensaje: "cliente creado", codigo_autorizacion });
     } catch (error) {
-      return res.status(404).json({ mensaje: error.name });
+      return res.status(400).json({ error });
     }
   },
 
@@ -66,7 +99,7 @@ module.exports = {
         return;
       }
 
-      await clientsDao
+      await dao
         .getClienteById(id)
         .then((cliente) => {
           if (cliente) {
@@ -114,7 +147,7 @@ module.exports = {
       } = req.body;
       var fechaNacimiento = moment(fecha_nacimiento).format("YYYY-MM-DD");
 
-      clientsDao
+      dao
         .update(
           id,
           nombre,
@@ -162,11 +195,11 @@ module.exports = {
       return;
     }
 
-    const cliente = await clientsDao.buscarCliente("id", id);
+    const cliente = await dao.buscarCliente("id", id);
 
     if (cliente) {
       if (cliente.id) {
-        clientsDao.delete(cliente);
+        dao.delete(cliente);
         res.status(200).send("El cliente se ha eliminado con exito");
       } else res.status(300).send("No se pudo encontrar un cliente.");
       return;
@@ -184,7 +217,7 @@ module.exports = {
         return;
       }
 
-      await clientsDao
+      await dao
         .getClienteByDni(dni)
         .then((cliente) => {
           if (cliente) {
@@ -215,7 +248,7 @@ module.exports = {
         return;
       }
 
-      await clientsDao
+      await dao
         .getClienteById(id)
         .then((cliente) => {
           if (cliente) {
