@@ -24,13 +24,13 @@ module.exports = (app) => {
         // #swagger.parameters['id'] = { description: 'ID de cliente.' }
     cuentaController.create(req, res)); 
 
-    app.get('/cuenta/getCuenta', (req,res) => 
+    app.post('/cuenta/getCuenta', (req,res) => 
         // #swagger.tags = ['Cuenta']
         // #swagger.description = 'Endpoint para obtener una cuenta por numero de cuenta.'
         // #swagger.parameters['numero_cuenta'] = { description: 'Numero de cuenta.' }
     cuentaController.getCuenta(req, res));
 
-    app.get('/cuenta/getSaldo', (req,res) => 
+    app.post('/cuenta/getSaldo', (req,res) => 
         // #swagger.tags = ['Cuenta']
         // #swagger.description = 'Endpoint para obtener el saldo de una cuenta por numero de cuenta.'
         // #swagger.parameters['numero_cuenta'] = { description: 'Numero de cuenta.' }

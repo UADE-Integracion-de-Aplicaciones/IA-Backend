@@ -10,7 +10,7 @@ module.exports = (app) => {
         // #swagger.parameters['numero_cuenta'] = { description: 'Numero de cuenta.' }
     facturasController.cargar(req,res));
 
-    app.get('/facturas', (req,res) => 
+    app.post('/facturas', (req,res) => 
         // #swagger.tags = ['Facturas']
         // #swagger.description = 'Endpoint para buscar las facturas de un cliente por codigo de pago electronico o numero de factura.'
         // #swagger.parameters['codigo_pago_electronico'] = { description: 'Codigo de pago electronico de un servicio.', type: 'string' }
