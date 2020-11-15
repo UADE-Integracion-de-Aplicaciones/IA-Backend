@@ -33,4 +33,10 @@ module.exports = (sequelize) => {
   models.usuarios.belongsTo(models.roles, {
     foreignKey: { name: "rol_id", allowNull: false },
   });
+  models.numeros_unicos.belongsTo(models.cuentas, {
+    foreignKey: { name: "cuenta_id", allowNull: true },
+  });
+  models.numeros_unicos.belongsTo(models.usuarios, {
+    foreignKey: { name: "tomado_por", allowNull: true },
+  });
 };

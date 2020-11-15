@@ -16,7 +16,8 @@
     "task:cargar_datos_prueba": "node src/tasks/cargar_datos_prueba.task.js",
     "task:mantenimiento_de_cuentas": "node src/tasks/mantenimiento_de_cuentas.task.js",
     "task:cobro_por_descubierto": "node src/tasks/cobro_por_descubierto.task.js",
-    "task:pagar_por_dinero_en_cuenta": "node src/tasks/pagar_por_dinero_en_cuenta.task.js"
+    "task:pagar_por_dinero_en_cuenta": "node src/tasks/pagar_por_dinero_en_cuenta.task.js",
+    "task:crear_codigos_unicos": "node src/tasks/crear_numero_unicos.task.js"
   },
   "repository": {
     "type": "git",

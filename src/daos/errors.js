@@ -1,3 +1,7 @@
+const { CUENTAS_TIPO, CLIENTES_TIPO } = require("./common");
+
+const clientes_tipos = Object.keys(CLIENTES_TIPO);
+const cuentas_tipos = Object.keys(CUENTAS_TIPO);
 class Error {
   constructor(mensaje) {
     this.mensaje = mensaje;
@@ -30,10 +34,10 @@ class ClienteNoExisteError extends Error {
 }
 
 class FacturaNoExisteError extends Error {
-  static message =
+  static mensaje =
     "no existe factura asociada a ese codigo electronico o a ese numero de factura";
   constructor() {
-    super(FacturaNoExisteError.message);
+    super(FacturaNoExisteError.mensaje);
     this.name = "FacturaNoExisteError";
   }
 }
@@ -47,9 +51,9 @@ class CuentaNoExisteError extends Error {
 }
 
 class ArchivoVacioError extends Error {
-  static message = "el archivo esta vacio";
+  static mensaje = "el archivo esta vacio";
   constructor() {
-    super(ArchivoVacioError.message);
+    super(ArchivoVacioError.mensaje);
     this.name = "ArchivoVacioError";
   }
 }
@@ -95,66 +99,82 @@ class CantidadMayorQueTotalFacturasError extends Error {
 }
 
 class CodigoPagoElectronicoNoExisteError extends Error {
-  static message = "el codigo proporcionado es incorrecto";
+  static mensaje = "el codigo proporcionado es incorrecto";
   constructor() {
-    super(CodigoPagoElectronicoNoExisteError.message);
+    super(CodigoPagoElectronicoNoExisteError.mensaje);
     this.name = "CodigoPagoElectronicoNoExisteError";
   }
 }
 
 class NumeroFacturaNoExisteError extends Error {
-  static message = "el numero de factura es incorrecto";
+  static mensaje = "el numero de factura es incorrecto";
   constructor() {
-    super(NumeroFacturaNoExisteError.message);
+    super(NumeroFacturaNoExisteError.mensaje);
     this.name = "NumeroFacturaNoExisteError";
   }
 }
 
 class CodigoDeAutorizacionInvalidoError extends Error {
-  static mensage = "código de autorización inválido";
+  static mensaje = "código de autorización inválido";
   constructor() {
-    super(CodigoDeAutorizacionInvalidoError.mensage);
+    super(CodigoDeAutorizacionInvalidoError.mensaje);
     this.nombre = "CodigoDeAutorizacionInvalidoError";
   }
 }
 
 class ParametrosFaltantesError extends Error {
-  static mensage = "código de autorización inválido";
+  static mensaje = "parametros insuficientes";
   constructor() {
-    super(ParametrosFaltantesError.mensage);
+    super(ParametrosFaltantesError.mensaje);
     this.nombre = "ParametrosFaltantesError";
   }
 }
 
 class NombreUsuarioNoDisponibleError extends Error {
-  static mensage = "este usuario no existe";
+  static mensaje = "este usuario no existe";
   constructor() {
-    super(NombreUsuarioNoDisponibleError.mensage);
+    super(NombreUsuarioNoDisponibleError.mensaje);
     this.nombre = "NombreUsuarioNoDisponibleError";
   }
 }
 
 class TipoDeClienteInvalidoError extends Error {
-  static mensage = "tipo de cliente inválido";
+  static mensaje = `tipo de cliente inválido (${clientes_tipos.join(", ")})`;
   constructor() {
-    super(TipoDeClienteInvalidoError.mensage);
+    super(TipoDeClienteInvalidoError.mensaje);
     this.nombre = "TipoDeClienteInvalidoError";
   }
 }
 
-class DniNoDisponible extends Error {
-  static mensage = "este dni ya existe en el sistema";
+class TipoDeCuentaInvalidoError extends Error {
+  static mensaje = `tipo de cuenta inválido (${cuentas_tipos.join(", ")})`;
   constructor() {
-    super(DniNoDisponible.mensage);
+    super(TipoDeCuentaInvalidoError.mensaje);
+    this.nombre = "TipoDeCuentaInvalidoError";
+  }
+}
+
+class DniNoDisponible extends Error {
+  static mensaje = "este dni ya existe en el sistema";
+  constructor() {
+    super(DniNoDisponible.mensaje);
     this.nombre = "DniNoDisponible";
   }
 }
 
 class CuitNoDisponible extends Error {
-  static mensage = "este cuit ya existe en el sistema";
+  static mensaje = "este cuit ya existe en el sistema";
   constructor() {
-    super(CuitNoDisponible.mensage);
+    super(CuitNoDisponible.mensaje);
     this.nombre = "CuitNoDisponible";
+  }
+}
+
+class LimiteDeCuentasExcedidoError extends Error {
+  static mensaje = "el cliente ya posee una cuenta de este tipo";
+  constructor() {
+    super(LimiteDeCuentasExcedidoError.mensaje);
+    this.nombre = "LimiteDeCuentasExcedidoError";
   }
 }
 
@@ -179,4 +199,6 @@ module.exports = {
   TipoDeClienteInvalidoError,
   DniNoDisponible,
   CuitNoDisponible,
+  TipoDeCuentaInvalidoError,
+  LimiteDeCuentasExcedidoError,
 };
