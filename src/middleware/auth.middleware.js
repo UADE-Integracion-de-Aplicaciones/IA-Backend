@@ -45,7 +45,7 @@ const getTokenFromBearer = (req) => {
     throw new TokenError("No Authorization Header");
   }
   try {
-    const token = authorization?.split("Bearer ")[1];
+    const token = authorization.split("Bearer ")[1];
     return token;
   } catch {
     throw new TokenError("Invalid Token Format");
