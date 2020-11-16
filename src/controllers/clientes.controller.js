@@ -1,6 +1,32 @@
 const moment = require("moment");
 const dao = require("../daos/clientes.dao");
-const { Error } = require("../daos/errors");
+const { obtenerCuentas } = require("../daos/cuentas.dao");
+const { Error, ClienteNoExisteError } = require("../daos/errors");
+
+const generarRespuestaCliente = ({ cliente, cuentas }) => {
+  const respuestaCuentas = cuentas.map((cuenta) => ({
+    tipo: cuenta.get("tipo"),
+    numero_cuenta: cuenta.get("numero_cuenta"),
+    cbu: cuenta.get("cbu"),
+    saldo: cuenta.get("saldo"),
+  }));
+
+  return {
+    cuit: cliente.get("cuit"),
+    dni: cliente.get("dni"),
+    nombre: cliente.get("nombre"),
+    apellido: cliente.get("apellido"),
+    email: cliente.get("email"),
+    domicilio_barrio: cliente.get("domicilio_barrio"),
+    domicilio_calle: cliente.get("domicilio_calle"),
+    domicilio_ciudad: cliente.get("domicilio_ciudad"),
+    domicilio_numero: cliente.get("domicilio_numero"),
+    domicilio_piso: cliente.get("domicilio_piso"),
+    domicilio_apartamento: cliente.get("domicilio_apartamento"),
+    fecha_nacimiento: cliente.get("fecha_nacimiento"),
+    cuentas: respuestaCuentas,
+  };
+};
 
 module.exports = {
   async create(req, res) {
@@ -196,126 +222,73 @@ module.exports = {
   },
 
   async buscarClientePorDni(req, res) {
-    try {
-      const { dni } = req.body;
+    const { query } = req;
+    const { numero } = query;
 
-      if (!dni) {
-        res.status(301).send("Parametros inexistentes o incompatibles.");
-        return;
+    try {
+      if (!numero) {
+        throw new Error("faltan datos");
       }
 
-      await dao
-        .buscarClientePorDni(dni)
-        .then((cliente) => {
-          if (cliente) {
-            if (cliente.id) res.status(200).send(cliente);
-            else res.status(300).send("No se pudo encontrar un cliente.");
+      const cliente = await dao.buscarClientePorDni(numero);
+      if (!cliente) {
+        throw new ClienteNoExisteError();
+      }
+      const cuentas = await obtenerCuentas(cliente);
 
-            return;
-          } else {
-            res.status(400).send("Ocurrio un problema al buscar el cliente");
-          }
-        })
-        .catch((error) => res.status(401).send("Error al buscar cliente"));
+      const respuesta = generarRespuestaCliente({ cliente, cuentas });
+
+      return res.status(200).json({ cliente: respuesta });
     } catch (error) {
-      res
-        .status(500)
-        .send(
-          "Ocurrio un problema en el servidor al buscar el cliente por dni"
-        );
+      console.log(error);
+      return res.status(400).json({ error });
     }
   },
 
   async buscarClientePorCbu(req, res) {
-    try {
-      const { cbu } = req.body;
+    const { query } = req;
+    const { numero } = query;
 
-      if (!cbu) {
-        res.status(301).send("Parametros inexistentes o incompatibles.");
-        return;
+    try {
+      if (!numero) {
+        throw new Error("faltan datos");
+      }
+      console.log(numero);
+      const { cliente, cuenta } = await dao.buscarClientePorCbu(numero);
+      if (!cliente) {
+        throw new ClienteNoExisteError();
       }
 
-      await dao
-        .buscarClientePorCbu(cbu)
-        .then((cliente) => {
-          if (cliente) {
-            if (cliente.id) res.status(200).send(cliente);
-            else res.status(300).send("No se pudo encontrar un cliente.");
+      const respuesta = generarRespuestaCliente({ cliente, cuentas: [cuenta] });
 
-            return;
-          } else {
-            res.status(400).send("Ocurrio un problema al buscar el cliente");
-          }
-        })
-        .catch((error) => res.status(401).send("Error al buscar cliente"));
+      return res.status(200).json({ cliente: respuesta });
     } catch (error) {
-      res
-        .status(500)
-        .send(
-          "Ocurrio un problema en el servidor al buscar el cliente por dni"
-        );
-    }
-  },
-
-  async buscarClientePorId(req, res) {
-    try {
-      const { id } = req.body;
-
-      if (!id) {
-        res.status(301).send("Parametros inexistentes o incompatibles.");
-        return;
-      }
-
-      await dao
-        .buscarClientePorId(id)
-        .then((cliente) => {
-          if (cliente) {
-            if (cliente.id) {
-              res.status(200).send(cliente);
-              return cliente;
-            }
-            res.status(300).send("No se pudo encontrar un cliente.");
-            return;
-          } else {
-            res.status(400).send("Ocurrio un problema al buscar el cliente");
-          }
-        })
-        .catch((error) => res.status(401).send("Error al buscar cliente"));
-    } catch (error) {
-      res
-        .status(500)
-        .send("Ocurrio un problema en el servidor al buscar el cliente por id");
+      console.log(error);
+      return res.status(400).json({ error });
     }
   },
 
   async buscarClientePorCuit(req, res) {
-    try {
-      const { cuit } = req.body;
+    const { query } = req;
+    const { numero } = query;
 
-      if (!cuit) {
-        res.status(301).send("Parametros inexistentes o incompatibles.");
-        return;
+    try {
+      if (!numero) {
+        throw new Error("faltan datos");
       }
 
-      await dao
-        .buscarClientePorCuit(cuit)
-        .then((cliente) => {
-          if (cliente) {
-            if (cliente.id) {
-              res.status(200).send(cliente);
-              return cliente;
-            }
-            res.status(300).send("No se pudo encontrar un cliente.");
-            return;
-          } else {
-            res.status(400).send("Ocurrio un problema al buscar el cliente");
-          }
-        })
-        .catch((error) => res.status(401).send("Error al buscar cliente"));
+      const cliente = await dao.buscarClientePorCuit(numero);
+      if (!cliente) {
+        throw new ClienteNoExisteError();
+      }
+      const cuentas = await obtenerCuentas(cliente);
+
+      const respuesta = generarRespuestaCliente({ cliente, cuentas });
+
+      return res.status(200).json({ cliente: respuesta });
     } catch (error) {
-      res
-        .status(500)
-        .send("Ocurrio un problema en el servidor al buscar el cliente por id");
+      console.log(error);
+      return res.status(400).json({ error });
     }
   },
 };

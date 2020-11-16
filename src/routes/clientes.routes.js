@@ -50,7 +50,7 @@ module.exports = (app) => {
     clientesController.modify(req, res)
   );
 
-  app.post("/clientes/dni", (req, res) => {
+  app.get("/clientes/dni", (req, res) => {
     // #swagger.tags = ['Clientes']
     // #swagger.description = 'Endpoint para buscar un cliente por el DNI.'
     // #swagger.parameters['dni'] = { description: 'DNI de cliente.' }
@@ -58,7 +58,7 @@ module.exports = (app) => {
     clientesController.buscarClientePorDni(req, res);
   });
 
-  app.post("/clientes/cbu", (req, res) => {
+  app.get("/clientes/cbu", (req, res) => {
     // #swagger.tags = ['Clientes']
     // #swagger.description = 'Endpoint para buscar un cliente por el CBU.'
     // #swagger.parameters['cbu'] = { description: 'CBU de cliente.' }
@@ -66,7 +66,7 @@ module.exports = (app) => {
     clientesController.buscarClientePorCbu(req, res);
   });
 
-  app.post("/clientes/cuit", (req, res) => {
+  app.get("/clientes/cuit", (req, res) => {
     // #swagger.tags = ['Clientes']
     // #swagger.description = 'Endpoint para buscar un cliente por el CUIT.'
     // #swagger.parameters['cuit'] = { description: 'CUIT de cliente.' }

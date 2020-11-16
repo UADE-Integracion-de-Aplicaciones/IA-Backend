@@ -8,7 +8,6 @@ const {
   buscarClientePorId,
   buscarClientePorUsuario,
 } = require("../daos/clientes.dao");
-const { buscarUsuarioPorId } = require("../daos/usuarios.dao");
 const { generarCodigoAutorizacion } = require("../daos/codigoAutorizacion.dao");
 
 module.exports = {
@@ -73,8 +72,7 @@ module.exports = {
       cliente_id = query.cliente_id;
       cliente = await buscarClientePorId(cliente_id);
     } else {
-      const { usuario_id } = res.locals.decoded;
-      const usuario = await buscarUsuarioPorId(usuario_id);
+      const { usuario } = res.locals;
       cliente = await buscarClientePorUsuario(usuario);
     }
 

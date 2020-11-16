@@ -88,22 +88,22 @@ module.exports = {
   ) {
     return await clientes.update(
       {
-        nombre: nombre,
-        apellido: apellido,
-        email: email,
-        domicilio_ciudad: domicilio_ciudad,
-        domicilio_calle: domicilio_calle,
-        domicilio_barrio: domicilio_barrio,
-        domicilio_numero: domicilio_numero,
-        domicilio_piso: domicilio_piso,
-        domicilio_apartamento: domicilio_apartamento,
-        fecha_nacimiento: fecha_nacimiento,
-        pregunta1: pregunta1,
-        pregunta1_respuesta: pregunta1_respuesta,
-        pregunta2: pregunta2,
-        pregunta2_respuesta: pregunta2_respuesta,
-        pregunta3: pregunta3,
-        pregunta3_respuesta: pregunta3_respuesta,
+        nombre,
+        apellido,
+        email,
+        domicilio_barrio,
+        domicilio_calle,
+        domicilio_ciudad,
+        domicilio_numero,
+        domicilio_piso,
+        domicilio_apartamento,
+        fecha_nacimiento,
+        pregunta1,
+        pregunta1_respuesta,
+        pregunta2,
+        pregunta2_respuesta,
+        pregunta3,
+        pregunta3_respuesta,
       },
       { where: { id: id } }
     );
@@ -154,23 +154,21 @@ module.exports = {
   buscarClientePorDni(dni) {
     return clientes.findOne({
       where: {
-        dni: dni,
+        dni,
       },
     });
   },
 
-  buscarClientePorCbu(cbu) {
-    return clientes.findOne({
-      where: {
-        cbu: cbu,
-      },
-    });
+  async buscarClientePorCbu(cbu) {
+    const cuenta = await cuentas.findOne({ where: { cbu } });
+    const cliente = await clientes.findByPk(cuenta.get("cliente_id"));
+    return { cuenta, cliente };
   },
 
   buscarClientePorCuit(cuit) {
     return clientes.findOne({
       where: {
-        cuit: cuit,
+        cuit,
       },
     });
   },
