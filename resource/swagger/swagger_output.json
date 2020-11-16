@@ -126,7 +126,7 @@
       }
     },
     "/clientes/dni": {
-      "get": {
+      "post": {
         "tags": [
           "Clientes"
         ],
@@ -141,7 +141,7 @@
       }
     },
     "/clientes/cbu": {
-      "get": {
+      "post": {
         "tags": [
           "Clientes"
         ],
@@ -150,6 +150,21 @@
           {
             "name": "cbu",
             "description": "CBU de cliente."
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/clientes/cuit": {
+      "post": {
+        "tags": [
+          "Clientes"
+        ],
+        "description": "Endpoint para buscar un cliente por el CUIT.",
+        "parameters": [
+          {
+            "name": "cuit",
+            "description": "CUIT de cliente."
           }
         ],
         "responses": {}
@@ -215,8 +230,8 @@
         "responses": {}
       }
     },
-    "/cuenta/getResumen": {
-      "post": {
+    "/cuentas/getResumen": {
+      "get": {
         "tags": [
           "Cuenta"
         ],
@@ -230,30 +245,13 @@
         "responses": {}
       }
     },
-    "/cuenta/delete": {
-      "delete": {
-        "tags": [
-          "Cuenta"
-        ],
-        "description": "Endpoint para eliminar una cuenta.",
-        "parameters": [
-          {
-            "name": "numero_cuenta",
-            "description": "Numero de cuenta."
-          }
-        ],
-        "responses": {}
-      }
-    },
-    "/cuenta/update": {
-      "put": {
+    "/cuentas": {
+      "get": {
         "tags": [],
         "description": "",
         "parameters": [],
         "responses": {}
-      }
-    },
-    "/cuenta/create": {
+      },
       "post": {
         "tags": [
           "Cuenta"
@@ -268,7 +266,7 @@
         "responses": {}
       }
     },
-    "/cuenta/getCuenta": {
+    "/cuentas/getCuenta": {
       "get": {
         "tags": [
           "Cuenta"
@@ -283,7 +281,7 @@
         "responses": {}
       }
     },
-    "/cuenta/getSaldo": {
+    "/cuentas/getSaldo": {
       "get": {
         "tags": [
           "Cuenta"
@@ -314,7 +312,7 @@
       }
     },
     "/facturas": {
-      "get": {
+      "post": {
         "tags": [
           "Facturas"
         ],
