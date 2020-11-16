@@ -1,8 +1,8 @@
-const dao = require("../daos/cuentas.dao");
 const { Error, ClienteNoExisteError } = require("../daos/errors");
+const dao = require("../daos/cuentas.dao");
+const { obtenerCantidadDeCuentasPorCliente } = require("../daos/cuentas.dao");
 const {
   buscarClientePorId,
-  obtenerCantidadDeCuentasPorCliente,
   buscarClientePorUsuario,
 } = require("../daos/clientes.dao");
 const { buscarUsuarioPorId } = require("../daos/usuarios.dao");
@@ -57,6 +57,7 @@ module.exports = {
         .status(200)
         .json({ mensaje: "cuenta creada", ...respuestaAdicional });
     } catch (error) {
+      console.log(error);
       return res.status(400).json({ error });
     }
   },

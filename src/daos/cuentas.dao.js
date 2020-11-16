@@ -141,6 +141,11 @@ module.exports = {
     return cuentas.findAll({ where: { cliente_id } });
   },
 
+  obtenerCantidadDeCuentasPorCliente(cliente) {
+    const cliente_id = cliente.get("id");
+    return cuentas.count({ where: { cliente_id } });
+  },
+
   // Retorna la cuentas
   async getcuentas(payload) {
     const cuentas = this.buscarcuentas(payload);
