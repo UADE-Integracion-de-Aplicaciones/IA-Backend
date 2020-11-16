@@ -32,19 +32,25 @@ module.exports = {
 
       const { usuario_id } = res.locals.decoded;
 
-      await dao.crear({
+      const cuenta = await dao.crear({
         tipo,
         cliente_id,
         fondo_descubierto,
         usuario_id,
       });
 
-      let respuestaAdicional;
+      let respuestaAdicional = {
+        cuenta: {
+          cbu: cuenta.get("cbu"),
+          numero_cuenta: cuenta.get("numero_cuenta"),
+        },
+      };
+
       const cantidadCuentas = await obtenerCantidadDeCuentasPorCliente(cliente);
       if (cantidadCuentas == 1) {
         const codigo = await generarCodigoAutorizacion(cliente);
         const codigo_autorizacion = codigo.get("codigo");
-        respuestaAdicional = { codigo_autorizacion };
+        respuestaAdicional = { ...respuestaAdicional, codigo_autorizacion };
       }
 
       return res

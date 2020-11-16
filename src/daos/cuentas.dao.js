@@ -105,12 +105,13 @@ module.exports = {
     const empleado = await empleados.findOne({ where: { usuario_id } });
     const empleado_creador_id = empleado.get("id");
 
+    let cuenta;
     try {
       const numero_unico = await tomarNumeroUnico(usuario_id);
       const numero_cuenta = numero_unico.get("numero");
       const cbu = generarCBU(numero_cuenta);
 
-      const cuenta = await cuentas.create({
+      cuenta = await cuentas.create({
         tipo,
         cliente_id,
         numero_cuenta,
@@ -126,6 +127,8 @@ module.exports = {
       await liberarNumeroUnico(empleado_creador_id);
       throw new DesconocidoBDError(error);
     }
+
+    return cuenta;
   },
 
   obtenerCuentas(cliente) {
