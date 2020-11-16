@@ -18,14 +18,8 @@ const {
 } = require("../daos/transacciones.dao");
 const { buscarFacturasPorIds } = require("../daos/facturas.dao");
 
-// TODO: eliminar cuando se tenga el iniciar session del usuario
-const { obtenerUsuarioDePrueba } = require("../../tests/fixtures");
-////////////
-
 module.exports = {
   async depositar(req, res) {
-    const usuario = await obtenerUsuarioDePrueba(); ////
-
     const { body } = req;
     const { dni, cantidad } = body;
 
@@ -39,6 +33,7 @@ module.exports = {
     }
 
     try {
+      const { usuario } = res.locals;
       const cantidadFloat = parseFloat(cantidad);
       console.log(cantidadFloat);
       await depositarFunction({ dni, usuario, cantidad: cantidadFloat });
@@ -60,12 +55,11 @@ module.exports = {
   },
 
   async extraer(req, res) {
-    const usuario = await obtenerUsuarioDePrueba(); ////
-
     const { body } = req;
     const { numero_cuenta, dni, cantidad } = body;
 
     try {
+      const { usuario } = res.locals;
       const cantidadFloat = parseFloat(cantidad);
       await extraerDineroDeCuenta({
         numero_cuenta,
@@ -93,8 +87,6 @@ module.exports = {
   },
 
   async pagarServicio(req, res) {
-    const usuario = await obtenerUsuarioDePrueba(); ////
-
     const { body } = req;
     const { facturas_ids, numero_cuenta, cantidad } = body;
 
@@ -106,6 +98,7 @@ module.exports = {
     }
 
     try {
+      const { usuario } = res.locals;
       const cantidadFloat = parseFloat(cantidad);
       const facturas = await buscarFacturasPorIds(facturas_ids);
 

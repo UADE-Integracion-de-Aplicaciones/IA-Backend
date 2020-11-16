@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const { withMiddleware, TokenError } = require("express-kun");
+const { buscarUsuarioPorId } = require("../daos/usuarios.dao");
 
 const jwtAuthMiddleware = (
   secretKey,
@@ -17,6 +18,14 @@ const jwtAuthMiddleware = (
       await jwt.verify(token, secretKey, verifyOptions);
       res.locals.token = token;
       res.locals.decoded = jwt.decode(token);
+
+      const { usuario_id } = res.locals.decoded;
+      const usuario = await buscarUsuarioPorId(usuario_id);
+      if (!usuario) {
+        throw new TokenError();
+      }
+      res.locals = { ...res.locals, usuario };
+
       next();
     } catch (e) {
       if (errorHandler) {
