@@ -1,6 +1,9 @@
 const { Error, ClienteNoExisteError } = require("../daos/errors");
 const dao = require("../daos/cuentas.dao");
-const { obtenerCantidadDeCuentasPorCliente } = require("../daos/cuentas.dao");
+const {
+  obtenerCantidadDeCuentasPorCliente,
+  obtenerCuentaConMovimientos,
+} = require("../daos/cuentas.dao");
 const {
   buscarClientePorId,
   buscarClientePorUsuario,
@@ -106,40 +109,36 @@ module.exports = {
     }
   },
 
-  async getSaldo(req, res) {
-    try {
-      await dao
-        .getSaldo(req.body)
-        .then((saldo) => {
-          if (saldo)
-            res
-              .status(200)
-              .send(saldo)
-              .end();
+  async obtenerResumenDeCuenta(req, res) {
+    const { params } = req;
+    const { numero_cuenta } = params;
 
-          res.status(300).send("No se pudo encontrar una cuenta o el saldo");
-        })
-        .catch((error) =>
-          res
-            .status(400)
-            .send("No se pudo encontrar la cuenta u obtener el saldo")
-        );
-    } catch (error) {
-      res.status(500).send({ message: "Error al buscar la cuneta" });
-    }
-  },
-
-  async getResumenCuenta(req, res) {
     try {
-      await dao
-        .getcuentasByNumerocuentas(req.body.numero_cuenta)
-        .then((resumen) => res.status(200).send(resumen))
-        .catch((error) => {
-          console.log(error);
-          res.status(400).send(error);
-        });
+      const { cuenta, movimientos_cuenta } = await obtenerCuentaConMovimientos(
+        numero_cuenta
+      );
+      console.log(cuenta, movimientos_cuenta);
+
+      const movimientos = movimientos_cuenta.map((mov) => ({
+        concepto: mov.conceptos_movimiento.get("descripcion"),
+        tipo: mov.get("tipo"),
+        cantidad: mov.get("cantidad"),
+        fecha_creacion: mov.get("fecha_creacion"),
+      }));
+
+      const respuesta = {
+        cuenta: {
+          cbu: cuenta.get("cbu"),
+          numero_cuenta: cuenta.get("numero_cuenta"),
+          saldo: cuenta.get("saldo"),
+        },
+        movimientos,
+      };
+
+      return res.status(200).json({ ...respuesta });
     } catch (error) {
-      res.status(500).send({ message: "Error al buscar la cuneta" });
+      console.log(error);
+      res.status(400).json({ error });
     }
   },
 };

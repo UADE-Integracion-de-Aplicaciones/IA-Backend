@@ -2,6 +2,7 @@ const { db } = require("../sequelize/models");
 const {
   cuentas,
   movimientos_cuentas,
+  conceptos_movimientos,
   numeros_unicos,
   empleados,
   Sequelize,
@@ -178,17 +179,18 @@ module.exports = {
     throw Error("No se encontro un campo valido");
   },
 
-  getcuentasByNumerocuentas(numero_cuenta) {
-    return cuentas.findOne({
+  async obtenerCuentaConMovimientos(numero_cuenta) {
+    const cuenta = await cuentas.findOne({
       where: {
         numero_cuenta: numero_cuenta,
       },
-      include: [
-        {
-          model: movimientos_cuentas,
-        },
-      ],
     });
+    const cuenta_id = cuenta.get("id");
+    const movimientos_cuenta = await movimientos_cuentas.findAll({
+      where: { cuenta_id },
+      include: [{ model: conceptos_movimientos }],
+    });
+    return { cuenta, movimientos_cuenta };
   },
 
   getcuentasByCBU(cbu) {

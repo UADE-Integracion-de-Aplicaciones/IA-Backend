@@ -1,11 +1,11 @@
 const cuentaController = require("../controllers/cuentas.controller");
 
 module.exports = (app) => {
-  app.get("/cuentas/getResumen", (req, res) =>
+  app.get("/cuentas/:numero_cuenta/resumen", (req, res) =>
     // #swagger.tags = ['Cuenta']
     // #swagger.description = 'Endpoint para obtener resumen de una cuenta por numero de cuenta.'
     // #swagger.parameters['numero_cuenta'] = { description: 'Numero de cuenta.' }
-    cuentaController.getResumenCuenta(req, res)
+    cuentaController.obtenerResumenDeCuenta(req, res)
   );
 
   app.get("/cuentas", (req, res) => cuentaController.obtenerCuentas(req, res));
@@ -22,12 +22,5 @@ module.exports = (app) => {
     // #swagger.description = 'Endpoint para obtener una cuenta por numero de cuenta.'
     // #swagger.parameters['numero_cuenta'] = { description: 'Numero de cuenta.' }
     cuentaController.getCuenta(req, res)
-  );
-
-  app.get("/cuentas/getSaldo", (req, res) =>
-    // #swagger.tags = ['Cuenta']
-    // #swagger.description = 'Endpoint para obtener el saldo de una cuenta por numero de cuenta.'
-    // #swagger.parameters['numero_cuenta'] = { description: 'Numero de cuenta.' }
-    cuentaController.getSaldo(req, res)
   );
 };
