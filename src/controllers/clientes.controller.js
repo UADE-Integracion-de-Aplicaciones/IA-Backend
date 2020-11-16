@@ -181,24 +181,17 @@ module.exports = {
     }
   },
 
-  async delete(req, res) {
-    const { id } = req.body;
+  async borrar(req, res) {
+    const { params } = req;
+    const { cliente_id } = params;
 
-    if (!id) {
-      res.status(301).send("Parametros inexistentes o incompatibles.");
-      return;
-    }
+    try {
+      await dao.borrarCliente(cliente_id);
 
-    const cliente = await dao.buscarClientePorId(id);
-
-    if (cliente) {
-      if (cliente.id) {
-        dao.delete(cliente);
-        res.status(200).send("El cliente se ha eliminado con exito");
-      } else res.status(300).send("No se pudo encontrar un cliente.");
-      return;
-    } else {
-      res.status(400).send("El cliente no existe");
+      return res.status(200).json({ mensaje: "cliente eliminado" });
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({ error });
     }
   },
 
@@ -295,7 +288,7 @@ module.exports = {
     }
   },
 
-    async buscarClientePorCuit(req, res) {
+  async buscarClientePorCuit(req, res) {
     try {
       const { cuit } = req.body;
 
@@ -304,7 +297,8 @@ module.exports = {
         return;
       }
 
-      await dao.buscarClientePorCuit(cuit)
+      await dao
+        .buscarClientePorCuit(cuit)
         .then((cliente) => {
           if (cliente) {
             if (cliente.id) {

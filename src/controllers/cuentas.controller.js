@@ -117,7 +117,6 @@ module.exports = {
       const { cuenta, movimientos_cuenta } = await obtenerCuentaConMovimientos(
         numero_cuenta
       );
-      console.log(cuenta, movimientos_cuenta);
 
       const movimientos = movimientos_cuenta.map((mov) => ({
         concepto: mov.conceptos_movimiento.get("descripcion"),
@@ -138,7 +137,7 @@ module.exports = {
       return res.status(200).json({ ...respuesta });
     } catch (error) {
       console.log(error);
-      res.status(400).json({ error });
+      return res.status(400).json({ error });
     }
   },
 };

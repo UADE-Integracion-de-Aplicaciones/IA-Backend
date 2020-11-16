@@ -18,15 +18,15 @@ module.exports = (app) => {
     // #swagger.parameters['id'] = { description: 'ID de cliente.' }
     clientesController.create(req, res);
   });
-  
-  app.delete("/clientes", (req, res) => {
+
+  app.delete("/clientes/:cliente_id", (req, res) => {
     // #swagger.tags = ['Clientes']
     // #swagger.description = 'Endpoint para eliminar un cliente.'
     // #swagger.parameters['id'] = { description: 'ID de cliente.' }
-    clientesController.delete(req, res);
+    clientesController.borrar(req, res);
   });
 
-  app.put("/clientes", (req, res) => 
+  app.put("/clientes", (req, res) =>
     // #swagger.tags = ['Clientes']
     // #swagger.description = 'Endpoint para modificar un cliente.'
     // #swagger.parameters['id'] = { description: 'ID de cliente.' }
@@ -46,8 +46,9 @@ module.exports = (app) => {
     // #swagger.parameters['pregunta2_respuesta'] = { description: 'ID de cliente.' }
     // #swagger.parameters['pregunta3'] = { description: 'ID de cliente.' }
     // #swagger.parameters['pregunta3_respuesta'] = { description: 'ID de cliente.' }
-  
-  clientesController.modify(req, res));
+
+    clientesController.modify(req, res)
+  );
 
   app.post("/clientes/dni", (req, res) => {
     // #swagger.tags = ['Clientes']
