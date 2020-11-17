@@ -13,6 +13,7 @@ const generarRespuestaCliente = ({ cliente, cuentas }) => {
 
   return {
     id: cliente.get("id"),
+    tipo: cliente.get("tipo"),
     cuit: cliente.get("cuit"),
     dni: cliente.get("dni"),
     nombre: cliente.get("nombre"),
@@ -25,6 +26,9 @@ const generarRespuestaCliente = ({ cliente, cuentas }) => {
     domicilio_piso: cliente.get("domicilio_piso"),
     domicilio_apartamento: cliente.get("domicilio_apartamento"),
     fecha_nacimiento: cliente.get("fecha_nacimiento"),
+    pregunta1: cliente.get("pregunta1"),
+    pregunta2: cliente.get("pregunta2"),
+    pregunta3: cliente.get("pregunta3"),
     cuentas: respuestaCuentas,
   };
 };
