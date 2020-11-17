@@ -17,7 +17,7 @@ const {
 const { buscarEmpleadoPorUsuario } = require("../daos/empleados.dao");
 const { obtenerRolParaCliente } = require("../daos/roles.dao");
 const { generarCodigoAutorizacion } = require("../daos/codigoAutorizacion.dao");
-const { Error, ClienteNoExisteError } = require("../daos/errors");
+const { Error, ClienteNoExisteError, UsuarioNoExisteError } = require("../daos/errors");
 const { SMTP_CONFIG, SERVICE_DETAILS } = require("../daos/common");
 const nodemailer = require("nodemailer");
 const Mailgen = require("mailgen");
@@ -195,7 +195,7 @@ module.exports = {
 
       const user = await buscarUsuarioPorNombreUsuario(nombre_usuario);
       if (!user) {
-        //throw new ClienteNoExisteError();
+        throw new UsuarioNoExisteError();
       }
 
       const codigo = await validarCodigoAutorizacion({
@@ -203,8 +203,10 @@ module.exports = {
         codigo: codigo_autorizacion,
       });
 
-      await cambiarPassword(user.get("id"), clave);
+      const secret = await bcrypt.hash(clave, 8);
+      await cambiarPassword(user.get("id"), secret);
       await marcarCodigoComoUsado(codigo);
+      
       res.status(200).json({
         mensaje: "Contrasena cambiada con exito.",
       });

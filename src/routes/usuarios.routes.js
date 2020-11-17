@@ -29,10 +29,11 @@ module.exports = (app) => {
 
   app.post("/recuperar", (req, res) => {
       // #swagger.tags = ['Usuario']
-    // #swagger.description = 'Endpoint para registrar un usuario.'
-    // #swagger.parameters['nombre_usuario'] = { description: 'nombre de usuario.'}
-    // #swagger.parameters['clave'] = { description: 'clave de usuario.', type: 'string' }
-    // #swagger.parameters['codigo'] = { description: 'codigo de verificacion del usuario.', type: 'string' }
+      // #swagger.description = 'Endpoint para registrar un usuario.'
+      // #swagger.parameters['dni'] = { description: 'dni de usuario.', type: 'string' }
+      // #swagger.parameters['nombre_usuario'] = { description: 'nombre de usuario.'}
+      // #swagger.parameters['clave'] = { description: 'clave de usuario.', type: 'string' }
+      // #swagger.parameters['codigo'] = { description: 'codigo de verificacion del usuario.', type: 'string' }
     recuperar_clave(req,res)
   })
 };

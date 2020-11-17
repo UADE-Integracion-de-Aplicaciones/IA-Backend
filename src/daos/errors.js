@@ -138,6 +138,13 @@ class NombreUsuarioNoDisponibleError extends Error {
   }
 }
 
+class UsuarioNoExisteError extends Error {
+  static mensaje = "este usuario no usuario no existe";
+  constructor() {
+    super(UsuarioNoExisteError.mensaje);
+    this.nombre = "UsuarioNoExisteError";
+  }
+}
 class TipoDeClienteInvalidoError extends Error {
   static mensaje = `tipo de cliente inválido (${clientes_tipos.join(", ")})`;
   constructor() {
@@ -201,4 +208,5 @@ module.exports = {
   CuitNoDisponible,
   TipoDeCuentaInvalidoError,
   LimiteDeCuentasExcedidoError,
+  UsuarioNoExisteError
 };
