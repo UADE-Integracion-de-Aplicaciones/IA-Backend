@@ -152,11 +152,7 @@ module.exports = {
   },
 
   buscarClientePorDni(dni) {
-    return clientes.findOne({
-      where: {
-        dni,
-      },
-    });
+    return clientes.findOne({ where: { dni: dni } });
   },
 
   async buscarClientePorCbu(cbu) {

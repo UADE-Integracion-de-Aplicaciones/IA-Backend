@@ -22,4 +22,8 @@ module.exports = {
   buscarUsuarioPorId(id) {
     return usuarios.findByPk(id);
   },
+
+  cambiarPassword(id, nueva_clave) {
+    return usuarios.update({clave:nueva_clave}, {where: {id: id}})
+  }
 };

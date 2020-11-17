@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const {
   registrar,
   buscarUsuarioPorNombreUsuario,
+  cambiarPassword
 } = require("../daos/usuarios.dao");
 const {
   validarCodigoAutorizacion,
@@ -172,6 +173,40 @@ module.exports = {
 
       res.status(200).json({
         mensaje: "código de autorización enviado a tu buzón de correo",
+      });
+    } catch (error) {
+      return res.status(400).json({ error });
+    }
+  },
+
+  async recuperar_clave(req, res) {
+    const { body } = req;
+    const { dni, nombre_usuario, clave, codigo_autorizacion } = body;
+
+    try {
+      if (!dni || !nombre_usuario || !clave || !codigo_autorizacion) {
+        throw new Error("faltan datos");
+      }
+
+      const cliente = await buscarClientePorDni(dni);
+      if (!cliente) {
+        throw new ClienteNoExisteError();
+      }
+
+      const user = await buscarUsuarioPorNombreUsuario(nombre_usuario);
+      if (!user) {
+        //throw new ClienteNoExisteError();
+      }
+
+      const codigo = await validarCodigoAutorizacion({
+        cliente,
+        codigo: codigo_autorizacion,
+      });
+
+      await cambiarPassword(user.get("id"), clave);
+      await marcarCodigoComoUsado(codigo);
+      res.status(200).json({
+        mensaje: "Contrasena cambiada con exito.",
       });
     } catch (error) {
       return res.status(400).json({ error });

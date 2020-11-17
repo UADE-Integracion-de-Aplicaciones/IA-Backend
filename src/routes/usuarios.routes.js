@@ -2,6 +2,7 @@ const {
   login,
   registrar,
   olvide_mi_clave,
+  recuperar_clave
 } = require("../controllers/usuarios.controller");
 
 module.exports = (app) => {
@@ -25,4 +26,13 @@ module.exports = (app) => {
   app.post("/olvide_mi_clave", (req, res) => {
     olvide_mi_clave(req, res);
   });
+
+  app.post("/recuperar", (req, res) => {
+      // #swagger.tags = ['Usuario']
+    // #swagger.description = 'Endpoint para registrar un usuario.'
+    // #swagger.parameters['nombre_usuario'] = { description: 'nombre de usuario.'}
+    // #swagger.parameters['clave'] = { description: 'clave de usuario.', type: 'string' }
+    // #swagger.parameters['codigo'] = { description: 'codigo de verificacion del usuario.', type: 'string' }
+    recuperar_clave(req,res)
+  })
 };
