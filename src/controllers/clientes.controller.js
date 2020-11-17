@@ -12,6 +12,7 @@ const generarRespuestaCliente = ({ cliente, cuentas }) => {
   }));
 
   return {
+    id: cliente.get("id"),
     cuit: cliente.get("cuit"),
     dni: cliente.get("dni"),
     nombre: cliente.get("nombre"),
