@@ -19,14 +19,6 @@ const doc = {
             "name": "Usuario",
             "description": "Endpoints"
         },
-        {
-            "name": "Cliente",
-            "description": "Endpoints"
-        },
-        {
-            "name": "Transaccion",
-            "description": "Endpoints"
-        }
     ],
 }
 
