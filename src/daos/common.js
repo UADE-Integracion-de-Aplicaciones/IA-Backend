@@ -38,6 +38,22 @@ const DEFAULTS = {
   CRON_EJECUCION_TAREAS: "0 0 * * *",
 };
 
+const SMTP_CONFIG = {
+  host: "smtp-relay.sendinblue.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: "alexcabezas1@gmail.com",
+    pass: "U6NSI9KPQJ13HRhd",
+  },
+};
+
+const SERVICE_DETAILS = {
+  name: "Bankame",
+  url: "https://integracion-banco.herokuapp.com/",
+  email: "bankame.service@gmail.com",
+};
+
 module.exports = {
   DEFAULTS,
   CLIENTES_TIPO,
@@ -45,4 +61,6 @@ module.exports = {
   MOVIMIENTOS_CUENTAS_CONCEPTO,
   MOVIMIENTOS_CUENTAS_TIPO,
   NUMERO_UNICO_TIPO,
+  SMTP_CONFIG,
+  SERVICE_DETAILS,
 };

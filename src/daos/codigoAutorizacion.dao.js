@@ -52,15 +52,33 @@ const validarCodigoAutorizacion = async ({ cliente, codigo }) => {
   return codigo_autorizacion;
 };
 
+const obtenerCodigoExistente = (cliente) => {
+  const cliente_id = cliente.get("id");
+  return codigos_autorizacion.findOne({
+    where: {
+      cliente_id,
+      usado: false,
+      fecha_expiracion: {
+        [Op.gte]: moment(),
+      },
+    },
+  });
+};
+
 module.exports = {
   validarCodigoAutorizacion,
 
-  generarCodigoAutorizacion(cliente) {
+  async generarCodigoAutorizacion(cliente) {
+    const codigoAutoriza = await obtenerCodigoExistente(cliente);
+    if (codigoAutoriza) {
+      return codigoAutoriza;
+    }
+
     const codigo = generarCodigo(LONGITUD_CCODIGO);
     const fechaExpiracion = moment()
       .add(DIAS_VIGENCIA, "days")
       .format("YYYY-MM-DD");
-    return crearCodigoAutorizacion(cliente, codigo, fechaExpiracion);
+    return await crearCodigoAutorizacion(cliente, codigo, fechaExpiracion);
   },
 
   async buscarPorClienteId(cliente_id) {
@@ -73,7 +91,7 @@ module.exports = {
       .then((entries) => entries[0]);
   },
 
-  margarCodigoComoUsado(codigo_autorizacion) {
+  marcarCodigoComoUsado(codigo_autorizacion) {
     const id = codigo_autorizacion.get("id");
     return codigos_autorizacion.update({ usado: true }, { where: { id } });
   },

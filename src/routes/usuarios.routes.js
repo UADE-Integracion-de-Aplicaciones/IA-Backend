@@ -1,4 +1,8 @@
-const { login, registrar } = require("../controllers/usuarios.controller");
+const {
+  login,
+  registrar,
+  olvide_mi_clave,
+} = require("../controllers/usuarios.controller");
 
 module.exports = (app) => {
   app.post("/login", (req, res) => {
@@ -16,5 +20,9 @@ module.exports = (app) => {
     // #swagger.parameters['clave'] = { description: 'clave de usuario.', type: 'string' }
     // #swagger.parameters['rol_id'] = { description: 'id del rol del usuario.', type: 'string' }
     registrar(req, res);
+  });
+
+  app.post("/olvide_mi_clave", (req, res) => {
+    olvide_mi_clave(req, res);
   });
 };

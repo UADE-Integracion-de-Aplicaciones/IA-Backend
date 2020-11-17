@@ -6,7 +6,7 @@ const {
 } = require("../daos/usuarios.dao");
 const {
   validarCodigoAutorizacion,
-  margarCodigoComoUsado,
+  marcarCodigoComoUsado,
 } = require("../daos/codigoAutorizacion.dao");
 const {
   buscarClientePorDni,
@@ -15,7 +15,21 @@ const {
 } = require("../daos/clientes.dao");
 const { buscarEmpleadoPorUsuario } = require("../daos/empleados.dao");
 const { obtenerRolParaCliente } = require("../daos/roles.dao");
+const { generarCodigoAutorizacion } = require("../daos/codigoAutorizacion.dao");
 const { Error, ClienteNoExisteError } = require("../daos/errors");
+const { SMTP_CONFIG, SERVICE_DETAILS } = require("../daos/common");
+const nodemailer = require("nodemailer");
+const Mailgen = require("mailgen");
+
+const transporter = nodemailer.createTransport(SMTP_CONFIG);
+
+const MailGenerator = new Mailgen({
+  theme: "default",
+  product: {
+    name: SERVICE_DETAILS.name,
+    link: SERVICE_DETAILS.url,
+  },
+});
 
 const obtenerAccessToken = (data) => {
   return jwt.sign(data, process.env.APP_SECRET, {
@@ -106,9 +120,59 @@ module.exports = {
       console.log(codigo);
 
       await asignarUsuario({ cliente, usuario });
-      await margarCodigoComoUsado(codigo);
+      await marcarCodigoComoUsado(codigo);
 
       res.status(200).json({ mensaje: "usuario creado" });
+    } catch (error) {
+      return res.status(400).json({ error });
+    }
+  },
+
+  async olvide_mi_clave(req, res) {
+    const { body } = req;
+    const { dni } = body;
+
+    try {
+      if (!dni) {
+        throw new Error("faltan datos");
+      }
+      const cliente = await buscarClientePorDni(dni);
+      if (!cliente) {
+        throw new ClienteNoExisteError();
+      }
+
+      const codigo = await generarCodigoAutorizacion(cliente);
+      let nombre_completo = cliente.get("nombre");
+      if (nombre_completo) {
+        nombre_completo += " " + cliente.get("apellido");
+      }
+      const email = cliente.get("email");
+
+      const response = {
+        body: {
+          name: nombre_completo,
+          intro: `Debido a que entraste a la opción de 'Olvidé mi Contraseña',
+            hemos generado un código de autorización para que puedes restablecer tu contraseña.
+            Tu código de autorización es: <b>${codigo.get("codigo")}</b>`,
+          greeting: "Hola",
+          signature: "Atentamente",
+        },
+      };
+
+      const mail = MailGenerator.generate(response);
+
+      const mensaje = {
+        from: SERVICE_DETAILS.email,
+        to: email,
+        subject: "Olvidé mi contraseña",
+        html: mail,
+      };
+
+      await transporter.sendMail(mensaje);
+
+      res.status(200).json({
+        mensaje: "código de autorización enviado a tu buzón de correo",
+      });
     } catch (error) {
       return res.status(400).json({ error });
     }
