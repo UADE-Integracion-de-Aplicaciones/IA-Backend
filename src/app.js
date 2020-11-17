@@ -21,7 +21,11 @@ app.use(express.json());
 app.use(logger("dev"));
 app.use(bodyParser.urlencoded({ extended: true })); //Setea true para recibir reuest en el url
 app.use(cors()); //Habilita conexion segura HTTPS
-
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 //Seteamos los endpoints, cada uno llama a un archivo de endppoints distinto
 //app.get("/", (req, res) => res.status(200).send("Hello World!"));
 const protectedRouter = withJWTAuthMiddleware(app, process.env.APP_SECRET);
