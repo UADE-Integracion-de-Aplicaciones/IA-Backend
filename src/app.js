@@ -42,7 +42,6 @@ require("./routes/clientes.routes")(protectedRouter);
 require("./routes/transacciones.routes")(protectedRouter);
 require("./routes/cuentas.routes")(protectedRouter);
 require("./routes/facturas.routes")(app);
-require("./routes/bancos.routes")(app);
 require("./routes/transacciones.bancos.routes")(app);
 
 module.exports = app;
