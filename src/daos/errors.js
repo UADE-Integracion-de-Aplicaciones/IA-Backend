@@ -185,6 +185,22 @@ class LimiteDeCuentasExcedidoError extends Error {
   }
 }
 
+class DescripcionDeMovimientoIndalidaError extends Error {
+  static mensaje = "la descripción del movimiento es inválida";
+  constructor() {
+    super(DescripcionDeMovimientoIndalidaError.mensaje);
+    this.nombre = "DescripcionDeMovimientoIndalidaError";
+  }
+}
+
+class TokenInvalidoError extends Error {
+  static mensaje = "token invalido";
+  constructor() {
+    super(TokenInvalidoError.mensaje);
+    this.nombre = "TokenInvalidoError";
+  }
+}
+
 module.exports = {
   Error,
   DesconocidoBDError,
@@ -208,5 +224,7 @@ module.exports = {
   CuitNoDisponible,
   TipoDeCuentaInvalidoError,
   LimiteDeCuentasExcedidoError,
-  UsuarioNoExisteError
+  UsuarioNoExisteError,
+  DescripcionDeMovimientoIndalidaError,
+  TokenInvalidoError,
 };

@@ -8,7 +8,9 @@ const {
   CuentaConSaldoInsuficienteError,
   CantidadMenorQueTotalFacturasError,
   CantidadMayorQueTotalFacturasError,
+  TokenInvalidoError,
 } = require("../daos/errors");
+
 const {
   depositarEnCuentaPropia,
   depositarEnCuentaDeTercero,
@@ -16,7 +18,11 @@ const {
   pagarServicioComoCliente,
   pagarServicioComoBanco,
 } = require("../daos/transacciones.dao");
+
+const { extraerDeCuentaEntreBancos } = require("../daos/transacciones.dao");
 const { buscarFacturasPorIds } = require("../daos/facturas.dao");
+const { Error } = require("../daos/errors");
+const { BANCOS_INFO } = require("../daos/common");
 
 module.exports = {
   async depositar(req, res) {
@@ -47,7 +53,7 @@ module.exports = {
         DesconocidoBDError.mensaje,
       ];
       if (mensajes_error.includes(error.mensaje)) {
-        return res.status(404).json({ error });
+        return res.status(400).json({ error });
       } else {
         return res.status(500).json({ mensaje: new DesconocidoError() });
       }
@@ -79,7 +85,7 @@ module.exports = {
         DesconocidoBDError.mensaje,
       ];
       if (mensajes_error.includes(error.mensaje)) {
-        return res.status(404).json({ error });
+        return res.status(400).json({ error });
       } else {
         return res.status(500).json({ mensaje: new DesconocidoError() });
       }
@@ -122,10 +128,34 @@ module.exports = {
       ];
 
       if (mensajes_error.includes(error.mensaje)) {
-        return res.status(404).json({ error });
+        return res.status(400).json({ error });
       } else {
         return res.status(500).json({ mensaje: new DesconocidoError() });
       }
+    }
+  },
+
+  async pedirDinero(req, res) {
+    const { body, headers } = req;
+    const { cbu, cantidad, descripcion } = body;
+
+    try {
+      if (headers["x-banco-token"] !== BANCOS_INFO.BANCO_A.token) {
+        throw new TokenInvalidoError();
+      }
+
+      if (!cbu || !cantidad || !descripcion) {
+        throw new Error("faltan datos");
+      }
+
+      await extraerDeCuentaEntreBancos({ cbu, cantidad, descripcion });
+
+      return res
+        .status(200)
+        .json({ mensaje: "extracción de dinero realizada" });
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({ error });
     }
   },
 };
