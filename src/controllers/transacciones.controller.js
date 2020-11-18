@@ -15,8 +15,12 @@ const {
   extraerDineroDeCuenta,
   pagarServicioComoCliente,
   pagarServicioComoBanco,
+  disminuirSaldoDeCuenta,
+  actualizarSaldoDeCuenta
 } = require("../daos/transacciones.dao");
 const { buscarFacturasPorIds } = require("../daos/facturas.dao");
+
+const NOMBRE_ENTIDAD = "BANKAME";
 
 module.exports = {
   async depositar(req, res) {
@@ -126,6 +130,58 @@ module.exports = {
       } else {
         return res.status(500).json({ mensaje: new DesconocidoError() });
       }
+    }
+  },
+
+  async autorizar_compra(req, res) {
+    const { body } = req;
+    const { cbu, nombre_banco_cbu, importe, cbu_establecimiento } = body;
+
+    try {
+      if (!cbu || !nombre_banco_cbu || !importe || cbu_establecimiento) 
+        throw new Error("faltan datos");
+      
+      if (importe <= 0) 
+        throw new CantidadInvalidaError();
+
+      const cuenta_origen = await buscarCuentaPorCbu(cbu);
+      const cuenta_destino = await buscarCuentaPorCbu(cbu_establecimiento);
+      
+      const transaction = await db.sequelize.transaction();
+      try {     
+        if (NOMBRE_ENTIDAD !== nombre_banco_cbu) {
+          //El metodo de redirigir transaccion deberia pegarle al de ellos y hacer la transaccion
+          const resultadoTransaccion = redirigirTransaccion(cbu, nombre_banco_cbu, importe, cbu_establecimiento);
+
+          if (resultadoTransaccion.status !== 200)
+            throw new Error("Error en la cuenta, esta no existe");
+        } else {
+          if (tieneSaldoEnCuentaParaPagar({ cuenta_destino, importe })) 
+            throw new CuentaConSaldoInsuficienteError();
+
+          await disminuirSaldoDeCuenta({ cuenta_destino, cantidad, transaction });
+        }
+        
+        await actualizarSaldoDeCuenta({ cuenta_origen, cantidad, transaction });
+
+        const movimiento = await crearMovimiento({
+          cuenta_origen,
+          concepto,
+          tipo,
+          cantidad,
+          usuario,
+          transaction,
+        });
+
+        await transaction.commit();
+      } catch (error) {
+        await transaction.rollback();
+        throw new DesconocidoBDError();
+      }
+
+      return res.status(200).send(movimiento).json({ mensaje: "pago de servicios realizado" });
+    } catch (error) {
+      return res.status(404).json({ error });
     }
   },
 };

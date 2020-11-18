@@ -549,4 +549,6 @@ module.exports = {
   buscarCuentasConFondoDescubierto,
   pagarInteresPorDineroEnCuenta,
   buscarCajasDeAhorroConSaldo,
+  actualizarSaldoDeCuenta,
+  disminuirSaldoDeCuenta
 };
