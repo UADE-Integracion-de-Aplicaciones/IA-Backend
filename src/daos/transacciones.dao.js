@@ -16,6 +16,7 @@ const {
   CantidadMenorQueTotalFacturasError,
   CantidadMayorQueTotalFacturasError,
   ParametrosFaltantesError,
+  DescripcionDeMovimientoIndalidaError,
 } = require("./errors");
 const { db } = require("../sequelize/models");
 const {
@@ -98,15 +99,17 @@ const crearMovimiento = ({
   tipo,
   usuario,
   cantidad,
+  descripcion,
   transaction,
 }) => {
-  //console.log(cuenta, concepto, tipo, usuario, cantidad);
+  //console.log(cuenta, concepto, tipo, usuario, descriocion, cantidad);
   return movimientos_cuentas.create(
     {
       cuenta_id: cuenta.get("id"),
       concepto_movimiento_id: concepto.get("id"),
       tipo,
       cantidad,
+      descripcion,
       usuario_creador_id: usuario.get("id"),
     },
     { transaction }
@@ -537,6 +540,57 @@ const pagarServicioComoBanco = (dni) => async ({
   });
 };
 
+const extraerDeCuentaEntreBancos = async ({ cbu, cantidad, descripcion }) => {
+  if (!cbu || !cantidad || !descripcion) {
+    throw new ParametrosFaltantesError();
+  }
+
+  if (cantidad <= 0) {
+    throw new CantidadInvalidaError();
+  }
+
+  if (!descripcion.startsWith("Compra en")) {
+    throw new DescripcionDeMovimientoIndalidaError();
+  }
+
+  const cuenta = await buscarCuentaPorCbu(cbu);
+  if (!cuenta) {
+    throw new CuentaNoExisteError();
+  }
+
+  if (tieneSaldoEnCuentaParaPagar({ cuenta, cantidad })) {
+    throw new CuentaConSaldoInsuficienteError();
+  }
+
+  const cliente = await cuenta.getCliente();
+  const usuario = await cliente.getUsuario();
+  const concepto = await buscarConcepto(
+    MOVIMIENTOS_CUENTAS_CONCEPTO.COMPRA_EN_ESTABLECIMIENTO
+  );
+  const tipo = MOVIMIENTOS_CUENTAS_TIPO.DEBITA;
+
+  const transaction = await db.sequelize.transaction();
+
+  try {
+    const movimiento = await crearMovimiento({
+      cuenta,
+      concepto,
+      tipo,
+      cantidad,
+      usuario,
+      descripcion,
+      transaction,
+    });
+
+    await disminuirSaldoDeCuenta({ cuenta, cantidad, transaction });
+
+    await transaction.commit();
+  } catch (error) {
+    await transaction.rollback();
+    throw new DesconocidoBDError();
+  }
+};
+
 module.exports = {
   extraerDineroDeCuenta,
   depositarEnCuentaPropia,
@@ -550,5 +604,6 @@ module.exports = {
   pagarInteresPorDineroEnCuenta,
   buscarCajasDeAhorroConSaldo,
   aumentarSaldoDeCuenta,
-  disminuirSaldoDeCuenta
+  disminuirSaldoDeCuenta,
+  extraerDeCuentaEntreBancos,
 };

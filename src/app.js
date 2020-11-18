@@ -22,9 +22,12 @@ app.use(logger("dev"));
 app.use(bodyParser.urlencoded({ extended: true })); //Setea true para recibir reuest en el url
 app.use(cors()); //Habilita conexion segura HTTPS
 app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
 });
 //Seteamos los endpoints, cada uno llama a un archivo de endppoints distinto
 //app.get("/", (req, res) => res.status(200).send("Hello World!"));
@@ -40,5 +43,6 @@ require("./routes/transacciones.routes")(protectedRouter);
 require("./routes/cuentas.routes")(protectedRouter);
 require("./routes/facturas.routes")(app);
 require("./routes/bancos.routes")(app);
+require("./routes/transacciones.bancos.routes")(app);
 
 module.exports = app;

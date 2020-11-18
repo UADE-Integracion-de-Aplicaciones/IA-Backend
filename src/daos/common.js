@@ -61,7 +61,7 @@ const BANCOS_INFO = {
     nombre: "BANCO_A",
     servicio_url: "http://www.banco_a.com",
     pedir_dinero_endpoint: "/pedir_dinero",
-    token: "UN_TOKEN_DEL_BANCO_A",
+    token: "fbkYq54qFLTEG9V7aAACmJmHaNTYe4",
   },
 };
 

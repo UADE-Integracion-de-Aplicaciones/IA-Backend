@@ -8,7 +8,9 @@ const {
   CuentaConSaldoInsuficienteError,
   CantidadMenorQueTotalFacturasError,
   CantidadMayorQueTotalFacturasError,
+  TokenInvalidoError,
 } = require("../daos/errors");
+
 const {
   depositarEnCuentaPropia,
   depositarEnCuentaDeTercero,
@@ -19,12 +21,12 @@ const {
   aumentarSaldoDeCuenta
 } = require("../daos/transacciones.dao");
 const {
-  DEFAULTS,
-  MOVIMIENTOS_CUENTAS_TIPO,
-  MOVIMIENTOS_CUENTAS_CONCEPTO,
-  CUENTAS_TIPO,
+  MOVIMIENTOS_CUENTAS_TIPO
 } = require("./../daos/common");
+
+const { extraerDeCuentaEntreBancos } = require("../daos/transacciones.dao");
 const { buscarFacturasPorIds } = require("../daos/facturas.dao");
+const { Error } = require("../daos/errors");
 
 const NOMBRE_ENTIDAD = "BANKAME";
 
@@ -57,7 +59,7 @@ module.exports = {
         DesconocidoBDError.mensaje,
       ];
       if (mensajes_error.includes(error.mensaje)) {
-        return res.status(404).json({ error });
+        return res.status(400).json({ error });
       } else {
         return res.status(500).json({ mensaje: new DesconocidoError() });
       }
@@ -89,7 +91,7 @@ module.exports = {
         DesconocidoBDError.mensaje,
       ];
       if (mensajes_error.includes(error.mensaje)) {
-        return res.status(404).json({ error });
+        return res.status(400).json({ error });
       } else {
         return res.status(500).json({ mensaje: new DesconocidoError() });
       }
@@ -132,7 +134,7 @@ module.exports = {
       ];
 
       if (mensajes_error.includes(error.mensaje)) {
-        return res.status(404).json({ error });
+        return res.status(400).json({ error });
       } else {
         return res.status(500).json({ mensaje: new DesconocidoError() });
       }
