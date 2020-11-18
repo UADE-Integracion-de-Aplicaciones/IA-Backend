@@ -33,7 +33,7 @@ module.exports = (app) => {
       // #swagger.parameters['dni'] = { description: 'dni de usuario.', type: 'string' }
       // #swagger.parameters['nombre_usuario'] = { description: 'nombre de usuario.'}
       // #swagger.parameters['clave'] = { description: 'clave de usuario.', type: 'string' }
-      // #swagger.parameters['codigo'] = { description: 'codigo de verificacion del usuario.', type: 'string' }
+      // #swagger.parameters['codigo_autorizacion'] = { description: 'codigo de verificacion del usuario.', type: 'string' }
     recuperar_clave(req,res)
   })
 };
