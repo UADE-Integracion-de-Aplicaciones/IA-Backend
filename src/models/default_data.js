@@ -66,6 +66,14 @@ module.exports = async (db) => {
       alias: "DINERO_EN_CUENTA",
       descripcion: "Dinero En Cuenta",
     },
+    {
+      alias: "COMPRA_EN_ESTABLECIMIENTO",
+      descripcion: "Compra en Establecimiento",
+    },
+    {
+      alias: "VENTA_DEL_ESTABLECIMIENTO",
+      descripcion: "Venta del Establecimiento",
+    },
   ];
 
   const conceptosPromises = conceptos.map((data) =>
