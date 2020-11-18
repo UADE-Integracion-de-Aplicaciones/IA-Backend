@@ -16,8 +16,14 @@ const {
   pagarServicioComoCliente,
   pagarServicioComoBanco,
   disminuirSaldoDeCuenta,
-  actualizarSaldoDeCuenta
+  aumentarSaldoDeCuenta
 } = require("../daos/transacciones.dao");
+const {
+  DEFAULTS,
+  MOVIMIENTOS_CUENTAS_TIPO,
+  MOVIMIENTOS_CUENTAS_CONCEPTO,
+  CUENTAS_TIPO,
+} = require("./../daos/common");
 const { buscarFacturasPorIds } = require("../daos/facturas.dao");
 
 const NOMBRE_ENTIDAD = "BANKAME";
@@ -144,11 +150,8 @@ module.exports = {
       if (importe <= 0) 
         throw new CantidadInvalidaError();
 
-      const cuenta_origen = await buscarCuentaPorCbu(cbu);
-      const cuenta_destino = await buscarCuentaPorCbu(cbu_establecimiento);
-      
       const transaction = await db.sequelize.transaction();
-      try {     
+      try {
         if (NOMBRE_ENTIDAD !== nombre_banco_cbu) {
           //El metodo de redirigir transaccion deberia pegarle al de ellos y hacer la transaccion
           const resultadoTransaccion = redirigirTransaccion(cbu, nombre_banco_cbu, importe, cbu_establecimiento);
@@ -156,22 +159,42 @@ module.exports = {
           if (resultadoTransaccion.status !== 200)
             throw new Error("Error en la cuenta, esta no existe");
         } else {
-          if (tieneSaldoEnCuentaParaPagar({ cuenta_destino, importe })) 
+          if (tieneSaldoEnCuentaParaPagar({ cuenta_origen, importe })) 
             throw new CuentaConSaldoInsuficienteError();
 
-          await disminuirSaldoDeCuenta({ cuenta_destino, cantidad, transaction });
+          const {cuenta_origen, cliente_origen} = await buscarClientePorCbu(cbu);
+
+          console.log(cliente_origen)
+
+          await crearMovimiento({
+            cuenta: cuenta_origen,
+            concepto: concepto_pago_consumidor,
+            tipo: MOVIMIENTOS_CUENTAS_TIPO.DEBITA,
+            cantidad: importe,
+            usuario: cliente_origen.usuarios,
+            transaction,
+          });    
+
+          await disminuirSaldoDeCuenta({ cuenta_origen, cantidad, transaction });
         }
-        
-        await actualizarSaldoDeCuenta({ cuenta_origen, cantidad, transaction });
+    
+        const {cuenta_destino, cliente_destino} = await buscarClientePorCbu(cbu);
 
         const movimiento = await crearMovimiento({
-          cuenta_origen,
-          concepto,
-          tipo,
-          cantidad,
-          usuario,
+          cuenta: cuenta_destino,
+          concepto: concepto_pago_cliente,
+          tipo: MOVIMIENTOS_CUENTAS_TIPO.ACREDITA,
+          cantidad: importe,
+          usuario: cliente_destino.usuarios,
           transaction,
         });
+    
+        const comision = await cobrarComisionPorTransaccion(movimiento, {
+          transaction,
+        });
+
+        const importeConComision = parseFloat(importe) - parseFloat(comision.get("cantidad"))
+        await aumentarSaldoDeCuenta({ cuenta_destino, importeConComision, transaction });
 
         await transaction.commit();
       } catch (error) {
