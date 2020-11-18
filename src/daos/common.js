@@ -54,6 +54,15 @@ const SERVICE_DETAILS = {
   email: "bankame.service@gmail.com",
 };
 
+const BANCOS_INFO = {
+  BANCO_A: {
+    nombre: "BANCO_A",
+    servicio_url: "http://www.banco_a.com",
+    pedir_dinero_endpoint: "/pedir_dinero",
+    token: "UN_TOKEN_DEL_BANCO_A",
+  },
+};
+
 module.exports = {
   DEFAULTS,
   CLIENTES_TIPO,
@@ -63,4 +72,5 @@ module.exports = {
   NUMERO_UNICO_TIPO,
   SMTP_CONFIG,
   SERVICE_DETAILS,
+  BANCOS_INFO,
 };
