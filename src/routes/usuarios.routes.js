@@ -2,7 +2,7 @@ const {
   login,
   registrar,
   olvide_mi_clave,
-  recuperar_clave
+  recuperar_clave,
 } = require("../controllers/usuarios.controller");
 
 module.exports = (app) => {
