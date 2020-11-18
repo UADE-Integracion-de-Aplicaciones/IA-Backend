@@ -44,13 +44,14 @@ const cargarFacturas = async (sourceFilePath, numero_cuenta, columns) => {
   var linesRead = 0;
 
   var parser = csv({
-    delimiter: ",",
+    delimiter: ";",
     columns: columns,
   });
 
   parser.on("readable", function() {
     var record;
     while ((record = parser.read())) {
+      console.log(record);
       linesRead++;
       crear({ ...record, cuenta });
     }
@@ -104,15 +105,10 @@ module.exports = {
     throw Error("No se encontro un campo valido");
   },
 
-  async getFacturaByCodigoPagoElectronico(codigo_pago_electronico) {
-    const codigo = facturas.findOne({
-      where: { codigo_pago_electronico: codigo_pago_electronico },
+  obtenerFacturasPorCodigoPagoElectronico(codigo_pago_electronico) {
+    return facturas.findAll({
+      where: { codigo_pago_electronico },
     });
-    if (!codigo) {
-      return codigo;
-    } else {
-      throw new CodigoPagoElectronicoNoExisteError();
-    }
   },
 
   getFacturaByNumeroFactura(numero_factura) {

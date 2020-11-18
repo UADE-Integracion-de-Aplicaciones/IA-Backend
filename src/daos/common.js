@@ -18,6 +18,8 @@ const MOVIMIENTOS_CUENTAS_CONCEPTO = {
   MANTENIMIENTO_DE_CUENTA: "MANTENIMIENTO_DE_CUENTA",
   FONDO_DESCUBIERTO: "FONDO_DESCUBIERTO",
   DINERO_EN_CUENTA: "DINERO_EN_CUENTA",
+  COMPRA_EN_ESTABLECIMIENTO: "COMPRA_EN_ESTABLECIMIENTO",
+  VENTA_DEL_ESTABLECIMIENTO: "VENTA_DEL_ESTABLECIMIENTO",
 };
 
 const MOVIMIENTOS_CUENTAS_TIPO = {
@@ -54,6 +56,15 @@ const SERVICE_DETAILS = {
   email: "bankame.service@gmail.com",
 };
 
+const BANCOS_INFO = {
+  BANCO_A: {
+    nombre: "BANCO_A",
+    servicio_url: "http://www.banco_a.com",
+    pedir_dinero_endpoint: "/pedir_dinero",
+    token: "UN_TOKEN_DEL_BANCO_A",
+  },
+};
+
 module.exports = {
   DEFAULTS,
   CLIENTES_TIPO,
@@ -63,4 +74,5 @@ module.exports = {
   NUMERO_UNICO_TIPO,
   SMTP_CONFIG,
   SERVICE_DETAILS,
+  BANCOS_INFO,
 };
