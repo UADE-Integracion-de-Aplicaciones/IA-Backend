@@ -22,12 +22,16 @@ const buscarFacturasPorIds = (ids) => {
   return facturas.findAll({ where: { id: { [Sequelize.Op.in]: ids } } });
 };
 
-const obtenerFacturasFechaCuenta = (numero_cuenta, anio, mes) => {
+const obtenerFacturasFechaCuenta = async (numero_cuenta, anio, mes) => {
+  const cuenta = await cuentas.findOne({ where: { numero_cuenta } });
+  
+  const fechaInicio = moment().year(anio).month(mes).toDate();
+  const fechaFin = moment().year(anio).month(mes).add(1, 'M').toDate();
   return facturas.findAll({
     where: {
-      cuenta_id: numero_cuenta,
+      cuenta_id: cuenta.get("id"),
       fecha_vencimiento: {
-        [Op.between]: [oment().year(anio).month(mes).toDate(), oment().year(anio).month(mes).add(1, 'M').toDate()]
+        [Op.between]: [fechaInicio, fechaFin]
       }
     }
   })

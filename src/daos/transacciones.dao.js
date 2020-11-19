@@ -591,6 +591,10 @@ const extraerDeCuentaEntreBancos = async ({ cbu, cantidad, descripcion }) => {
   }
 };
 
+const pedirDineroAOtroBanco = async (cbu, cantidad, descripcion, token) => {
+  return ;
+};
+
 module.exports = {
   extraerDineroDeCuenta,
   depositarEnCuentaPropia,
@@ -606,4 +610,5 @@ module.exports = {
   aumentarSaldoDeCuenta,
   disminuirSaldoDeCuenta,
   extraerDeCuentaEntreBancos,
+  pedirDineroAOtroBanco,
 };

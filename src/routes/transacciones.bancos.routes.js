@@ -1,4 +1,4 @@
-const { pedirDinero, autorizar_compra } = require("../controllers/transacciones.controller");
+const { pedirDinero, autorizarCompra } = require("../controllers/transacciones.controller");
 
 module.exports = (app) => {
   app.post("/transacciones/bancos/pedir_dinero", (req, res) =>
@@ -17,6 +17,6 @@ module.exports = (app) => {
     // #swagger.parameters['nombre_banco_cbu'] = { description: 'nombre del banco al que pertenece la cuenta.'}
     // #swagger.parameters['importe'] = { description: 'Importe a depositar.', type: 'string' }
     // #swagger.parameters['cbu_establecimiento'] = { description: 'cbu del establecimiento que realiza la transaccion.', type: 'string' }
-    autorizar_compra(req,res)
-})
+    autorizarCompra(req,res)
+  })
 };

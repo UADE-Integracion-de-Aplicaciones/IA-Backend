@@ -18,17 +18,18 @@ const {
   pagarServicioComoCliente,
   pagarServicioComoBanco,
   disminuirSaldoDeCuenta,
-  aumentarSaldoDeCuenta
+  aumentarSaldoDeCuenta,
+  pedirDineroAOtroBanco
 } = require("../daos/transacciones.dao");
 const {
-  MOVIMIENTOS_CUENTAS_TIPO
+  MOVIMIENTOS_CUENTAS_TIPO,
+  BANCOS_INFO,
+  MOVIMIENTOS_CUENTAS_CONCEPTO
 } = require("./../daos/common");
 
 const { extraerDeCuentaEntreBancos } = require("../daos/transacciones.dao");
 const { buscarFacturasPorIds } = require("../daos/facturas.dao");
 const { Error } = require("../daos/errors");
-
-const NOMBRE_ENTIDAD = "BANKAME";
 
 module.exports = {
   async depositar(req, res) {
@@ -141,62 +142,66 @@ module.exports = {
     }
   },
 
-  async autorizar_compra(req, res) {
+  async autorizarCompra(req, res) {
     const { body } = req;
     const { cbu, nombre_banco_cbu, importe, cbu_establecimiento } = body;
 
     try {
-      if (!cbu || !nombre_banco_cbu || !importe || cbu_establecimiento) 
+      if (!cbu || !nombre_banco_cbu || !importe || !cbu_establecimiento) 
         throw new Error("faltan datos");
       
       if (importe <= 0) 
         throw new CantidadInvalidaError();
 
       const transaction = await db.sequelize.transaction();
+      const cantidad = importe;
       try {
-        if (NOMBRE_ENTIDAD !== nombre_banco_cbu) {
-          //El metodo de redirigir transaccion deberia pegarle al de ellos y hacer la transaccion
-          const resultadoTransaccion = redirigirTransaccion(cbu, nombre_banco_cbu, importe, cbu_establecimiento);
+        const {cuenta_destino, cliente_destino} = await buscarClientePorCbu(cbu_establecimiento);
 
+        if (BANCOS_INFO.BANCO_A.nombre !== nombre_banco_cbu) {
+          const descripcion = "Compra en " + cliente_destino.get("nombre") + " " + cliente_destino.get("apellido");
+          
+          //El metodo de redirigir transaccion deberia pegarle al de ellos y hacer la transaccion
+          const token = BANCOS_INFO.BANCO_A.token;
+          const resultadoTransaccion = pedirDineroAOtroBanco(cbu, cantidad, descripcion, token);
+
+          //TODO
           if (resultadoTransaccion.status !== 200)
-            throw new Error("Error en la cuenta, esta no existe");
+            throw new Error(resultadoTransaccion.message);
         } else {
-          if (tieneSaldoEnCuentaParaPagar({ cuenta_origen, importe })) 
+          if (tieneSaldoEnCuentaParaPagar({ cuenta_origen, cantidad })) 
             throw new CuentaConSaldoInsuficienteError();
 
+          //Cuenta del cliente
           const {cuenta_origen, cliente_origen} = await buscarClientePorCbu(cbu);
 
-          console.log(cliente_origen)
-
+          const concepto_origen = await buscarConcepto(MOVIMIENTOS_CUENTAS_CONCEPTO.COMPRA_EN_ESTABLECIMIENTO); //Importar
+          const usuario_origen = cliente_origen.get("usuario"); 
+          
           await crearMovimiento({
             cuenta: cuenta_origen,
-            concepto: concepto_pago_consumidor,
+            concepto: concepto_origen,
             tipo: MOVIMIENTOS_CUENTAS_TIPO.DEBITA,
-            cantidad: importe,
-            usuario: cliente_origen.usuarios,
+            cantidad,
+            usuario: usuario_origen,
             transaction,
           });    
 
-          await disminuirSaldoDeCuenta({ cuenta_origen, cantidad, transaction });
+          await disminuirSaldoDeCuenta({ cuenta: cuenta_origen, cantidad, transaction });
         }
     
-        const {cuenta_destino, cliente_destino} = await buscarClientePorCbu(cbu);
-
-        const movimiento = await crearMovimiento({
+        const concepto_destino = await buscarConcepto(MOVIMIENTOS_CUENTAS_CONCEPTO.VENTA_DEL_ESTABLECIMIENTO);
+        const usuario_destino = cliente_destino.get("usuario"); 
+        await crearMovimiento({
           cuenta: cuenta_destino,
-          concepto: concepto_pago_cliente,
+          concepto: concepto_destino,
           tipo: MOVIMIENTOS_CUENTAS_TIPO.ACREDITA,
-          cantidad: importe,
-          usuario: cliente_destino.usuarios,
-          transaction,
-        });
-    
-        const comision = await cobrarComisionPorTransaccion(movimiento, {
+          cantidad,
+          usuario: usuario_destino,
           transaction,
         });
 
-        const importeConComision = parseFloat(importe) - parseFloat(comision.get("cantidad"))
-        await aumentarSaldoDeCuenta({ cuenta_destino, importeConComision, transaction });
+        await aumentarSaldoDeCuenta({ cuenta: cuenta_destino, cantidad, transaction });
 
         await transaction.commit();
       } catch (error) {
@@ -204,7 +209,7 @@ module.exports = {
         throw new DesconocidoBDError();
       }
 
-      return res.status(200).send(movimiento).json({ mensaje: "pago de servicios realizado" });
+      return res.status(200).json({ mensaje: "compra autorizada" });
     } catch (error) {
       return res.status(404).json({ error });
     }
