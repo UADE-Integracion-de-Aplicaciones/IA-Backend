@@ -18,4 +18,13 @@ module.exports = (app) => {
     // #swagger.parameters['numero_factura'] = { description: 'Numero de factura de un servicio.', type: 'string' }
     facturasController.obtenerFacturas(req, res)
   );
+
+  app.get("/cuentas/:numero_cuenta/facturas/:anio/:mes", (req, res) =>
+    // #swagger.tags = ['Facturas']
+    // #swagger.description = 'Endpoint para buscar todas las facturas de un cliente por .'
+    // #swagger.parameters['anio'] = { description: 'Anio de factura a buscar.', type: 'string' }
+    // #swagger.parameters['mes'] = { description: 'Mes de las facturas.', type: 'string' }
+    // #swagger.parameters['numero_cuenta'] = { description: 'Numero de cuenta de cliente.', type: 'string' }
+    facturasController.obtenerFacturasFecha(req, res)
+  );
 };
