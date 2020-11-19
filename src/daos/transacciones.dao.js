@@ -17,6 +17,8 @@ const {
   CantidadMayorQueTotalFacturasError,
   ParametrosFaltantesError,
   DescripcionDeMovimientoIndalidaError,
+  CuentaOrigenNoExisteError,
+  CuentaDestinoNoExisteError,
 } = require("./errors");
 const { db } = require("../sequelize/models");
 const {
@@ -591,6 +593,88 @@ const extraerDeCuentaEntreBancos = async ({ cbu, cantidad, descripcion }) => {
   }
 };
 
+const transferirDinero = async ({
+  cbu_origen,
+  cbu_destino,
+  cantidad,
+  usuario,
+}) => {
+  if (!cbu_origen || !cbu_destino || !cantidad || !usuario) {
+    throw new ParametrosFaltantesError();
+  }
+
+  if (cantidad <= 0) {
+    throw new CantidadInvalidaError();
+  }
+
+  const cuenta_origen = await buscarCuentaPorCbu(cbu_origen);
+  if (!cuenta_origen) {
+    throw new CuentaOrigenNoExisteError();
+  }
+
+  const cuenta_destino = await buscarCuentaPorCbu(cbu_destino);
+  if (!cuenta_destino) {
+    throw new CuentaDestinoNoExisteError();
+  }
+
+  const cliente_origen = await cuenta_origen.getCliente();
+  const cliente_destino = await cuenta_destino.getCliente();
+  const cliente_origen_nombre =
+    cliente_origen.get("nombre") + " " + cliente_origen.get("apellido");
+  const cliente_destino_nombre =
+    cliente_destino.get("nombre") + " " + cliente_destino.get("apellido");
+  const descrip_origen = "Transferencia a '" + cliente_destino_nombre + "'";
+  const descrip_destino = "Transferencia de '" + cliente_origen_nombre + "'";
+
+  const concepto_origen = await buscarConcepto(
+    MOVIMIENTOS_CUENTAS_CONCEPTO.EXTRACCION
+  );
+
+  const concepto_destino = await buscarConcepto(
+    MOVIMIENTOS_CUENTAS_CONCEPTO.DEPOSITO
+  );
+
+  const transaction = await db.sequelize.transaction();
+  try {
+    await crearMovimiento({
+      cuenta: cuenta_origen,
+      concepto: concepto_origen,
+      tipo: MOVIMIENTOS_CUENTAS_TIPO.DEBITA,
+      cantidad,
+      usuario,
+      descripcion: descrip_origen,
+      transaction,
+    });
+
+    await disminuirSaldoDeCuenta({
+      cuenta: cuenta_origen,
+      cantidad,
+      transaction,
+    });
+
+    await crearMovimiento({
+      cuenta: cuenta_destino,
+      concepto: concepto_destino,
+      tipo: MOVIMIENTOS_CUENTAS_TIPO.ACREDITA,
+      cantidad,
+      usuario,
+      descripcion: descrip_destino,
+      transaction,
+    });
+
+    await aumentarSaldoDeCuenta({
+      cuenta: cuenta_destino,
+      cantidad,
+      transaction,
+    });
+
+    await transaction.commit();
+  } catch (error) {
+    await transaction.rollback();
+    throw new DesconocidoBDError();
+  }
+};
+
 module.exports = {
   extraerDineroDeCuenta,
   depositarEnCuentaPropia,
@@ -604,4 +688,5 @@ module.exports = {
   pagarInteresPorDineroEnCuenta,
   buscarCajasDeAhorroConSaldo,
   extraerDeCuentaEntreBancos,
+  transferirDinero,
 };

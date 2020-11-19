@@ -17,6 +17,7 @@ const {
   extraerDineroDeCuenta,
   pagarServicioComoCliente,
   pagarServicioComoBanco,
+  transferirDinero,
 } = require("../daos/transacciones.dao");
 
 const { extraerDeCuentaEntreBancos } = require("../daos/transacciones.dao");
@@ -153,6 +154,26 @@ module.exports = {
       return res
         .status(200)
         .json({ mensaje: "extracción de dinero realizada" });
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({ error });
+    }
+  },
+
+  async transferir(req, res) {
+    const { body } = req;
+    const { cbu_origen, cbu_destino, cantidad } = body;
+
+    try {
+      if (!cbu_origen || !cbu_destino || !cantidad) {
+        throw new Error("faltan datos");
+      }
+
+      const { usuario } = res.locals;
+
+      await transferirDinero({ cbu_origen, cbu_destino, cantidad, usuario });
+
+      return res.status(200).json({ mensaje: "transferencia realizada" });
     } catch (error) {
       console.log(error);
       return res.status(400).json({ error });

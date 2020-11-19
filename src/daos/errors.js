@@ -201,6 +201,22 @@ class TokenInvalidoError extends Error {
   }
 }
 
+class CuentaOrigenNoExisteError extends Error {
+  static mensaje = "la cuenta de origen no existe o no está activa";
+  constructor() {
+    super(CuentaOrigenNoExisteError.mensaje);
+    this.nombre = "CuentaOrigenNoExisteError";
+  }
+}
+
+class CuentaDestinoNoExisteError extends Error {
+  static mensaje = "la cuenta de destino no existe o no está activa";
+  constructor() {
+    super(CuentaDestinoNoExisteError.mensaje);
+    this.nombre = "CuentaDestinoNoExisteError";
+  }
+}
+
 module.exports = {
   Error,
   DesconocidoBDError,
@@ -227,4 +243,6 @@ module.exports = {
   UsuarioNoExisteError,
   DescripcionDeMovimientoIndalidaError,
   TokenInvalidoError,
+  CuentaOrigenNoExisteError,
+  CuentaDestinoNoExisteError,
 };

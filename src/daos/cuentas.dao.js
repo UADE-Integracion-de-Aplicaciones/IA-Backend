@@ -97,6 +97,7 @@ module.exports = {
     if (!Object.keys(CUENTAS_TIPO).includes(tipo)) {
       throw new TipoDeCuentaInvalidoError();
     }
+    //TODO: validar fondo_descubierto cuando sea cuenta corriente
 
     const existeCuenta = await cuentas.findOne({ where: { tipo, cliente_id } });
     if (existeCuenta) {
