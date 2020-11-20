@@ -19,13 +19,22 @@ const {
   pagarServicioComoBanco,
   disminuirSaldoDeCuenta,
   aumentarSaldoDeCuenta,
-  pedirDineroAOtroBanco
+  pedirDineroAOtroBanco,
+  tieneSaldoEnCuentaParaPagar,
+  buscarConcepto
 } = require("../daos/transacciones.dao");
+
 const {
   MOVIMIENTOS_CUENTAS_TIPO,
   BANCOS_INFO,
   MOVIMIENTOS_CUENTAS_CONCEPTO
 } = require("./../daos/common");
+
+const {
+  buscarClientePorCbu
+} = require("../daos/clientes.dao");
+
+const { db } = require("../sequelize/models");
 
 const { extraerDeCuentaEntreBancos } = require("../daos/transacciones.dao");
 const { buscarFacturasPorIds } = require("../daos/facturas.dao");
@@ -155,10 +164,14 @@ module.exports = {
 
       const transaction = await db.sequelize.transaction();
       const cantidad = importe;
-      try {
-        const {cuenta_destino, cliente_destino} = await buscarClientePorCbu(cbu_establecimiento);
 
-        if (BANCOS_INFO.BANCO_A.nombre !== nombre_banco_cbu) {
+      try {
+        let {cuenta, cliente} = await  (cbu_establecimiento);
+       
+        const cuenta_destino = cuenta;
+        const cliente_destino = cliente;
+
+        if (BANCOS_INFO.BANCO_A.nombre === nombre_banco_cbu) {
           const descripcion = "Compra en " + cliente_destino.get("nombre") + " " + cliente_destino.get("apellido");
           
           //El metodo de redirigir transaccion deberia pegarle al de ellos y hacer la transaccion
@@ -169,27 +182,31 @@ module.exports = {
           if (resultadoTransaccion.status !== 200)
             throw new Error(resultadoTransaccion.message);
         } else {
-          if (tieneSaldoEnCuentaParaPagar({ cuenta_origen, cantidad })) 
-            throw new CuentaConSaldoInsuficienteError();
-
           //Cuenta del cliente
-          const {cuenta_origen, cliente_origen} = await buscarClientePorCbu(cbu);
+          let {cuenta, cliente} = await buscarClientePorCbu(cbu);
+          const cuenta_origen = cuenta;
+          const cliente_origen = cliente;
 
+          if (tieneSaldoEnCuentaParaPagar({ cuenta: cuenta_origen, cantidad })) 
+            throw new CuentaConSaldoInsuficienteError();
+            
           const concepto_origen = await buscarConcepto(MOVIMIENTOS_CUENTAS_CONCEPTO.COMPRA_EN_ESTABLECIMIENTO); //Importar
           const usuario_origen = cliente_origen.get("usuario"); 
           
+          console.log( cliente_origen)
+
           await crearMovimiento({
             cuenta: cuenta_origen,
             concepto: concepto_origen,
             tipo: MOVIMIENTOS_CUENTAS_TIPO.DEBITA,
-            cantidad,
+            cantidad, 
             usuario: usuario_origen,
             transaction,
           });    
 
           await disminuirSaldoDeCuenta({ cuenta: cuenta_origen, cantidad, transaction });
         }
-    
+            
         const concepto_destino = await buscarConcepto(MOVIMIENTOS_CUENTAS_CONCEPTO.VENTA_DEL_ESTABLECIMIENTO);
         const usuario_destino = cliente_destino.get("usuario"); 
         await crearMovimiento({

@@ -41,9 +41,9 @@ const buscarCuentaPorNumero = (numero_cuenta) => {
   return cuentas.findOne({ where: { numero_cuenta } });
 };
 
-const buscarConcepto = (alias) => {
-  return conceptos_movimientos.findOne({
-    where: { alias },
+const buscarConcepto = async (alias) => {
+  return await conceptos_movimientos.findOne({
+    where: { alias: alias },
   });
 };
 
@@ -611,4 +611,6 @@ module.exports = {
   disminuirSaldoDeCuenta,
   extraerDeCuentaEntreBancos,
   pedirDineroAOtroBanco,
+  tieneSaldoEnCuentaParaPagar,
+  buscarConcepto
 };
