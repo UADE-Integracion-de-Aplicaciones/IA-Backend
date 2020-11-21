@@ -102,9 +102,15 @@ const crearMovimiento = ({
   usuario,
   cantidad,
   descripcion,
+  movimiento_asociado = null,
   transaction,
 }) => {
   //console.log(cuenta, concepto, tipo, usuario, descriocion, cantidad);
+  let otrosValores = {};
+  if (movimiento_asociado) {
+    otrosValores = { movimiento_cuenta_id: movimiento_asociado.get("id") };
+  }
+
   return movimientos_cuentas.create(
     {
       cuenta_id: cuenta.get("id"),
@@ -113,6 +119,7 @@ const crearMovimiento = ({
       cantidad,
       descripcion,
       usuario_creador_id: usuario.get("id"),
+      ...otrosValores,
     },
     { transaction }
   );
@@ -132,6 +139,7 @@ const cobrarComisionPorTransaccion = async (movimiento, { transaction }) => {
   const cuenta = await movimiento.getCuenta();
   const cantidad =
     parseFloat(movimiento.get("cantidad")) * parseFloat(parametro.get("valor"));
+  const movimiento_asociado = movimiento;
 
   return crearMovimiento({
     cuenta,
@@ -139,6 +147,7 @@ const cobrarComisionPorTransaccion = async (movimiento, { transaction }) => {
     tipo,
     usuario,
     cantidad,
+    movimiento_asociado,
     transaction,
   });
 };
@@ -473,8 +482,7 @@ const pagarServicio = async ({
   }
 };
 
-const pagarServicioComoCliente = async ({
-  numero_cuenta,
+const pagarServicioComoCliente = ({ numero_cuenta }) => async ({
   facturas,
   cantidad,
   usuario,
@@ -504,8 +512,7 @@ const pagarServicioComoCliente = async ({
   });
 };
 
-const pagarServicioComoBanco = (dni) => async ({
-  numero_cuenta,
+const pagarServicioComoBanco = ({ numero_cuenta, dni }) => async ({
   facturas,
   cantidad,
   usuario,
@@ -540,6 +547,70 @@ const pagarServicioComoBanco = (dni) => async ({
     usuario_debita,
     usuario_acredita,
   });
+};
+
+const pagarServicioConEfectivo = async ({ facturas, cantidad, usuario }) => {
+  if (!facturas || !cantidad || !usuario) {
+    throw new ParametrosFaltantesError();
+  }
+
+  if (cantidad <= 0) {
+    throw new CantidadInvalidaError();
+  }
+
+  const importeTotal = facturas.reduce(
+    (suma, factura) => suma + parseFloat(factura.get("importe")),
+    0.0
+  );
+
+  if (cantidad < importeTotal) {
+    throw new CantidadMenorQueTotalFacturasError();
+  } else if (cantidad > importeTotal) {
+    throw new CantidadMayorQueTotalFacturasError();
+  }
+
+  //TODO: validar si hay alguna factura vencida
+  //TODO: validar que las facturas no hayan sido pagadas anteriormente
+
+  const cuenta = await facturas[0].getCuenta();
+
+  const concepto_pago_cliente = await buscarConcepto(
+    MOVIMIENTOS_CUENTAS_CONCEPTO.PAGO_DE_CLIENTE
+  );
+
+  const transaction = await db.sequelize.transaction();
+
+  try {
+    const movimiento = await crearMovimiento({
+      cuenta,
+      concepto: concepto_pago_cliente,
+      tipo: MOVIMIENTOS_CUENTAS_TIPO.ACREDITA,
+      cantidad,
+      usuario,
+      transaction,
+    });
+
+    const comision = await cobrarComisionPorTransaccion(movimiento, {
+      transaction,
+    });
+
+    await actualizarSaldoDeCuenta({
+      cuenta,
+      cantidad: cantidad - parseFloat(comision.get("cantidad")),
+      operacion: MOVIMIENTOS_CUENTAS_TIPO.ACREDITA,
+      transaction,
+    });
+
+    const facturasUpdatePromises = facturas.map((fact) =>
+      fact.update({ fecha_pagado: new Date() }, { transaction })
+    );
+    await Promise.all(facturasUpdatePromises);
+
+    await transaction.commit();
+  } catch (error) {
+    await transaction.rollback();
+    throw new DesconocidoBDError();
+  }
 };
 
 const extraerDeCuentaEntreBancos = async ({ cbu, cantidad, descripcion }) => {
@@ -689,4 +760,5 @@ module.exports = {
   buscarCajasDeAhorroConSaldo,
   extraerDeCuentaEntreBancos,
   transferirDinero,
+  pagarServicioConEfectivo,
 };

@@ -9,6 +9,7 @@ const {
   CantidadMenorQueTotalFacturasError,
   CantidadMayorQueTotalFacturasError,
   TokenInvalidoError,
+  FacturasNoExistenError,
 } = require("../daos/errors");
 
 const {
@@ -17,6 +18,7 @@ const {
   extraerDineroDeCuenta,
   pagarServicioComoCliente,
   pagarServicioComoBanco,
+  pagarServicioConEfectivo,
   transferirDinero,
 } = require("../daos/transacciones.dao");
 
@@ -95,22 +97,30 @@ module.exports = {
 
   async pagarServicio(req, res) {
     const { body } = req;
-    const { facturas_ids, numero_cuenta, cantidad } = body;
+    const { facturas_ids, cantidad } = body;
 
     let pagarServicioFunction;
-    if (body.hasOwnProperty("dni")) {
-      pagarServicioFunction = pagarServicioComoBanco(body.dni);
+    if (body.hasOwnProperty("numero_cuenta")) {
+      const { numero_cuenta } = body;
+      if (body.hasOwnProperty("dni")) {
+        const { dni } = body;
+        pagarServicioFunction = pagarServicioComoBanco({ dni, numero_cuenta });
+      } else {
+        pagarServicioFunction = pagarServicioComoCliente({ numero_cuenta });
+      }
     } else {
-      pagarServicioFunction = pagarServicioComoCliente;
+      pagarServicioFunction = pagarServicioConEfectivo;
     }
 
     try {
       const { usuario } = res.locals;
       const cantidadFloat = parseFloat(cantidad);
       const facturas = await buscarFacturasPorIds(facturas_ids);
+      if (facturas.length == 0) {
+        throw new FacturasNoExistenError();
+      }
 
       await pagarServicioFunction({
-        numero_cuenta,
         facturas,
         cantidad: cantidadFloat,
         usuario,
@@ -126,6 +136,7 @@ module.exports = {
         CantidadMenorQueTotalFacturasError.mensaje,
         CantidadMayorQueTotalFacturasError.mensaje,
         DesconocidoBDError.mensaje,
+        FacturasNoExistenError.mensaje,
       ];
 
       if (mensajes_error.includes(error.mensaje)) {

@@ -18,7 +18,7 @@ const {
   pagarServicioComoBanco,
 } = require("../../src/daos/transacciones.dao");
 const { buscarFacturasPorCodigo } = require("../../src/daos/facturas.dao");
-const { db, syncDb } = require("../../src/sequelize/models");
+const { db } = require("../../src/sequelize/models");
 const {
   cuentas,
   usuarios,
@@ -218,9 +218,8 @@ it("(función) pagar servicio como cliente, debe funcionar", async () => {
     where: { nombre_usuario: "alejandro.otero" },
   });
 
-  await pagarServicioComoCliente({
+  await pagarServicioComoCliente({ numero_cuenta })({
     facturas,
-    numero_cuenta,
     cantidad,
     usuario,
   });
@@ -291,7 +290,7 @@ it("(función) pagar servicio como cliente con una cuenta que no existe, debe fa
   });
 
   await expect(
-    pagarServicioComoCliente({ facturas, numero_cuenta, cantidad, usuario })
+    pagarServicioComoCliente({ numero_cuenta })({ facturas, cantidad, usuario })
   ).rejects.toEqual(new CuentaNoExisteError());
 });
 
@@ -307,7 +306,11 @@ it("(función) pagar servicio como cliente con una cuenta con saldo insuficiente
   });
 
   await expect(
-    pagarServicioComoCliente({ facturas, numero_cuenta, cantidad, usuario })
+    pagarServicioComoCliente({ numero_cuenta })({
+      facturas,
+      cantidad,
+      usuario,
+    })
   ).rejects.toEqual(new CuentaConSaldoInsuficienteError());
 });
 
@@ -323,7 +326,7 @@ it("(función) pagar servicio como cliente con una cantidad menor al importe tot
   });
 
   await expect(
-    pagarServicioComoCliente({ facturas, numero_cuenta, cantidad, usuario })
+    pagarServicioComoCliente({ numero_cuenta })({ facturas, cantidad, usuario })
   ).rejects.toEqual(new CantidadMenorQueTotalFacturasError());
 });
 
@@ -339,7 +342,11 @@ it("(función) pagar servicio como cliente con una cantidad mayor al importe tot
   });
 
   await expect(
-    pagarServicioComoCliente({ facturas, numero_cuenta, cantidad, usuario })
+    pagarServicioComoCliente({ numero_cuenta })({
+      facturas,
+      cantidad,
+      usuario,
+    })
   ).rejects.toEqual(new CantidadMayorQueTotalFacturasError());
 });
 
@@ -356,7 +363,11 @@ it("(función) pagar servicio como ejecutivo del banco cuando el cliente no exis
   });
 
   await expect(
-    pagarServicioComoBanco(dni)({ facturas, numero_cuenta, cantidad, usuario })
+    pagarServicioComoBanco({ dni, numero_cuenta })({
+      facturas,
+      cantidad,
+      usuario,
+    })
   ).rejects.toEqual(new ClienteNoExisteError());
 });
 
@@ -373,6 +384,10 @@ it("(función) pagar servicio como ejecutivo del banco con una cuenta no asociad
   });
 
   await expect(
-    pagarServicioComoBanco(dni)({ facturas, numero_cuenta, cantidad, usuario })
+    pagarServicioComoBanco({ dni, numero_cuenta })({
+      facturas,
+      cantidad,
+      usuario,
+    })
   ).rejects.toEqual(new CuentaNoAsociadaAlClienteError());
 });

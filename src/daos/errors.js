@@ -217,6 +217,14 @@ class CuentaDestinoNoExisteError extends Error {
   }
 }
 
+class FacturasNoExistenError extends Error {
+  static mensaje = "las facturas no existen";
+  constructor() {
+    super(FacturasNoExistenError.mensaje);
+    this.nombre = "FacturasNoExistenError";
+  }
+}
+
 module.exports = {
   Error,
   DesconocidoBDError,
@@ -245,4 +253,5 @@ module.exports = {
   TokenInvalidoError,
   CuentaOrigenNoExisteError,
   CuentaDestinoNoExisteError,
+  FacturasNoExistenError,
 };
