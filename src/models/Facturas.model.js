@@ -20,7 +20,7 @@ module.exports = (sequelize, { DataTypes }) => {
         allowNull: false,
       },
       importe: {
-        type: DataTypes.DECIMAL(10, 4),
+        type: DataTypes.DECIMAL(16, 4),
         allowNull: false,
       },
       fecha_vencimiento: {

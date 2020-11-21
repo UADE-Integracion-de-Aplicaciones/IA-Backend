@@ -24,7 +24,7 @@ module.exports = (sequelize, { DataTypes }) => {
         allowNull: false,
       },
       cantidad: {
-        type: DataTypes.DECIMAL(10, 4),
+        type: DataTypes.DECIMAL(16, 4),
         allowNull: false,
       },
       movimiento_cuenta_id: {

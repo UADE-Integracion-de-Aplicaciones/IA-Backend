@@ -102,7 +102,7 @@ const crearMovimiento = ({
   tipo,
   usuario,
   cantidad,
-  descripcion,
+  descripcion = null,
   movimiento_asociado = null,
   transaction,
 }) => {
@@ -336,6 +336,7 @@ const depositarDineroEnCuenta = async ({ cuenta, usuario, cantidad }) => {
 
     await transaction.commit();
   } catch (error) {
+    console.log(error);
     await transaction.rollback();
     throw new DesconocidoBDError();
   }

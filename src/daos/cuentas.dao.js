@@ -85,6 +85,7 @@ const liberarNumeroUnico = (usuario_id) => {
 
 module.exports = {
   generarNumeroCuenta,
+  generarCBU,
 
   async crear({ tipo, cliente_id, fondo_descubierto, usuario_id }) {
     if (!tipo || !cliente_id || !usuario_id) {

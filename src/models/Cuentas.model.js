@@ -23,11 +23,11 @@ module.exports = (sequelize, { DataTypes, Sequelize }) => {
         allowNull: false,
       },
       fondo_descubierto: {
-        type: DataTypes.DECIMAL(10, 4),
+        type: DataTypes.DECIMAL(16, 4),
         allowNull: false,
       },
       saldo: {
-        type: DataTypes.DECIMAL(10, 4),
+        type: DataTypes.DECIMAL(16, 4),
         allowNull: false,
       },
       empleado_creador_id: {
