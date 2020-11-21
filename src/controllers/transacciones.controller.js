@@ -8,7 +8,6 @@ const {
   CuentaConSaldoInsuficienteError,
   CantidadMenorQueTotalFacturasError,
   CantidadMayorQueTotalFacturasError,
-  TokenInvalidoError,
   FacturasNoExistenError,
 } = require("../daos/errors");
 
@@ -20,12 +19,10 @@ const {
   pagarServicioComoBanco,
   pagarServicioConEfectivo,
   transferirDinero,
+  transferirDineroDesdeOtroBanco,
 } = require("../daos/transacciones.dao");
-
-const { extraerDeCuentaEntreBancos } = require("../daos/transacciones.dao");
 const { buscarFacturasPorIds } = require("../daos/facturas.dao");
 const { Error } = require("../daos/errors");
-const { BANCOS_INFO } = require("../daos/common");
 
 module.exports = {
   async depositar(req, res) {
@@ -147,24 +144,25 @@ module.exports = {
     }
   },
 
-  async pedirDinero(req, res) {
-    const { body, headers } = req;
-    const { cbu, cantidad, descripcion } = body;
+  async transferirDesdeOtroBanco(req, res) {
+    const { body } = req;
+    const { cbu, cantidad, concepto, descripcion } = body;
 
     try {
-      if (headers["x-banco-token"] !== BANCOS_INFO.BANCO_A.token) {
-        throw new TokenInvalidoError();
-      }
-
-      if (!cbu || !cantidad || !descripcion) {
+      if (!cbu || !cantidad || !concepto || !descripcion) {
         throw new Error("faltan datos");
       }
+      const { usuario } = res.locals;
 
-      await extraerDeCuentaEntreBancos({ cbu, cantidad, descripcion });
+      await transferirDineroDesdeOtroBanco({
+        cbu,
+        cantidad,
+        concepto,
+        descripcion,
+        usuario_operador: usuario,
+      });
 
-      return res
-        .status(200)
-        .json({ mensaje: "extracción de dinero realizada" });
+      return res.status(200).json({ mensaje: "operación realizada" });
     } catch (error) {
       console.log(error);
       return res.status(400).json({ error });

@@ -125,7 +125,7 @@ module.exports = {
 
       const movimientos = movimientos_cuenta.map((mov) => ({
         concepto: mov.conceptos_movimiento.get("descripcion"),
-        //descripcion: mov.get("descripcion"),
+        descripcion: mov.get("descripcion"),
         tipo: mov.get("tipo"),
         cantidad: mov.get("cantidad"),
         fecha_creacion: mov.get("fecha_creacion"),

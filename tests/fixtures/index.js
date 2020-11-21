@@ -45,6 +45,12 @@ const crearData = async () => {
     usuario_id: usuarioA.get("id"),
   });
 
+  const usuario_cliente_A = await usuarios.create({
+    nombre_usuario: "pedro.perez",
+    clave: await bcrypt.hash("123", 8),
+    rol_id: rol2.get("id"),
+  });
+
   const clienteA = await clientes.create({
     tipo: CLIENTES_TIPO.PERSONA_FISICA,
     cuit: "65544333",
@@ -65,6 +71,7 @@ const crearData = async () => {
     pregunta2_respuesta: "respuesta 2",
     pregunta3: "pregunta 3",
     pregunta3_respuesta: "respuesta 3",
+    usuario_id: usuario_cliente_A.get("id"),
   });
 
   const codigo_autoriza = await codigos_autorizacion.create({

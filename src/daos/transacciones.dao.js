@@ -16,9 +16,10 @@ const {
   CantidadMenorQueTotalFacturasError,
   CantidadMayorQueTotalFacturasError,
   ParametrosFaltantesError,
-  DescripcionDeMovimientoIndalidaError,
   CuentaOrigenNoExisteError,
   CuentaDestinoNoExisteError,
+  ConceptoInvalidoError,
+  OperacionInvalidaError,
 } = require("./errors");
 const { db } = require("../sequelize/models");
 const {
@@ -105,7 +106,7 @@ const crearMovimiento = ({
   movimiento_asociado = null,
   transaction,
 }) => {
-  //console.log(cuenta, concepto, tipo, usuario, descriocion, cantidad);
+  console.log(cuenta, concepto, tipo, usuario, descripcion, cantidad);
   let otrosValores = {};
   if (movimiento_asociado) {
     otrosValores = { movimiento_cuenta_id: movimiento_asociado.get("id") };
@@ -613,8 +614,14 @@ const pagarServicioConEfectivo = async ({ facturas, cantidad, usuario }) => {
   }
 };
 
-const extraerDeCuentaEntreBancos = async ({ cbu, cantidad, descripcion }) => {
-  if (!cbu || !cantidad || !descripcion) {
+const transferirDineroDesdeOtroBanco = async ({
+  cbu,
+  cantidad,
+  concepto,
+  descripcion,
+  usuario_operador = null,
+}) => {
+  if (!cbu || !cantidad || !concepto || !descripcion) {
     throw new ParametrosFaltantesError();
   }
 
@@ -622,32 +629,42 @@ const extraerDeCuentaEntreBancos = async ({ cbu, cantidad, descripcion }) => {
     throw new CantidadInvalidaError();
   }
 
-  if (!descripcion.startsWith("Compra en")) {
-    throw new DescripcionDeMovimientoIndalidaError();
-  }
-
   const cuenta = await buscarCuentaPorCbu(cbu);
   if (!cuenta) {
     throw new CuentaNoExisteError();
   }
 
-  if (tieneSaldoEnCuentaParaPagar({ cuenta, cantidad })) {
-    throw new CuentaConSaldoInsuficienteError();
+  const cliente = await cuenta.getCliente();
+
+  let tipo;
+  let usuario;
+  if (
+    concepto.toUpperCase() ===
+    MOVIMIENTOS_CUENTAS_CONCEPTO.COMPRA_EN_ESTABLECIMIENTO
+  ) {
+    if (tieneSaldoEnCuentaParaPagar({ cuenta, cantidad })) {
+      throw new CuentaConSaldoInsuficienteError();
+    }
+
+    tipo = MOVIMIENTOS_CUENTAS_TIPO.DEBITA;
+    usuario = await cliente.getUsuario();
+  } else if (
+    concepto.toUpperCase() === MOVIMIENTOS_CUENTAS_CONCEPTO.PAGO_DE_SUELDO
+  ) {
+    tipo = MOVIMIENTOS_CUENTAS_TIPO.ACREDITA;
+    usuario = usuario_operador;
+  } else {
+    throw new ConceptoInvalidoError();
   }
 
-  const cliente = await cuenta.getCliente();
-  const usuario = await cliente.getUsuario();
-  const concepto = await buscarConcepto(
-    MOVIMIENTOS_CUENTAS_CONCEPTO.COMPRA_EN_ESTABLECIMIENTO
-  );
-  const tipo = MOVIMIENTOS_CUENTAS_TIPO.DEBITA;
+  const conceptoRow = await buscarConcepto(concepto.toUpperCase());
 
   const transaction = await db.sequelize.transaction();
 
   try {
     const movimiento = await crearMovimiento({
       cuenta,
-      concepto,
+      concepto: conceptoRow,
       tipo,
       cantidad,
       usuario,
@@ -655,10 +672,16 @@ const extraerDeCuentaEntreBancos = async ({ cbu, cantidad, descripcion }) => {
       transaction,
     });
 
-    await disminuirSaldoDeCuenta({ cuenta, cantidad, transaction });
+    await actualizarSaldoDeCuenta({
+      cuenta,
+      cantidad,
+      operacion: tipo,
+      transaction,
+    });
 
     await transaction.commit();
   } catch (error) {
+    console.log(error);
     await transaction.rollback();
     throw new DesconocidoBDError();
   }
@@ -758,7 +781,7 @@ module.exports = {
   buscarCuentasConFondoDescubierto,
   pagarInteresPorDineroEnCuenta,
   buscarCajasDeAhorroConSaldo,
-  extraerDeCuentaEntreBancos,
+  transferirDineroDesdeOtroBanco,
   transferirDinero,
   pagarServicioConEfectivo,
 };

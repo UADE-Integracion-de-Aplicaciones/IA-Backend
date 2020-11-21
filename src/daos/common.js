@@ -20,6 +20,7 @@ const MOVIMIENTOS_CUENTAS_CONCEPTO = {
   DINERO_EN_CUENTA: "DINERO_EN_CUENTA",
   COMPRA_EN_ESTABLECIMIENTO: "COMPRA_EN_ESTABLECIMIENTO",
   VENTA_DEL_ESTABLECIMIENTO: "VENTA_DEL_ESTABLECIMIENTO",
+  PAGO_DE_SUELDO: "PAGO_DE_SUELDO",
 };
 
 const MOVIMIENTOS_CUENTAS_TIPO = {
@@ -58,13 +59,17 @@ const SERVICE_DETAILS = {
     nombre: "x-banco-token",
     valor: "kH3yt7zQxMCMDDwEQaZR8q6g6e525q",
   },
+  numero_entidad: "411",
+  codigo_verificador: [9, 1],
+  numero_sucursal_por_defecto: "0099",
 };
 
 const BANCOS_INFO = {
   BANCO_A: {
     nombre: "BANCO_A",
-    servicio_url: "http://www.banco_a.com",
-    pedir_dinero_endpoint: "/pedir_dinero",
+    servicio_url: " https://bank-api-integreations.herokuapp.com",
+    pedir_dinero_endpoint: "/api/v1/withdraws",
+    numero_entidad_bancaria: 456,
     token: {
       nombre: "x-banco-token",
       valor: "fbkYq54qFLTEG9V7aAACmJmHaNTYe4",

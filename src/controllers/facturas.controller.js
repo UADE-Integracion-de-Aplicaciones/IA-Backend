@@ -3,6 +3,8 @@ const {
   obtenerFacturasPorCodigoPagoElectronico,
 } = require("../daos/facturas.dao");
 
+const { FacturaNoExisteError } = require("../daos/errors");
+
 module.exports = {
   async cargar(req, res) {
     const { path } = req.file;
@@ -26,9 +28,12 @@ module.exports = {
       const facturas = await obtenerFacturasPorCodigoPagoElectronico(
         codigo_pago_electronico
       );
-      //TODO: validar si no existen facturas devolver un error 'no hay facturas para ese código'
+      if (facturas.length == 0) {
+        throw new FacturasNoExistenError();
+      }
+
       const respuesta = facturas.map((factura) => ({
-        //TODO: agregar codigo de pago electronico
+        codigo_pago_electronico: factura.get("codigo_pago_electronico"),
         numero_factura: factura.get("numero_factura"),
         importe: factura.get("importe"),
         fecha_vencimiento: factura.get("fecha_vencimiento"),
