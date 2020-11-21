@@ -31,7 +31,7 @@ const transporter = nodemailer.createTransport(SMTP_CONFIG);
 const MailGenerator = new Mailgen({
   theme: "default",
   product: {
-    name: SERVICE_DETAILS.name,
+    name: SERVICE_DETAILS.nombre,
     link: SERVICE_DETAILS.url,
   },
 });

@@ -4,6 +4,7 @@ const {
   depositar,
   extraer,
   pagarServicio,
+  transferir,
 } = require("../controllers/transacciones.controller");
 
 module.exports = (app) => {
@@ -13,15 +14,17 @@ module.exports = (app) => {
     // #swagger.parameters['numero_cuenta'] = { description: 'Numero de cuenta.' }
     // #swagger.parameters['cantidad'] = { description: 'Cantidad a extraer de la cuenta.' }
     // #swagger.parameters['dni'] = { description: 'DNI del cliente.' }
-  extraer(req, res));
+    extraer(req, res)
+  );
 
-  app.post("/transacciones/banco/depositar", (req, res) => 
+  app.post("/transacciones/banco/depositar", (req, res) =>
     // #swagger.tags = ['Transacciones']
     // #swagger.description = 'Endpoint para depositar dinero en cuenta del cliente o de tercero.'
     // #swagger.parameters['numero_cuenta'] = { description: 'Numero de cuenta.' }
     // #swagger.parameters['cbu'] = { description: 'CBU de cuenta de tercero.' }
     // #swagger.parameters['cantidad'] = { description: 'Cantidad a extraer de la cuenta.' }
-  depositar(req, res));
+    depositar(req, res)
+  );
 
   app.post("/transacciones/banco/pagar_servicio", (req, res) =>
     // #swagger.tags = ['Transacciones']
@@ -40,5 +43,9 @@ module.exports = (app) => {
     // #swagger.parameters['numero_cuenta'] = { description: 'Numero de cuenta.' }
     // #swagger.parameters['cantidad'] = { description: 'Cantidad a total a pagar.' }
     pagarServicio(req, res)
+  );
+
+  app.post("/transacciones/clientes/transferir", (req, res) =>
+    transferir(req, res)
   );
 };

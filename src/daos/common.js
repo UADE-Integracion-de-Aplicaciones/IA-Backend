@@ -51,9 +51,13 @@ const SMTP_CONFIG = {
 };
 
 const SERVICE_DETAILS = {
-  name: "Bankame",
+  nombre: "Bankame",
   url: "https://integracion-banco.herokuapp.com/",
   email: "bankame.service@gmail.com",
+  token: {
+    nombre: "x-banco-token",
+    valor: "kH3yt7zQxMCMDDwEQaZR8q6g6e525q",
+  },
 };
 
 const BANCOS_INFO = {
@@ -61,7 +65,10 @@ const BANCOS_INFO = {
     nombre: "BANCO_A",
     servicio_url: "http://www.banco_a.com",
     pedir_dinero_endpoint: "/pedir_dinero",
-    token: "fbkYq54qFLTEG9V7aAACmJmHaNTYe4",
+    token: {
+      nombre: "x-banco-token",
+      valor: "fbkYq54qFLTEG9V7aAACmJmHaNTYe4",
+    },
   },
 };
 

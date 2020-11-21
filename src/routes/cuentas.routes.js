@@ -17,10 +17,10 @@ module.exports = (app) => {
     cuentaController.crear(req, res)
   );
 
-  app.get("/cuentas/getCuenta", (req, res) =>
+  app.get("/cuentas/:numero_cuenta", (req, res) =>
     // #swagger.tags = ['Cuenta']
     // #swagger.description = 'Endpoint para obtener una cuenta por numero de cuenta.'
     // #swagger.parameters['numero_cuenta'] = { description: 'Numero de cuenta.' }
-    cuentaController.getCuenta(req, res)
+    cuentaController.obtenerCuenta(req, res)
   );
 };

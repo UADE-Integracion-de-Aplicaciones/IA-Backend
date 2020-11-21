@@ -9,6 +9,7 @@ const {
   CantidadMenorQueTotalFacturasError,
   CantidadMayorQueTotalFacturasError,
   TokenInvalidoError,
+  FacturasNoExistenError,
 } = require("../daos/errors");
 
 const {
@@ -21,7 +22,9 @@ const {
   aumentarSaldoDeCuenta,
   pedirDineroAOtroBanco,
   tieneSaldoEnCuentaParaPagar,
-  buscarConcepto
+  buscarConcepto,
+  pagarServicioConEfectivo,
+  transferirDinero,
 } = require("../daos/transacciones.dao");
 
 const {
@@ -110,22 +113,30 @@ module.exports = {
 
   async pagarServicio(req, res) {
     const { body } = req;
-    const { facturas_ids, numero_cuenta, cantidad } = body;
+    const { facturas_ids, cantidad } = body;
 
     let pagarServicioFunction;
-    if (body.hasOwnProperty("dni")) {
-      pagarServicioFunction = pagarServicioComoBanco(body.dni);
+    if (body.hasOwnProperty("numero_cuenta")) {
+      const { numero_cuenta } = body;
+      if (body.hasOwnProperty("dni")) {
+        const { dni } = body;
+        pagarServicioFunction = pagarServicioComoBanco({ dni, numero_cuenta });
+      } else {
+        pagarServicioFunction = pagarServicioComoCliente({ numero_cuenta });
+      }
     } else {
-      pagarServicioFunction = pagarServicioComoCliente;
+      pagarServicioFunction = pagarServicioConEfectivo;
     }
 
     try {
       const { usuario } = res.locals;
       const cantidadFloat = parseFloat(cantidad);
       const facturas = await buscarFacturasPorIds(facturas_ids);
+      if (facturas.length == 0) {
+        throw new FacturasNoExistenError();
+      }
 
       await pagarServicioFunction({
-        numero_cuenta,
         facturas,
         cantidad: cantidadFloat,
         usuario,
@@ -141,6 +152,7 @@ module.exports = {
         CantidadMenorQueTotalFacturasError.mensaje,
         CantidadMayorQueTotalFacturasError.mensaje,
         DesconocidoBDError.mensaje,
+        FacturasNoExistenError.mensaje,
       ];
 
       if (mensajes_error.includes(error.mensaje)) {
@@ -229,6 +241,26 @@ module.exports = {
       return res.status(200).json({ mensaje: "compra autorizada" });
     } catch (error) {
       return res.status(404).json({ error });
+    }
+  },
+
+  async transferir(req, res) {
+    const { body } = req;
+    const { cbu_origen, cbu_destino, cantidad } = body;
+
+    try {
+      if (!cbu_origen || !cbu_destino || !cantidad) {
+        throw new Error("faltan datos");
+      }
+
+      const { usuario } = res.locals;
+
+      await transferirDinero({ cbu_origen, cbu_destino, cantidad, usuario });
+
+      return res.status(200).json({ mensaje: "transferencia realizada" });
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({ error });
     }
   },
 };

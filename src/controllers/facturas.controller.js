@@ -27,8 +27,9 @@ module.exports = {
       const facturas = await obtenerFacturasPorCodigoPagoElectronico(
         codigo_pago_electronico
       );
-
+      //TODO: validar si no existen facturas devolver un error 'no hay facturas para ese código'
       const respuesta = facturas.map((factura) => ({
+        //TODO: agregar codigo de pago electronico
         numero_factura: factura.get("numero_factura"),
         importe: factura.get("importe"),
         fecha_vencimiento: factura.get("fecha_vencimiento"),

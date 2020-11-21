@@ -95,15 +95,22 @@ module.exports = {
     }
   },
 
-  // numero de cuenta, cbu
-  async getCuenta(req, res) {
+  async obtenerCuenta(req, res) {
+    const { params } = req;
+    const { numero_cuenta } = params;
+
     try {
-      await dao
-        .getcuentas(req.body)
-        .then((cuenta) => res.status(200).send(cuenta))
-        .catch((error) => res.status(400).send(error));
+      const cuenta = await dao.obtenerCuenta(numero_cuenta);
+
+      const respuesta = {
+        tipo: cuenta.get("tipo"),
+        numero_cuenta: cuenta.get("numero_cuenta"),
+        cbu: cuenta.get("cbu"),
+        saldo: cuenta.get("saldo"),
+      };
+      return res.status(200).json({ cuenta: respuesta });
     } catch (error) {
-      res.status(500).send({ message: "Error al buscar la cuneta" });
+      return res.status(400).send(error);
     }
   },
 
@@ -118,7 +125,7 @@ module.exports = {
 
       const movimientos = movimientos_cuenta.map((mov) => ({
         concepto: mov.conceptos_movimiento.get("descripcion"),
-        descripcion: mov.get("descripcion"),
+        //descripcion: mov.get("descripcion"),
         tipo: mov.get("tipo"),
         cantidad: mov.get("cantidad"),
         fecha_creacion: mov.get("fecha_creacion"),
