@@ -1,7 +1,7 @@
 const {
   cargarFacturas,
   obtenerFacturasPorCodigoPagoElectronico,
-  obtenerFacturasFechaCuenta
+  obtenerFacturasFechaCuenta,
 } = require("../daos/facturas.dao");
 
 const { ArchivoConFormatoInvalidoError } = require("../daos/errors");
@@ -34,13 +34,15 @@ module.exports = {
       }
 
       const respuesta = facturas.map((factura) => ({
+        id: factura.get("id"),
         codigo_pago_electronico: factura.get("codigo_pago_electronico"),
         numero_factura: factura.get("numero_factura"),
         importe: factura.get("importe"),
         fecha_vencimiento: factura.get("fecha_vencimiento"),
         fecha_pagado: factura.get("fecha_pagado"),
-        codigo_pago_electronico: factura.get("codigo_pago_electronico")
+        codigo_pago_electronico: factura.get("codigo_pago_electronico"),
       }));
+
       return res.status(200).json({ facturas: respuesta });
     } catch (error) {
       console.log(error);
@@ -53,14 +55,18 @@ module.exports = {
     const { numero_cuenta, anio, mes } = params;
 
     try {
-      const facturas = await obtenerFacturasFechaCuenta(numero_cuenta, anio, mes);
+      const facturas = await obtenerFacturasFechaCuenta(
+        numero_cuenta,
+        anio,
+        mes
+      );
 
       const respuesta = facturas.map((factura) => ({
         numero_factura: factura.get("numero_factura"),
         importe: factura.get("importe"),
         fecha_vencimiento: factura.get("fecha_vencimiento"),
         fecha_pagado: factura.get("fecha_pagado"),
-        codigo_pago_electronico: factura.get("codigo_pago_electronico")
+        codigo_pago_electronico: factura.get("codigo_pago_electronico"),
       }));
       return res.status(200).json({ facturas: respuesta });
     } catch (error) {
