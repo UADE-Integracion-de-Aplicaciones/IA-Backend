@@ -693,9 +693,9 @@ const pedirDineroAOtroBanco = async (cbu, cantidad, descripcion, token) => {
   return await axios.post(
     "https://bank-api-integrations.herokuapp.com/api/v1/withdraws", 
     {
-      detail: "descripcion",
-      amount: 50.00,
-      cbu: "4560001900000000000069"
+      detail: descripcion,
+      amount: cantidad,
+      cbu: cbu
     },
     {
       headers: { "x-banco-token": `Bearer ${token}` }
