@@ -36,6 +36,12 @@ const crearData = async () => {
     rol_id: rol2.get("id"),
   });
 
+  const usuario_cliente_C = await usuarios.create({
+    nombre_usuario: "abc2",
+    clave: await bcrypt.hash("123", 8),
+    rol_id: rol2.get("id"),
+  });
+
   const empleadoA = await empleados.create({
     nombre: "Alejandro",
     apellido: "Otero",
@@ -120,6 +126,7 @@ const crearData = async () => {
     pregunta2_respuesta: "respuesta 2",
     pregunta3: "pregunta 3",
     pregunta3_respuesta: "respuesta 3",
+    usuario_id: usuario_cliente_C.get("id"),
   });
 
   const cuentaA1 = await cuentas.create({

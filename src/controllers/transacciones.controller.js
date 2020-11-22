@@ -25,6 +25,7 @@ const {
   buscarConcepto,
   pagarServicioConEfectivo,
   transferirDinero,
+  crearMovimiento
 } = require("../daos/transacciones.dao");
 
 const {
@@ -175,10 +176,10 @@ module.exports = {
         throw new CantidadInvalidaError();
 
       const transaction = await db.sequelize.transaction();
-      const cantidad = importe;
+      const cantidad = parseFloat(importe);
 
       try {
-        let {cuenta, cliente} = await  (cbu_establecimiento);
+        let {cuenta, cliente} = await buscarClientePorCbu(cbu_establecimiento);
        
         const cuenta_destino = cuenta;
         const cliente_destino = cliente;
@@ -203,10 +204,8 @@ module.exports = {
             throw new CuentaConSaldoInsuficienteError();
             
           const concepto_origen = await buscarConcepto(MOVIMIENTOS_CUENTAS_CONCEPTO.COMPRA_EN_ESTABLECIMIENTO); //Importar
-          const usuario_origen = cliente_origen.get("usuario"); 
+          const usuario_origen = await cliente_origen.get("usuario"); 
           
-          console.log( cliente_origen)
-
           await crearMovimiento({
             cuenta: cuenta_origen,
             concepto: concepto_origen,
@@ -218,9 +217,11 @@ module.exports = {
 
           await disminuirSaldoDeCuenta({ cuenta: cuenta_origen, cantidad, transaction });
         }
-            
+                  
         const concepto_destino = await buscarConcepto(MOVIMIENTOS_CUENTAS_CONCEPTO.VENTA_DEL_ESTABLECIMIENTO);
-        const usuario_destino = cliente_destino.get("usuario"); 
+        console.log("por aca", cliente_destino);
+        const usuario_destino = await cliente_destino.get("usuario"); 
+
         await crearMovimiento({
           cuenta: cuenta_destino,
           concepto: concepto_destino,
@@ -240,6 +241,7 @@ module.exports = {
 
       return res.status(200).json({ mensaje: "compra autorizada" });
     } catch (error) {
+      console.log(error);
       return res.status(404).json({ error });
     }
   },

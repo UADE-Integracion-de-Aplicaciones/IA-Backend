@@ -769,5 +769,6 @@ module.exports = {
   tieneSaldoEnCuentaParaPagar,
   buscarConcepto,
   transferirDinero,
+  crearMovimiento,
   pagarServicioConEfectivo,
 };
