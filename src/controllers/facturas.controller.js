@@ -1,6 +1,7 @@
 const {
   cargarFacturas,
   obtenerFacturasPorCodigoPagoElectronico,
+  obtenerFacturasFechaCuenta
 } = require("../daos/facturas.dao");
 
 const { ArchivoConFormatoInvalidoError } = require("../daos/errors");
@@ -38,6 +39,28 @@ module.exports = {
         importe: factura.get("importe"),
         fecha_vencimiento: factura.get("fecha_vencimiento"),
         fecha_pagado: factura.get("fecha_pagado"),
+        codigo_pago_electronico: factura.get("codigo_pago_electronico")
+      }));
+      return res.status(200).json({ facturas: respuesta });
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({ error });
+    }
+  },
+
+  async obtenerFacturasFecha(req, res) {
+    const { params } = req;
+    const { numero_cuenta, anio, mes } = params;
+
+    try {
+      const facturas = await obtenerFacturasFechaCuenta(numero_cuenta, anio, mes);
+
+      const respuesta = facturas.map((factura) => ({
+        numero_factura: factura.get("numero_factura"),
+        importe: factura.get("importe"),
+        fecha_vencimiento: factura.get("fecha_vencimiento"),
+        fecha_pagado: factura.get("fecha_pagado"),
+        codigo_pago_electronico: factura.get("codigo_pago_electronico")
       }));
       return res.status(200).json({ facturas: respuesta });
     } catch (error) {

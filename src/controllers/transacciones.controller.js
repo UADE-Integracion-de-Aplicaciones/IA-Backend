@@ -17,10 +17,30 @@ const {
   extraerDineroDeCuenta,
   pagarServicioComoCliente,
   pagarServicioComoBanco,
+  disminuirSaldoDeCuenta,
+  aumentarSaldoDeCuenta,
+  pedirDineroAOtroBanco,
+  tieneSaldoEnCuentaParaPagar,
+  buscarConcepto,
   pagarServicioConEfectivo,
   transferirDinero,
-  transferirDineroDesdeOtroBanco,
+  crearMovimiento,
+  transferirDineroDesdeOtroBanco
 } = require("../daos/transacciones.dao");
+
+const {
+  MOVIMIENTOS_CUENTAS_TIPO,
+  BANCOS_INFO,
+  MOVIMIENTOS_CUENTAS_CONCEPTO
+} = require("./../daos/common");
+
+const {
+  buscarClientePorCbu
+} = require("../daos/clientes.dao");
+
+const { db } = require("../sequelize/models");
+
+const { extraerDeCuentaEntreBancos } = require("../daos/transacciones.dao");
 const { buscarFacturasPorIds } = require("../daos/facturas.dao");
 const { Error } = require("../daos/errors");
 
@@ -144,6 +164,89 @@ module.exports = {
     }
   },
 
+  async autorizarCompra(req, res) {
+    const { body } = req;
+    const { cbu, nombre_banco_cbu, importe, cbu_establecimiento } = body;
+
+    try {
+      if (!cbu || !nombre_banco_cbu || !importe || !cbu_establecimiento) 
+        throw new Error("faltan datos");
+      
+      if (importe <= 0) 
+        throw new CantidadInvalidaError();
+
+      const transaction = await db.sequelize.transaction();
+      const cantidad = parseFloat(importe);
+
+      try {
+        let {cuenta, cliente} = await buscarClientePorCbu(cbu_establecimiento);
+       
+        const cuenta_destino = cuenta;
+        const cliente_destino = cliente;
+
+        const digitosIdenitficadores = cbu.substring(0,3);
+
+        if (digitosIdenitficadores === "456") {
+          const descripcion = "Compra en " + cliente_destino.get("nombre") + " " + cliente_destino.get("apellido");
+          
+          //El metodo de redirigir transaccion deberia pegarle al de ellos y hacer la transaccion
+          const token = BANCOS_INFO.BANCO_A.token.valor;
+
+          const resultadoTransaccion = await pedirDineroAOtroBanco(cbu, cantidad, descripcion, token);
+         
+          if (resultadoTransaccion.response.status !== 200)
+            throw new Error("Algo salio mal ne la llamada al banco");
+        } else {
+          //Cuenta del cliente
+          let {cuenta, cliente} = await buscarClientePorCbu(cbu);
+          const cuenta_origen = cuenta;
+          const cliente_origen = cliente;
+
+          if (tieneSaldoEnCuentaParaPagar({ cuenta: cuenta_origen, cantidad })) 
+            throw new CuentaConSaldoInsuficienteError();
+            
+          const concepto_origen = await buscarConcepto(MOVIMIENTOS_CUENTAS_CONCEPTO.COMPRA_EN_ESTABLECIMIENTO); //Importar
+          const usuario_origen = await cliente_origen.get("usuario"); 
+          
+          await crearMovimiento({
+            cuenta: cuenta_origen,
+            concepto: concepto_origen,
+            tipo: MOVIMIENTOS_CUENTAS_TIPO.DEBITA,
+            cantidad, 
+            usuario: usuario_origen,
+            transaction,
+          });    
+
+          await disminuirSaldoDeCuenta({ cuenta: cuenta_origen, cantidad, transaction });
+        }
+                  
+        const concepto_destino = await buscarConcepto(MOVIMIENTOS_CUENTAS_CONCEPTO.VENTA_DEL_ESTABLECIMIENTO);
+        const usuario_destino = await cliente_destino.get("usuario"); 
+
+        await crearMovimiento({
+          cuenta: cuenta_destino,
+          concepto: concepto_destino,
+          tipo: MOVIMIENTOS_CUENTAS_TIPO.ACREDITA,
+          cantidad,
+          usuario: usuario_destino,
+          transaction,
+        });
+
+        await aumentarSaldoDeCuenta({ cuenta: cuenta_destino, cantidad, transaction });
+
+        await transaction.commit();
+      } catch (error) {
+        await transaction.rollback();
+        throw new DesconocidoBDError();
+      }
+
+      return res.status(200).json({ mensaje: "compra autorizada" });
+    } catch (error) {
+      console.log(error);
+      return res.status(404).json({ error });
+    }
+  },
+  
   async transferirDesdeOtroBanco(req, res) {
     const { body } = req;
     const { cbu, cantidad, concepto, descripcion } = body;
@@ -165,7 +268,7 @@ module.exports = {
       return res.status(200).json({ mensaje: "operación realizada" });
     } catch (error) {
       console.log(error);
-      return res.status(400).json({ error });
+      return res.status(404).json({ error });
     }
   },
 

@@ -44,9 +44,9 @@ const buscarCuentaPorNumero = (numero_cuenta) => {
   return cuentas.findOne({ where: { numero_cuenta } });
 };
 
-const buscarConcepto = (alias) => {
-  return conceptos_movimientos.findOne({
-    where: { alias },
+const buscarConcepto = async (alias) => {
+  return await conceptos_movimientos.findOne({
+    where: { alias: alias },
   });
 };
 
@@ -688,6 +688,25 @@ const transferirDineroDesdeOtroBanco = async ({
   }
 };
 
+const axios = require('axios');
+const pedirDineroAOtroBanco = async (cbu, cantidad, descripcion, token) => {
+  return await axios.post(
+    'https://bank-api-integreations.herokuapp.com/api/v1/withdraws', 
+    {
+      detail: descripcion,
+      amount: cantidad,
+      cbu : cbu
+    },
+    {
+      headers: { "x-banco-token": `Bearer ${token}` }
+    }
+  )
+  .then(res => res)
+  .catch(error => {
+    console.log(error)
+    return error})
+};
+
 const transferirDinero = async ({
   cbu_origen,
   cbu_destino,
@@ -782,7 +801,13 @@ module.exports = {
   buscarCuentasConFondoDescubierto,
   pagarInteresPorDineroEnCuenta,
   buscarCajasDeAhorroConSaldo,
-  transferirDineroDesdeOtroBanco,
+  aumentarSaldoDeCuenta,
+  disminuirSaldoDeCuenta,
+  pedirDineroAOtroBanco,
+  tieneSaldoEnCuentaParaPagar,
+  buscarConcepto,
   transferirDinero,
+  transferirDineroDesdeOtroBanco,
+  crearMovimiento,
   pagarServicioConEfectivo,
 };

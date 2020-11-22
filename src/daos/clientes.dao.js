@@ -156,8 +156,13 @@ module.exports = {
   },
 
   async buscarClientePorCbu(cbu) {
-    const cuenta = await cuentas.findOne({ where: { cbu } });
-    const cliente = await clientes.findByPk(cuenta.get("cliente_id"));
+    const cuenta = await cuentas.findOne({ where: { cbu: cbu } });
+
+    const cliente = await clientes.findOne({
+      where: { id: cuenta.get("cliente_id") },
+      include: [{ model: usuarios }],
+    });
+
     return { cuenta, cliente };
   },
 

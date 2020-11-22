@@ -40,6 +40,7 @@ require("./routes/usuarios.routes")(app);
 
 require("./routes/clientes.routes")(protectedRouter);
 require("./routes/transacciones.routes")(protectedRouter);
+require("./routes/transacciones.bancos.routes")(app);
 require("./routes/cuentas.routes")(protectedRouter);
 require("./routes/facturas.routes")(protectedRouter);
 

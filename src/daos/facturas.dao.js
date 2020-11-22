@@ -1,4 +1,4 @@
-const { Sequelize } = require("sequelize");
+const { Sequelize, Op } = require("sequelize");
 const { db } = require("../sequelize/models");
 const { facturas, cuentas } = db;
 const csv = require("csv-parser");
@@ -22,6 +22,20 @@ const buscarFacturasPorIds = (ids) => {
   return facturas.findAll({ where: { id: { [Sequelize.Op.in]: ids } } });
 };
 
+const obtenerFacturasFechaCuenta = async (numero_cuenta, anio, mes) => {
+  const cuenta = await cuentas.findOne({ where: { numero_cuenta } });
+  
+  const fechaInicio = moment().year(anio).month(mes).toDate();
+  const fechaFin = moment().year(anio).month(mes).add(1, 'M').toDate();
+  return facturas.findAll({
+    where: {
+      cuenta_id: cuenta.get("id"),
+      fecha_vencimiento: {
+        [Op.between]: [fechaInicio, fechaFin]
+      }
+    }
+  })
+}
 const leerArchivoCsv = ({ sourceFilePath, separator, columns }) => {
   const filas = [];
   const parser = csv({
@@ -102,6 +116,7 @@ module.exports = {
   buscarFacturasPorCodigo,
   buscarFacturaPorNumeroFactura,
   buscarFacturasPorIds,
+  obtenerFacturasFechaCuenta,
 
   async getFactura(payload) {
     const factura = buscarFactura(payload);
