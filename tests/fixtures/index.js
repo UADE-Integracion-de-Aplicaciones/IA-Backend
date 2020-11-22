@@ -1,6 +1,10 @@
 const bcrypt = require("bcrypt");
 const moment = require("moment");
-const { CLIENTES_TIPO, CUENTAS_TIPO } = require("../../src/daos/common");
+const {
+  CLIENTES_TIPO,
+  CUENTAS_TIPO,
+  SERVICE_DETAILS,
+} = require("../../src/daos/common");
 const { db, syncDb } = require("../../src/sequelize/models");
 const {
   clientes,
@@ -11,10 +15,25 @@ const {
   facturas,
   codigos_autorizacion,
 } = db;
+const {
+  generarNumeroCuenta,
+  generarCBU,
+} = require("../../src/daos/cuentas.dao");
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+const generarNumeroCuentaCBU = () => {
+  const { numero_sucursal_por_defecto: numero_sucursal } = SERVICE_DETAILS;
+
+  const numero_cuenta = generarNumeroCuenta();
+  const cbu = generarCBU({
+    numero_cuenta,
+    numero_sucursal,
+  });
+  return { numero_cuenta, cbu };
+};
 
 const crearData = async () => {
   await sleep(200);
@@ -51,6 +70,12 @@ const crearData = async () => {
     usuario_id: usuarioA.get("id"),
   });
 
+  const usuario_cliente_A = await usuarios.create({
+    nombre_usuario: "pedro.perez",
+    clave: await bcrypt.hash("123", 8),
+    rol_id: rol2.get("id"),
+  });
+
   const clienteA = await clientes.create({
     tipo: CLIENTES_TIPO.PERSONA_FISICA,
     cuit: "65544333",
@@ -71,6 +96,7 @@ const crearData = async () => {
     pregunta2_respuesta: "respuesta 2",
     pregunta3: "pregunta 3",
     pregunta3_respuesta: "respuesta 3",
+    usuario_id: usuario_cliente_A.get("id"),
   });
 
   const codigo_autoriza = await codigos_autorizacion.create({
@@ -129,91 +155,136 @@ const crearData = async () => {
     usuario_id: usuario_cliente_C.get("id"),
   });
 
+  const {
+    numero_cuenta: numero_cuenta_A1,
+    cbu: cbu_cuenta_A1,
+  } = generarNumeroCuentaCBU();
+
   const cuentaA1 = await cuentas.create({
     cliente_id: clienteA.get("id"),
     tipo: CUENTAS_TIPO.CAJA_DE_AHORRO,
-    numero_cuenta: "546565465767643232",
-    cbu: "43546565",
+    numero_cuenta: numero_cuenta_A1,
+    cbu: cbu_cuenta_A1,
     fondo_descubierto: 0.0,
     saldo: 5000.0,
     empleado_creador_id: empleadoA.get("id"),
   });
 
+  const {
+    numero_cuenta: numero_cuenta_A2,
+    cbu: cbu_cuenta_A2,
+  } = generarNumeroCuentaCBU();
+
   const cuentaA2 = await cuentas.create({
     cliente_id: clienteA.get("id"),
     tipo: CUENTAS_TIPO.CUENTA_CORRIENTE,
-    numero_cuenta: "76065842338329221",
-    cbu: "7606584",
+    numero_cuenta: numero_cuenta_A2,
+    cbu: cbu_cuenta_A2,
     fondo_descubierto: 1.0,
     saldo: 1000.0,
     empleado_creador_id: empleadoA.get("id"),
   });
 
+  const {
+    numero_cuenta: numero_cuenta_B1,
+    cbu: cbu_cuenta_B1,
+  } = generarNumeroCuentaCBU();
+
   const cuentaB1 = await cuentas.create({
     cliente_id: clienteB.get("id"),
     tipo: CUENTAS_TIPO.CAJA_DE_AHORRO,
-    numero_cuenta: "904334389865655",
-    cbu: "8756645",
+    numero_cuenta: numero_cuenta_B1,
+    cbu: cbu_cuenta_B1,
     fondo_descubierto: 0.0,
     saldo: 150000.5,
     empleado_creador_id: empleadoA.get("id"),
   });
 
+  const {
+    numero_cuenta: numero_cuenta_B2,
+    cbu: cbu_cuenta_B2,
+  } = generarNumeroCuentaCBU();
+
   const cuentaB2 = await cuentas.create({
     cliente_id: clienteB.get("id"),
     tipo: CUENTAS_TIPO.CUENTA_CORRIENTE,
-    numero_cuenta: "544323902909083",
-    cbu: "54656322",
+    numero_cuenta: numero_cuenta_B2,
+    cbu: cbu_cuenta_B2,
     fondo_descubierto: 5000.0,
     saldo: 30000.0,
     empleado_creador_id: empleadoA.get("id"),
   });
 
+  const {
+    numero_cuenta: numero_cuenta_C1,
+    cbu: cbu_cuenta_C1,
+  } = generarNumeroCuentaCBU();
+
   const cuentaC1 = await cuentas.create({
     cliente_id: clienteC.get("id"),
     tipo: CUENTAS_TIPO.CUENTA_CORRIENTE,
-    numero_cuenta: "657642322323",
-    cbu: "0988745342",
+    numero_cuenta: numero_cuenta_C1,
+    cbu: cbu_cuenta_C1,
     fondo_descubierto: 10000.0,
     saldo: 100.0,
     empleado_creador_id: empleadoA.get("id"),
   });
 
+  const {
+    numero_cuenta: numero_cuenta_C2,
+    cbu: cbu_cuenta_C2,
+  } = generarNumeroCuentaCBU();
+
   const cuentaC2 = await cuentas.create({
     cliente_id: clienteC.get("id"),
     tipo: CUENTAS_TIPO.CUENTA_CORRIENTE,
-    numero_cuenta: "78985434323",
-    cbu: "2343567687",
+    numero_cuenta: numero_cuenta_C2,
+    cbu: cbu_cuenta_C2,
     fondo_descubierto: 10000.0,
     saldo: -3000.0,
     empleado_creador_id: empleadoA.get("id"),
   });
+
+  const {
+    numero_cuenta: numero_cuenta_C3,
+    cbu: cbu_cuenta_C3,
+  } = generarNumeroCuentaCBU();
 
   const cuentaC3 = await cuentas.create({
     cliente_id: clienteC.get("id"),
     tipo: CUENTAS_TIPO.CUENTA_CORRIENTE,
-    numero_cuenta: "78985434323",
-    cbu: "2343567687",
+    numero_cuenta: numero_cuenta_C3,
+    cbu: cbu_cuenta_C3,
     fondo_descubierto: 10000.0,
     saldo: -3000.0,
     empleado_creador_id: empleadoA.get("id"),
   });
 
+  const {
+    numero_cuenta: numero_cuenta_C4,
+    cbu: cbu_cuenta_C4,
+  } = generarNumeroCuentaCBU();
+
   const cuentaC4 = await cuentas.create({
     cliente_id: clienteC.get("id"),
     tipo: CUENTAS_TIPO.CUENTA_CORRIENTE,
-    numero_cuenta: "8784343434",
-    cbu: "09987644332",
+    numero_cuenta: numero_cuenta_C4,
+    cbu: cbu_cuenta_C4,
     fondo_descubierto: 8000.0,
     saldo: -2000.0,
     empleado_creador_id: empleadoA.get("id"),
   });
 
+  const {
+    numero_cuenta: numero_cuenta_C5,
+    cbu: cbu_cuenta_C5,
+  } = generarNumeroCuentaCBU();
+
   const cuentaC5 = await cuentas.create({
     cliente_id: clienteC.get("id"),
     tipo: CUENTAS_TIPO.CUENTA_CORRIENTE,
-    numero_cuenta: "8784343434",
-    cbu: "09987644332",
+    numero_cuenta: numero_cuenta_C5,
+    cbu: cbu_cuenta_C5,
     fondo_descubierto: 2000.0,
     saldo: -2000.0,
     empleado_creador_id: empleadoA.get("id"),

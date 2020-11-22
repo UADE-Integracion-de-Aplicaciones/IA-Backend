@@ -3,11 +3,11 @@ const { db } = require("../sequelize/models");
 const { facturas, cuentas } = db;
 const csv = require("csv-parser");
 const fs = require("fs");
+const moment = require("moment");
 const {
   CuentaNoExisteError,
-  ArchivoVacioError,
+  ArchivoConFormatoInvalidoError,
   FacturaNoExisteError,
-  CodigoPagoElectronicoNoExisteError,
 } = require("./errors");
 
 const buscarFacturasPorCodigo = (codigo_pago_electronico) => {
@@ -36,6 +36,22 @@ const obtenerFacturasFechaCuenta = async (numero_cuenta, anio, mes) => {
     }
   })
 }
+const leerArchivoCsv = ({ sourceFilePath, separator, columns }) => {
+  const filas = [];
+  const parser = csv({
+    separator,
+    columns,
+  });
+  const stream = fs.createReadStream(sourceFilePath).pipe(parser);
+
+  return new Promise((resolve, reject) => {
+    stream.on("data", (data) => {
+      filas.push(data);
+    });
+    stream.on("error", reject);
+    stream.on("finish", () => resolve(filas));
+  });
+};
 
 const cargarFacturas = async (sourceFilePath, numero_cuenta, columns) => {
   const cuenta = await cuentas.findOne({
@@ -44,42 +60,40 @@ const cargarFacturas = async (sourceFilePath, numero_cuenta, columns) => {
     },
   });
 
-  console.log(cuenta);
-
   if (!cuenta) {
     throw new CuentaNoExisteError();
   }
 
-  var source = fs.createReadStream(sourceFilePath);
+  const filas = await leerArchivoCsv({
+    sourceFilePath,
+    separator: ";",
+    columns,
+  });
 
-  if (!source) {
-    throw new ArchivoVacioError();
+  const facturasPorCrear = filas.map((fila) => {
+    const fecha_vencimiento = moment(
+      fila.fecha_vencimiento,
+      "DD/MM/YYYY"
+    ).format("YYYY-MM-DD");
+
+    const valores = {
+      ...fila,
+      fecha_vencimiento,
+      cuenta,
+    };
+
+    return crear(valores);
+  });
+
+  try {
+    await Promise.all(facturasPorCrear);
+  } catch (error) {
+    console.log(error);
+    throw new ArchivoConFormatoInvalidoError();
   }
-
-  var linesRead = 0;
-
-  var parser = csv({
-    delimiter: ";",
-    columns: columns,
-  });
-
-  parser.on("readable", function() {
-    var record;
-    while ((record = parser.read())) {
-      console.log(record);
-      linesRead++;
-      crear({ ...record, cuenta });
-    }
-  });
-
-  parser.on("error", function(error) {
-    console.log("Error");
-  });
-
-  source.pipe(parser);
 };
 
-const crear = async ({
+const crear = ({
   codigo_pago_electronico,
   numero_factura,
   importe,
@@ -87,7 +101,7 @@ const crear = async ({
   cuenta,
 }) => {
   const cuenta_id = cuenta.get("id");
-  return await facturas.create({
+  return facturas.create({
     codigo_pago_electronico,
     numero_factura,
     importe,

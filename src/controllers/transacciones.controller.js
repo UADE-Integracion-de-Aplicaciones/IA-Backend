@@ -8,7 +8,6 @@ const {
   CuentaConSaldoInsuficienteError,
   CantidadMenorQueTotalFacturasError,
   CantidadMayorQueTotalFacturasError,
-  TokenInvalidoError,
   FacturasNoExistenError,
 } = require("../daos/errors");
 
@@ -25,7 +24,8 @@ const {
   buscarConcepto,
   pagarServicioConEfectivo,
   transferirDinero,
-  crearMovimiento
+  crearMovimiento,
+  transferirDineroDesdeOtroBanco
 } = require("../daos/transacciones.dao");
 
 const {
@@ -241,6 +241,31 @@ module.exports = {
       }
 
       return res.status(200).json({ mensaje: "compra autorizada" });
+    } catch (error) {
+      console.log(error);
+      return res.status(404).json({ error });
+    }
+  },
+  
+  async transferirDesdeOtroBanco(req, res) {
+    const { body } = req;
+    const { cbu, cantidad, concepto, descripcion } = body;
+
+    try {
+      if (!cbu || !cantidad || !concepto || !descripcion) {
+        throw new Error("faltan datos");
+      }
+      const { usuario } = res.locals;
+
+      await transferirDineroDesdeOtroBanco({
+        cbu,
+        cantidad,
+        concepto,
+        descripcion,
+        usuario_operador: usuario,
+      });
+
+      return res.status(200).json({ mensaje: "operación realizada" });
     } catch (error) {
       console.log(error);
       return res.status(404).json({ error });

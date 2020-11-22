@@ -8,7 +8,11 @@ const {
   Sequelize,
 } = db;
 const { Op } = Sequelize;
-const { NUMERO_UNICO_TIPO, CUENTAS_TIPO } = require("./common");
+const {
+  NUMERO_UNICO_TIPO,
+  CUENTAS_TIPO,
+  SERVICE_DETAILS,
+} = require("./common");
 const {
   ParametrosFaltantesError,
   DesconocidoBDError,
@@ -16,26 +20,19 @@ const {
   LimiteDeCuentasExcedidoError,
 } = require("./errors");
 
-// se genera un numero de cuentas random de 13 digitos
 const generarNumeroCuenta = () => {
-  let numero = Math.floor(
-    1000000000000 + Math.random() * 9000000000000
-  ).toString();
-  return numero;
+  return Math.floor(1000000000000 + Math.random() * 9000000000000).toString();
 };
 
-// se genera el CBU con el numero random de la cuentas y con las otras especificaciones de un CBU
-const generarCBU = (numero_cuenta) => {
-  let numeroBanco = "001";
-  let numeroSucursal = "0001";
-  let digitoVerificador7 = Math.floor(1 + Math.random() * 9).toString();
-  let digitoVerificador13 = Math.floor(1 + Math.random() * 9).toString();
-  let cbu = numeroBanco
-    .concat(numeroSucursal)
-    .concat(digitoVerificador7)
+// se genera el CBU según esto: https://es.wikipedia.org/wiki/Clave_Bancaria_Uniforme
+const generarCBU = ({ numero_cuenta, numero_sucursal }) => {
+  const digitoVerificador1 = SERVICE_DETAILS.codigo_verificador[0].toString();
+  const digitoVerificador2 = SERVICE_DETAILS.codigo_verificador[1].toString();
+  return SERVICE_DETAILS.numero_entidad
+    .concat(numero_sucursal)
+    .concat(digitoVerificador1)
     .concat(numero_cuenta)
-    .concat(digitoVerificador13);
-  return cbu;
+    .concat(digitoVerificador2);
 };
 
 const tomarNumeroUnico = async (usuario_id) => {
@@ -88,6 +85,7 @@ const liberarNumeroUnico = (usuario_id) => {
 
 module.exports = {
   generarNumeroCuenta,
+  generarCBU,
 
   async crear({ tipo, cliente_id, fondo_descubierto, usuario_id }) {
     if (!tipo || !cliente_id || !usuario_id) {
@@ -111,7 +109,8 @@ module.exports = {
     try {
       const numero_unico = await tomarNumeroUnico(usuario_id);
       const numero_cuenta = numero_unico.get("numero");
-      const cbu = generarCBU(numero_cuenta);
+      const { numero_sucursal_por_defecto: numero_sucursal } = SERVICE_DETAILS;
+      const cbu = generarCBU({ numero_cuenta, numero_sucursal });
 
       cuenta = await cuentas.create({
         tipo,

@@ -29,6 +29,10 @@ module.exports = async (db) => {
       descripcion: "Proveedor",
       alias: "CLIENTE_PROVEEDOR",
     },
+    {
+      descripcion: "Banco Externo",
+      alias: "EXTERNO_BANCO",
+    },
   ];
 
   const rolesPromises = roles_por_defecto.map((data) => roles.create(data));
@@ -73,6 +77,10 @@ module.exports = async (db) => {
     {
       alias: "VENTA_DEL_ESTABLECIMIENTO",
       descripcion: "Venta del Establecimiento",
+    },
+    {
+      alias: "PAGO_DE_SUELDO",
+      descripcion: "Pago de Sueldo",
     },
   ];
 

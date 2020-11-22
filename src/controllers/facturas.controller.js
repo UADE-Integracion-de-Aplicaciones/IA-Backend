@@ -4,6 +4,8 @@ const {
   obtenerFacturasFechaCuenta
 } = require("../daos/facturas.dao");
 
+const { ArchivoConFormatoInvalidoError } = require("../daos/errors");
+
 module.exports = {
   async cargar(req, res) {
     const { path } = req.file;
@@ -12,10 +14,10 @@ module.exports = {
 
     try {
       await cargarFacturas(path, numero_cuenta, columns);
-      return res.status(200).json({ mensaje: "Facturas cargadas" });
-    } catch (err) {
-      console.log(err);
-      return res.status(500).json({ mensaje: err });
+      return res.status(200).json({ mensaje: "facturas cargadas" });
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({ error });
     }
   },
 
@@ -27,9 +29,12 @@ module.exports = {
       const facturas = await obtenerFacturasPorCodigoPagoElectronico(
         codigo_pago_electronico
       );
-      //TODO: validar si no existen facturas devolver un error 'no hay facturas para ese código'
+      if (facturas.length == 0) {
+        throw new FacturasNoExistenError();
+      }
+
       const respuesta = facturas.map((factura) => ({
-        //TODO: agregar codigo de pago electronico
+        codigo_pago_electronico: factura.get("codigo_pago_electronico"),
         numero_factura: factura.get("numero_factura"),
         importe: factura.get("importe"),
         fecha_vencimiento: factura.get("fecha_vencimiento"),

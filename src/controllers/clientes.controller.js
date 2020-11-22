@@ -258,7 +258,7 @@ module.exports = {
       if (!numero) {
         throw new Error("faltan datos");
       }
-      console.log(numero);
+
       const { cliente, cuenta } = await dao.buscarClientePorCbu(numero);
       if (!cliente) {
         throw new ClienteNoExisteError();

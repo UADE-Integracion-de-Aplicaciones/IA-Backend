@@ -225,6 +225,30 @@ class FacturasNoExistenError extends Error {
   }
 }
 
+class ConceptoInvalidoError extends Error {
+  static mensaje = "concepto inválido";
+  constructor() {
+    super(ConceptoInvalidoError.mensaje);
+    this.nombre = "ConceptoInvalidoError";
+  }
+}
+
+class OperacionInvalidaError extends Error {
+  static mensaje = "operación inválido";
+  constructor() {
+    super(OperacionInvalidaError.mensaje);
+    this.nombre = "OperacionInvalidaError";
+  }
+}
+
+class ArchivoConFormatoInvalidoError extends Error {
+  static mensaje = "archivo con formato inválido";
+  constructor() {
+    super(ArchivoConFormatoInvalidoError.mensaje);
+    this.name = "ArchivoConFormatoInvalidoError";
+  }
+}
+
 module.exports = {
   Error,
   DesconocidoBDError,
@@ -254,4 +278,7 @@ module.exports = {
   CuentaOrigenNoExisteError,
   CuentaDestinoNoExisteError,
   FacturasNoExistenError,
+  ConceptoInvalidoError,
+  OperacionInvalidaError,
+  ArchivoConFormatoInvalidoError,
 };
