@@ -166,10 +166,10 @@ module.exports = {
 
   async autorizarCompra(req, res) {
     const { body } = req;
-    const { cbu, nombre_banco_cbu, importe, cbu_establecimiento } = body;
+    const { cbu, importe, cbu_establecimiento } = body;
 
     try {
-      if (!cbu || !nombre_banco_cbu || !importe || !cbu_establecimiento) 
+      if (!cbu || !importe || !cbu_establecimiento) 
         throw new Error("faltan datos");
       
       if (importe <= 0) 
@@ -246,7 +246,7 @@ module.exports = {
       return res.status(404).json({ error });
     }
   },
-  
+
   async transferirDesdeOtroBanco(req, res) {
     const { body } = req;
     const { cbu, cantidad, concepto, descripcion } = body;
