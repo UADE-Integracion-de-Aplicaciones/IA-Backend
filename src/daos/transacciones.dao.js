@@ -664,8 +664,23 @@ const extraerDeCuentaEntreBancos = async ({ cbu, cantidad, descripcion }) => {
   }
 };
 
+const axios = require('axios');
 const pedirDineroAOtroBanco = async (cbu, cantidad, descripcion, token) => {
-  return ;
+  return await axios.post(
+    'https://bank-api-integreations.herokuapp.com/api/v1/withdraws', 
+    {
+      detail: descripcion,
+      amount: cantidad,
+      cbu : cbu
+    },
+    {
+      headers: { "x-banco-token": `Bearer ${token}` }
+    }
+  )
+  .then(res => res)
+  .catch(error => {
+    console.log(error)
+    return error})
 };
 
 const transferirDinero = async ({

@@ -184,16 +184,18 @@ module.exports = {
         const cuenta_destino = cuenta;
         const cliente_destino = cliente;
 
-        if (BANCOS_INFO.BANCO_A.nombre === nombre_banco_cbu) {
+        const digitosIdenitficadores = cbu.substring(0,3);
+
+        if (digitosIdenitficadores === "456") {
           const descripcion = "Compra en " + cliente_destino.get("nombre") + " " + cliente_destino.get("apellido");
           
           //El metodo de redirigir transaccion deberia pegarle al de ellos y hacer la transaccion
-          const token = BANCOS_INFO.BANCO_A.token;
-          const resultadoTransaccion = pedirDineroAOtroBanco(cbu, cantidad, descripcion, token);
+          const token = BANCOS_INFO.BANCO_A.token.valor;
 
-          //TODO
-          if (resultadoTransaccion.status !== 200)
-            throw new Error(resultadoTransaccion.message);
+          const resultadoTransaccion = await pedirDineroAOtroBanco(cbu, cantidad, descripcion, token);
+         
+          if (resultadoTransaccion.response.status !== 200)
+            throw new Error("Algo salio mal ne la llamada al banco");
         } else {
           //Cuenta del cliente
           let {cuenta, cliente} = await buscarClientePorCbu(cbu);
@@ -219,7 +221,6 @@ module.exports = {
         }
                   
         const concepto_destino = await buscarConcepto(MOVIMIENTOS_CUENTAS_CONCEPTO.VENTA_DEL_ESTABLECIMIENTO);
-        console.log("por aca", cliente_destino);
         const usuario_destino = await cliente_destino.get("usuario"); 
 
         await crearMovimiento({

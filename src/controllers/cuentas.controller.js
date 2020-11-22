@@ -101,7 +101,6 @@ module.exports = {
 
     try {
       const cuenta = await dao.obtenerCuenta(numero_cuenta);
-
       const respuesta = {
         tipo: cuenta.get("tipo"),
         numero_cuenta: cuenta.get("numero_cuenta"),
