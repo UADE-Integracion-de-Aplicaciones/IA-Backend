@@ -241,6 +241,14 @@ class OperacionInvalidaError extends Error {
   }
 }
 
+class ArchivoConFormatoInvalidoError extends Error {
+  static mensaje = "archivo con formato inválido";
+  constructor() {
+    super(ArchivoConFormatoInvalidoError.mensaje);
+    this.name = "ArchivoConFormatoInvalidoError";
+  }
+}
+
 module.exports = {
   Error,
   DesconocidoBDError,
@@ -272,4 +280,5 @@ module.exports = {
   FacturasNoExistenError,
   ConceptoInvalidoError,
   OperacionInvalidaError,
+  ArchivoConFormatoInvalidoError,
 };

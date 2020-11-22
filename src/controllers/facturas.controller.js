@@ -3,7 +3,7 @@ const {
   obtenerFacturasPorCodigoPagoElectronico,
 } = require("../daos/facturas.dao");
 
-const { FacturaNoExisteError } = require("../daos/errors");
+const { ArchivoConFormatoInvalidoError } = require("../daos/errors");
 
 module.exports = {
   async cargar(req, res) {
@@ -13,10 +13,10 @@ module.exports = {
 
     try {
       await cargarFacturas(path, numero_cuenta, columns);
-      return res.status(200).json({ mensaje: "Facturas cargadas" });
-    } catch (err) {
-      console.log(err);
-      return res.status(500).json({ mensaje: err });
+      return res.status(200).json({ mensaje: "facturas cargadas" });
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({ error });
     }
   },
 
