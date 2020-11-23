@@ -24,18 +24,25 @@ const buscarFacturasPorIds = (ids) => {
 
 const obtenerFacturasFechaCuenta = async (numero_cuenta, anio, mes) => {
   const cuenta = await cuentas.findOne({ where: { numero_cuenta } });
-  
-  const fechaInicio = moment().year(anio).month(mes).toDate();
-  const fechaFin = moment().year(anio).month(mes).add(1, 'M').toDate();
+
+  const fechaInicio = moment()
+    .year(anio)
+    .month(mes)
+    .toDate();
+  const fechaFin = moment()
+    .year(anio)
+    .month(mes)
+    .add(1, "M")
+    .toDate();
   return facturas.findAll({
     where: {
       cuenta_id: cuenta.get("id"),
       fecha_vencimiento: {
-        [Op.between]: [fechaInicio, fechaFin]
-      }
-    }
-  })
-}
+        [Op.between]: [fechaInicio, fechaFin],
+      },
+    },
+  });
+};
 const leerArchivoCsv = ({ sourceFilePath, separator, columns }) => {
   const filas = [];
   const parser = csv({
@@ -100,6 +107,7 @@ const crear = ({
   fecha_vencimiento,
   cuenta,
 }) => {
+  //TODO: validar que el número de factura sea único
   const cuenta_id = cuenta.get("id");
   return facturas.create({
     codigo_pago_electronico,
