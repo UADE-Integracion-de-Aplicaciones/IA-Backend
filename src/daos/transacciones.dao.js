@@ -106,7 +106,6 @@ const crearMovimiento = ({
   movimiento_asociado = null,
   transaction,
 }) => {
-  console.log(cuenta, concepto, tipo, usuario, descripcion, cantidad);
   let otrosValores = {};
   if (movimiento_asociado) {
     otrosValores = { movimiento_cuenta_id: movimiento_asociado.get("id") };
@@ -696,18 +695,11 @@ const pedirDineroAOtroBanco = async (cbu, cantidad, descripcion, token) => {
       detail: descripcion,
       amount: cantidad,
       cbu: cbu
-    },
-    {
-      headers: { "x-banco-token": `Bearer ${token}` }
-    }
+    } 
   )
-  .then(res => {
-    console.log(res)
-    return res
-  })
   .catch(error => {
-    console.log(error)
-    return error})
+    return error
+  })
 };
 
 const transferirDinero = async ({

@@ -181,6 +181,11 @@ module.exports = {
       try {
         let {cuenta, cliente} = await buscarClientePorCbu(cbu_establecimiento);
        
+        if (!cuenta) 
+          throw new Error("No se encontro una cuenta para el cbu_establecimiento");
+        if (!cliente)
+          throw new Error("No se encontro cliente asociado al cbu_establecimiento");
+
         const cuenta_destino = cuenta;
         const cliente_destino = cliente;
 
@@ -193,21 +198,27 @@ module.exports = {
           const token = BANCOS_INFO.BANCO_A.token.valor;
 
           const resultadoTransaccion = await pedirDineroAOtroBanco(cbu, cantidad, descripcion, token);
-         
-          if (resultadoTransaccion.response.status !== 200)
-            throw new Error("Algo salio mal ne la llamada al banco");
+
+          if (resultadoTransaccion.status === 200) 
+            throw new Error("No se encontro la cuenta en el banco destino");
+
+          if (resultadoTransaccion.status !== 201 )
+            throw new Error("Algo salio mal ne la llamada al banco B");
         } else {
-          //Cuenta del cliente
           let {cuenta, cliente} = await buscarClientePorCbu(cbu);
           const cuenta_origen = cuenta;
           const cliente_origen = cliente;
 
+          if (!cuenta_origen) 
+            throw new CuentaNoExisteError();
+          if (!cliente_origen) 
+            throw new ClienteNoExisteError();
           if (tieneSaldoEnCuentaParaPagar({ cuenta: cuenta_origen, cantidad })) 
             throw new CuentaConSaldoInsuficienteError();
             
           const concepto_origen = await buscarConcepto(MOVIMIENTOS_CUENTAS_CONCEPTO.COMPRA_EN_ESTABLECIMIENTO); //Importar
           const usuario_origen = await cliente_origen.get("usuario"); 
-          
+         
           await crearMovimiento({
             cuenta: cuenta_origen,
             concepto: concepto_origen,
@@ -237,12 +248,12 @@ module.exports = {
         await transaction.commit();
       } catch (error) {
         await transaction.rollback();
-        throw new DesconocidoBDError();
+        throw error
       }
 
       return res.status(200).json({ mensaje: "compra autorizada" });
     } catch (error) {
-      console.log(error);
+      console.log("error", error)
       return res.status(404).json({ error });
     }
   },
