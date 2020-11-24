@@ -82,6 +82,10 @@ module.exports = async (db) => {
       alias: "PAGO_DE_SUELDO",
       descripcion: "Pago de Sueldo",
     },
+    {
+      alias: "PAGO_POR_VENTA_CON_TDC",
+      descripcion: "Pago por Venta con Tarjeta de Crédito",
+    },
   ];
 
   const conceptosPromises = conceptos.map((data) =>

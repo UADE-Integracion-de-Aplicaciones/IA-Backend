@@ -21,6 +21,7 @@ const MOVIMIENTOS_CUENTAS_CONCEPTO = {
   COMPRA_EN_ESTABLECIMIENTO: "COMPRA_EN_ESTABLECIMIENTO",
   VENTA_DEL_ESTABLECIMIENTO: "VENTA_DEL_ESTABLECIMIENTO",
   PAGO_DE_SUELDO: "PAGO_DE_SUELDO",
+  PAGO_POR_VENTA_CON_TDC: "PAGO_POR_VENTA_CON_TDC",
 };
 
 const MOVIMIENTOS_CUENTAS_TIPO = {
@@ -69,7 +70,7 @@ const BANCOS_INFO = {
     nombre: "BANCO_A",
     servicio_url: " https://bank-api-integreations.herokuapp.com",
     pedir_dinero_endpoint: "/api/v1/withdraws",
-    numero_entidad_bancaria: 456,
+    numero_entidad_bancaria: "456",
     token: {
       nombre: "x-banco-token",
       valor: "fbkYq54qFLTEG9V7aAACmJmHaNTYe4",

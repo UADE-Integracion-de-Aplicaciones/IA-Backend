@@ -31,6 +31,7 @@ const {
   parametros,
 } = db;
 const moment = require("moment");
+const axios = require("axios");
 
 const buscarCliente = (dni) => {
   return clientes.findOne({ where: { dni } });
@@ -653,6 +654,12 @@ const transferirDineroDesdeOtroBanco = async ({
   ) {
     tipo = MOVIMIENTOS_CUENTAS_TIPO.ACREDITA;
     usuario = usuario_operador;
+  } else if (
+    concepto.toUpperCase() ===
+    MOVIMIENTOS_CUENTAS_CONCEPTO.PAGO_POR_VENTA_CON_TDC
+  ) {
+    tipo = MOVIMIENTOS_CUENTAS_TIPO.ACREDITA;
+    usuario = await cliente.getUsuario();
   } else {
     throw new ConceptoInvalidoError();
   }
@@ -687,19 +694,16 @@ const transferirDineroDesdeOtroBanco = async ({
   }
 };
 
-const axios = require('axios');
 const pedirDineroAOtroBanco = async (cbu, cantidad, descripcion, token) => {
-  return await axios.post(
-    "https://bank-api-integrations.herokuapp.com/api/v1/withdraws", 
-    {
+  return await axios
+    .post("https://bank-api-integrations.herokuapp.com/api/v1/withdraws", {
       detail: descripcion,
       amount: cantidad,
-      cbu: cbu
-    } 
-  )
-  .catch(error => {
-    return error
-  })
+      cbu: cbu,
+    })
+    .catch((error) => {
+      return error;
+    });
 };
 
 const transferirDinero = async ({
