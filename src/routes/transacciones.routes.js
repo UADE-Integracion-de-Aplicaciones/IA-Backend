@@ -6,7 +6,8 @@ const {
   pagarServicio,
   transferir,
   transferirDesdeOtroBanco,
-  transferirTransaccionesArray
+  transferirTransaccionesArray,
+  recibirDesdeOtroBanco
 } = require("../controllers/transacciones.controller");
 
 module.exports = (app) => {
@@ -52,7 +53,7 @@ module.exports = (app) => {
   );
 
   app.post("/b2b/transacciones/transferir", (req, res) =>
-    transferirDesdeOtroBanco(req, res)
+    recibirDesdeOtroBanco(req, res)
   );
 
   app.post("/b2b/transacciones/liquidar", (req, res) => {

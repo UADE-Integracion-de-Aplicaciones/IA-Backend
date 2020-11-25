@@ -245,7 +245,14 @@ class ArchivoConFormatoInvalidoError extends Error {
   static mensaje = "archivo con formato inválido";
   constructor() {
     super(ArchivoConFormatoInvalidoError.mensaje);
-    this.name = "ArchivoConFormatoInvalidoError";
+    this.nombre = "ArchivoConFormatoInvalidoError";
+  }
+}
+
+class LlamadaFallidaError extends Error {
+  constructor(mensaje) {
+    super(mensaje);
+    this.nombre = "LlamadaFallidaError";
   }
 }
 
@@ -281,4 +288,5 @@ module.exports = {
   ConceptoInvalidoError,
   OperacionInvalidaError,
   ArchivoConFormatoInvalidoError,
+  LlamadaFallidaError,
 };

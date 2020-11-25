@@ -178,4 +178,80 @@ module.exports = async () => {
     usuario: usuario_gimnasio_a,
     cantidad: 2000000.0,
   });
+
+  const usuario_tarjetas_b = await usuarios.create({
+    nombre_usuario: "tarjetas_b.bankame",
+    clave: await bcrypt.hash("TarjetasB@12345", 8),
+    rol_id: rol_cliente_proveedor.get("id"),
+  });
+
+  const cliente_tarjetas_b = await clientes.create({
+    tipo: CLIENTES_TIPO.PROVEEDOR,
+    cuit: "2065656564435",
+    dni: "6565656443",
+    nombre: "Tarjetas B",
+    apellido: "Proveedor",
+    email: "tarjetasb@gmail.com",
+    domicilio_ciudad: "Buenos Aires",
+    domicilio_calle: "Lima",
+    domicilio_barrio: "Monserrat",
+    domicilio_numero: 1957,
+    domicilio_piso: " ",
+    domicilio_apartamento: " ",
+    pregunta1: "pregunta 1",
+    pregunta1_respuesta: "respuesta 1",
+    pregunta2: "pregunta 2",
+    pregunta2_respuesta: "respuesta 2",
+    pregunta3: "pregunta 3",
+    pregunta3_respuesta: "respuesta 3",
+    usuario_id: usuario_tarjetas_b.get("id"),
+  });
+
+  const cuenta_tarjetas_b = await crearCuenta({
+    tipo: CUENTAS_TIPO.CUENTA_CORRIENTE,
+    cliente_id: cliente_tarjetas_b.get("id"),
+    fondo_descubierto: 100000.0,
+    usuario_id: usuario_ejecutivo.get("id"),
+  });
+
+  await depositarEnCuentaPropia(cuenta_tarjetas_b.get("numero_cuenta"))({
+    dni: cliente_tarjetas_b.get("dni"),
+    usuario: usuario_tarjetas_b,
+    cantidad: 10000000.0,
+  });
+
+  const usuario_gimnasio_b = await usuarios.create({
+    nombre_usuario: "gimnasio_b.bankame",
+    clave: await bcrypt.hash("GimnasioB@12323", 8),
+    rol_id: rol_cliente_empresa.get("id"),
+  });
+
+  const cliente_gimnasio_b = await clientes.create({
+    tipo: CLIENTES_TIPO.EMPRESA,
+    cuit: "20765432325",
+    dni: "7654323",
+    nombre: "CityGym B",
+    apellido: "Establecimiento",
+    email: "citygymb@gmail.com",
+    domicilio_ciudad: "Buenos Aires",
+    domicilio_calle: "Lima",
+    domicilio_barrio: "Monserrat",
+    domicilio_numero: 1957,
+    domicilio_piso: " ",
+    domicilio_apartamento: " ",
+    pregunta1: "pregunta 1",
+    pregunta1_respuesta: "respuesta 1",
+    pregunta2: "pregunta 2",
+    pregunta2_respuesta: "respuesta 2",
+    pregunta3: "pregunta 3",
+    pregunta3_respuesta: "respuesta 3",
+    usuario_id: usuario_gimnasio_b.get("id"),
+  });
+
+  const cuenta_gimnasio_b = await crearCuenta({
+    tipo: CUENTAS_TIPO.CUENTA_CORRIENTE,
+    cliente_id: cliente_gimnasio_b.get("id"),
+    fondo_descubierto: 10000.0,
+    usuario_id: usuario_ejecutivo.get("id"),
+  });
 };

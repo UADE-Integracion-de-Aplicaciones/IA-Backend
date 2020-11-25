@@ -5,6 +5,8 @@ const {
   MOVIMIENTOS_CUENTAS_TIPO,
   MOVIMIENTOS_CUENTAS_CONCEPTO,
   CUENTAS_TIPO,
+  BANCOS_INFO,
+  obtenerEndpoint,
 } = require("./common");
 const {
   DesconocidoBDError,
@@ -20,6 +22,8 @@ const {
   CuentaDestinoNoExisteError,
   ConceptoInvalidoError,
   OperacionInvalidaError,
+  Error,
+  LlamadaFallidaError,
 } = require("./errors");
 const { db } = require("../sequelize/models");
 const {
@@ -31,6 +35,7 @@ const {
   parametros,
 } = db;
 const moment = require("moment");
+const axios = require("axios");
 
 const buscarCliente = (dni) => {
   return clientes.findOne({ where: { dni } });
@@ -614,7 +619,7 @@ const pagarServicioConEfectivo = async ({ facturas, cantidad, usuario }) => {
   }
 };
 
-const transferirDineroDesdeOtroBanco = async ({
+const recibirOperacionDesdeOtroBanco = async ({
   cbu,
   cantidad,
   concepto,
@@ -638,23 +643,58 @@ const transferirDineroDesdeOtroBanco = async ({
 
   let tipo;
   let usuario;
-  if (
-    concepto.toUpperCase() ===
-    MOVIMIENTOS_CUENTAS_CONCEPTO.COMPRA_EN_ESTABLECIMIENTO
-  ) {
-    if (tieneSaldoEnCuentaParaPagar({ cuenta, cantidad })) {
-      throw new CuentaConSaldoInsuficienteError();
-    }
+  // if (
+  //   concepto.toUpperCase() ===
+  //   MOVIMIENTOS_CUENTAS_CONCEPTO.COMPRA_EN_ESTABLECIMIENTO
+  // ) {
+  //   if (tieneSaldoEnCuentaParaPagar({ cuenta, cantidad })) {
+  //     throw new CuentaConSaldoInsuficienteError();
+  //   }
 
-    tipo = MOVIMIENTOS_CUENTAS_TIPO.DEBITA;
-    usuario = await cliente.getUsuario();
-  } else if (
-    concepto.toUpperCase() === MOVIMIENTOS_CUENTAS_CONCEPTO.PAGO_DE_SUELDO
-  ) {
-    tipo = MOVIMIENTOS_CUENTAS_TIPO.ACREDITA;
-    usuario = usuario_operador;
-  } else {
-    throw new ConceptoInvalidoError();
+  //   tipo = MOVIMIENTOS_CUENTAS_TIPO.DEBITA;
+  //   usuario = await cliente.getUsuario();
+  // } else if (
+  //   concepto.toUpperCase() === MOVIMIENTOS_CUENTAS_CONCEPTO.PAGO_DE_SUELDO
+  // ) {
+  //   tipo = MOVIMIENTOS_CUENTAS_TIPO.ACREDITA;
+  //   usuario = usuario_operador;
+  // } else if (
+  //   concepto.toUpperCase() ===
+  //   MOVIMIENTOS_CUENTAS_CONCEPTO.PAGO_POR_VENTA_CON_TDC
+  // ) {
+  //   tipo = MOVIMIENTOS_CUENTAS_TIPO.ACREDITA;
+  //   usuario = await cliente.getUsuario();
+  // } else {
+  //   throw new ConceptoInvalidoError();
+  // }
+
+  switch (concepto.toUpperCase()) {
+    case MOVIMIENTOS_CUENTAS_CONCEPTO.COMPRA_EN_ESTABLECIMIENTO:
+      if (tieneSaldoEnCuentaParaPagar({ cuenta, cantidad })) {
+        throw new CuentaConSaldoInsuficienteError();
+      }
+
+      tipo = MOVIMIENTOS_CUENTAS_TIPO.DEBITA;
+      usuario = await cliente.getUsuario();
+      break;
+
+    case MOVIMIENTOS_CUENTAS_CONCEPTO.PAGO_DE_SUELDO:
+      tipo = MOVIMIENTOS_CUENTAS_TIPO.ACREDITA;
+      usuario = usuario_operador;
+      break;
+
+    case MOVIMIENTOS_CUENTAS_CONCEPTO.PAGO_POR_VENTA_CON_TDC:
+      tipo = MOVIMIENTOS_CUENTAS_TIPO.ACREDITA;
+      usuario = await cliente.getUsuario();
+      break;
+
+    case MOVIMIENTOS_CUENTAS_CONCEPTO.DEPOSITO:
+      tipo = MOVIMIENTOS_CUENTAS_TIPO.ACREDITA;
+      usuario = usuario_operador;
+      break;
+
+    default:
+      throw new ConceptoInvalidoError();
   }
 
   const conceptoRow = await buscarConcepto(concepto.toUpperCase());
@@ -687,19 +727,93 @@ const transferirDineroDesdeOtroBanco = async ({
   }
 };
 
-const axios = require('axios');
 const pedirDineroAOtroBanco = async (cbu, cantidad, descripcion, token) => {
-  return await axios.post(
-    "https://bank-api-integrations.herokuapp.com/api/v1/withdraws", 
-    {
+  const url = obtenerEndpoint(BANCOS_INFO.BANCO_A.nombre, "retirar_dinero");
+  return await axios
+    .post(url, {
       detail: descripcion,
       amount: cantidad,
-      cbu: cbu
-    } 
-  )
-  .catch(error => {
-    return error
-  })
+      cbu: cbu,
+    })
+    .catch((error) => {
+      return error;
+    });
+};
+
+const enviarDineroAOtroBanco = (cbu, cantidad, descripcion) => {
+  const url = obtenerEndpoint(BANCOS_INFO.BANCO_A.nombre, "depositar_dinero");
+  return axios.post(url, {
+    detail: descripcion,
+    amount: cantidad,
+    cbu,
+  });
+};
+
+const enviarDinero = async ({ cbu_origen, cbu_destino, cantidad, usuario }) => {
+  if (!cbu_origen || !cbu_destino || !cantidad) {
+    throw new ParametrosFaltantesError();
+  }
+
+  if (cantidad <= 0) {
+    throw new CantidadInvalidaError();
+  }
+
+  const cuenta_origen = await buscarCuentaPorCbu(cbu_origen);
+  if (!cuenta_origen) {
+    throw new CuentaOrigenNoExisteError();
+  }
+
+  const cliente_origen = await cuenta_origen.getCliente();
+  const cliente_origen_nombre =
+    cliente_origen.get("nombre") + " " + cliente_origen.get("apellido");
+  const descripcion = "Transferencia de '" + cliente_origen_nombre + "'";
+
+  const concepto_origen = await buscarConcepto(
+    MOVIMIENTOS_CUENTAS_CONCEPTO.EXTRACCION
+  );
+
+  const transaction = await db.sequelize.transaction();
+
+  try {
+    await crearMovimiento({
+      cuenta: cuenta_origen,
+      concepto: concepto_origen,
+      tipo: MOVIMIENTOS_CUENTAS_TIPO.DEBITA,
+      cantidad,
+      usuario,
+      descripcion,
+      transaction,
+    });
+
+    await disminuirSaldoDeCuenta({
+      cuenta: cuenta_origen,
+      cantidad,
+      transaction,
+    });
+
+    let resp;
+    try {
+      resp = await enviarDineroAOtroBanco(cbu_destino, cantidad, descripcion);
+      console.log(resp.data);
+    } catch (error) {
+      throw new LlamadaFallidaError(error.response.data.message);
+    }
+
+    await transaction.commit();
+  } catch (error) {
+    console.log(error);
+
+    await transaction.rollback();
+
+    if (
+      error.hasOwnProperty("nombre") &&
+      error.nombre === "LlamadaFallidaError"
+    ) {
+      throw new LlamadaFallidaError(error.mensaje);
+    } else {
+      throw new DesconocidoBDError();
+    }
+  }
 };
 
 const transferirDinero = async ({
@@ -802,7 +916,9 @@ module.exports = {
   tieneSaldoEnCuentaParaPagar,
   buscarConcepto,
   transferirDinero,
-  transferirDineroDesdeOtroBanco,
+  recibirOperacionDesdeOtroBanco,
   crearMovimiento,
   pagarServicioConEfectivo,
+  enviarDineroAOtroBanco,
+  enviarDinero,
 };

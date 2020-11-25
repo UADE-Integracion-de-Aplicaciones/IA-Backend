@@ -25,18 +25,18 @@ const {
   pagarServicioConEfectivo,
   transferirDinero,
   crearMovimiento,
-  transferirDineroDesdeOtroBanco
+  recibirOperacionDesdeOtroBanco,
+  enviarDinero,
 } = require("../daos/transacciones.dao");
 
 const {
   MOVIMIENTOS_CUENTAS_TIPO,
+  MOVIMIENTOS_CUENTAS_CONCEPTO,
   BANCOS_INFO,
-  MOVIMIENTOS_CUENTAS_CONCEPTO
+  SERVICE_DETAILS,
 } = require("./../daos/common");
 
-const {
-  buscarClientePorCbu
-} = require("../daos/clientes.dao");
+const { buscarClientePorCbu } = require("../daos/clientes.dao");
 
 const { db } = require("../sequelize/models");
 
@@ -169,70 +169,90 @@ module.exports = {
     const { cbu, importe, cbu_establecimiento } = body;
 
     try {
-      if (!cbu || !importe || !cbu_establecimiento) 
+      if (!cbu || !importe || !cbu_establecimiento)
         throw new Error("faltan datos");
-      
-      if (importe <= 0) 
-        throw new CantidadInvalidaError();
+
+      if (importe <= 0) throw new CantidadInvalidaError();
 
       const transaction = await db.sequelize.transaction();
       const cantidad = parseFloat(importe);
 
       try {
-        let {cuenta, cliente} = await buscarClientePorCbu(cbu_establecimiento);
-       
-        if (!cuenta) 
-          throw new Error("No se encontro una cuenta para el cbu_establecimiento");
+        let { cuenta, cliente } = await buscarClientePorCbu(
+          cbu_establecimiento
+        );
+
+        if (!cuenta)
+          throw new Error(
+            "No se encontro una cuenta para el cbu_establecimiento"
+          );
         if (!cliente)
-          throw new Error("No se encontro cliente asociado al cbu_establecimiento");
+          throw new Error(
+            "No se encontro cliente asociado al cbu_establecimiento"
+          );
 
         const cuenta_destino = cuenta;
         const cliente_destino = cliente;
 
-        const digitosIdenitficadores = cbu.substring(0,3);
+        const digitosIdenitficadores = cbu.substring(0, 3);
 
-        if (digitosIdenitficadores === "456") {
-          const descripcion = "Compra en " + cliente_destino.get("nombre") + " " + cliente_destino.get("apellido");
-          
+        if (digitosIdenitficadores === BANCOS_INFO.BANCO_A.numero_entidad) {
+          const descripcion =
+            "Compra en " +
+            cliente_destino.get("nombre") +
+            " " +
+            cliente_destino.get("apellido");
+
           //El metodo de redirigir transaccion deberia pegarle al de ellos y hacer la transaccion
           const token = BANCOS_INFO.BANCO_A.token.valor;
 
-          const resultadoTransaccion = await pedirDineroAOtroBanco(cbu, cantidad, descripcion, token);
+          const resultadoTransaccion = await pedirDineroAOtroBanco(
+            cbu,
+            cantidad,
+            descripcion,
+            token
+          );
 
-          if (resultadoTransaccion.status === 200) 
-            throw new Error("No se encontro la cuenta en el banco destino");
+          if (resultadoTransaccion.status === 400)
+            throw new Error("no se encontro la cuenta en el banco destino");
 
-          if (resultadoTransaccion.status !== 201 )
-            throw new Error("Algo salio mal ne la llamada al banco B");
+          if (resultadoTransaccion.status !== 201)
+            throw new Error("algo salio mal en la llada al Banco A");
         } else {
-          let {cuenta, cliente} = await buscarClientePorCbu(cbu);
+          let { cuenta, cliente } = await buscarClientePorCbu(cbu);
           const cuenta_origen = cuenta;
           const cliente_origen = cliente;
 
-          if (!cuenta_origen) 
-            throw new CuentaNoExisteError();
-          if (!cliente_origen) 
-            throw new ClienteNoExisteError();
-          if (tieneSaldoEnCuentaParaPagar({ cuenta: cuenta_origen, cantidad })) 
+          if (!cuenta_origen) throw new CuentaNoExisteError();
+          if (!cliente_origen) throw new ClienteNoExisteError();
+          if (tieneSaldoEnCuentaParaPagar({ cuenta: cuenta_origen, cantidad }))
             throw new CuentaConSaldoInsuficienteError();
-            
-          const concepto_origen = await buscarConcepto(MOVIMIENTOS_CUENTAS_CONCEPTO.COMPRA_EN_ESTABLECIMIENTO); //Importar
-          const usuario_origen = await cliente_origen.get("usuario"); 
-         
+
+          const concepto_origen = await buscarConcepto(
+            MOVIMIENTOS_CUENTAS_CONCEPTO.COMPRA_EN_ESTABLECIMIENTO
+          );
+          const usuario_origen = await cliente_origen.get("usuario");
+
           await crearMovimiento({
             cuenta: cuenta_origen,
             concepto: concepto_origen,
             tipo: MOVIMIENTOS_CUENTAS_TIPO.DEBITA,
-            cantidad, 
+            cantidad,
             usuario: usuario_origen,
             transaction,
-          });    
+          });
 
-          await disminuirSaldoDeCuenta({ cuenta: cuenta_origen, cantidad, transaction });
+          await disminuirSaldoDeCuenta({
+            cuenta: cuenta_origen,
+            cantidad,
+            transaction,
+          });
         }
-                  
-        const concepto_destino = await buscarConcepto(MOVIMIENTOS_CUENTAS_CONCEPTO.VENTA_DEL_ESTABLECIMIENTO);
-        const usuario_destino = await cliente_destino.get("usuario"); 
+
+        const concepto_destino = await buscarConcepto(
+          MOVIMIENTOS_CUENTAS_CONCEPTO.VENTA_DEL_ESTABLECIMIENTO
+        );
+        const usuario_destino = await cliente_destino.get("usuario");
 
         await crearMovimiento({
           cuenta: cuenta_destino,
@@ -243,22 +263,26 @@ module.exports = {
           transaction,
         });
 
-        await aumentarSaldoDeCuenta({ cuenta: cuenta_destino, cantidad, transaction });
+        await aumentarSaldoDeCuenta({
+          cuenta: cuenta_destino,
+          cantidad,
+          transaction,
+        });
 
         await transaction.commit();
       } catch (error) {
         await transaction.rollback();
-        throw error
+        throw error;
       }
 
       return res.status(200).json({ mensaje: "compra autorizada" });
     } catch (error) {
-      console.log("error", error)
+      console.log("error", error);
       return res.status(404).json({ error });
     }
   },
 
-  async transferirDesdeOtroBanco(req, res) {
+  async recibirDesdeOtroBanco(req, res) {
     const { body } = req;
     const { cbu, cantidad, concepto, descripcion } = body;
 
@@ -268,7 +292,7 @@ module.exports = {
       }
       const { usuario } = res.locals;
 
-      await transferirDineroDesdeOtroBanco({
+      await recibirOperacionDesdeOtroBanco({
         cbu,
         cantidad,
         concepto,
@@ -293,8 +317,26 @@ module.exports = {
       }
 
       const { usuario } = res.locals;
+      let transferirDineroFunction;
 
-      await transferirDinero({ cbu_origen, cbu_destino, cantidad, usuario });
+      const tresDigitos = cbu_destino.substring(0, 3);
+
+      if (tresDigitos === BANCOS_INFO.BANCO_A.numero_entidad) {
+        console.log("cuenta de otro banco");
+        transferirDineroFunction = enviarDinero;
+      } else if (tresDigitos === SERVICE_DETAILS.numero_entidad) {
+        console.log("cuenta del mismo banco");
+        transferirDineroFunction = transferirDinero;
+      } else {
+        throw new Error("cbu inválido");
+      }
+
+      await transferirDineroFunction({
+        cbu_origen,
+        cbu_destino,
+        cantidad,
+        usuario,
+      });
 
       return res.status(200).json({ mensaje: "transferencia realizada" });
     } catch (error) {
