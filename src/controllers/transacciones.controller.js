@@ -302,4 +302,101 @@ module.exports = {
       return res.status(400).json({ error });
     }
   },
-};
+
+  async transferirTransaccionesArray(req, res) {
+    const { body } = req;
+    const { cbu_origen, movimientos } = body;
+    let transaction = await db.sequelize.transaction();
+
+    try {
+      if (!cbu_origen || !movimientos) 
+        throw new Error("faltan datos");
+
+      let {cuenta, cliente} = await buscarClientePorCbu(cbu_origen);
+       
+        if (!cuenta) 
+          throw new Error("No se encontro una cuenta para el cbu_origen");
+        if (!cliente)
+          throw new Error("No se encontro cliente asociado al cbu_origen");
+
+        const cuenta_origen = cuenta;
+        const cliente_origen = cliente;
+        let total = 0
+
+      const movimientosLen = movimientos.length
+      for (let i =0; i < movimientosLen; i++) {
+        let digitosIdenitficadores = movimientos[i].cbu.substring(0,3);
+
+          if (digitosIdenitficadores === "456") {
+            const descripcion = "Compra en " + cliente_destino.get("nombre") + " " + cliente_destino.get("apellido");
+                  
+            //El metodo de redirigir transaccion deberia pegarle al de ellos y hacer la transaccion
+            const token = BANCOS_INFO.BANCO_A.token.valor;
+
+            const resultadoTransaccion = await pedirDineroAOtroBanco(movimientos[i].cbu, movimientos[i].cantidad, descripcion, token);
+
+            if (resultadoTransaccion.status === 200) 
+              throw new Error("No se encontro la cuenta en el banco destino");
+
+            if (resultadoTransaccion.status !== 201 )
+              throw new Error("Algo salio mal ne la llamada al banco B");
+          } else {
+            let {cuenta, cliente} = await buscarClientePorCbu(movimientos[i].cbu);
+            let cuenta_destino = cuenta;
+            let cliente_destino = cliente;
+
+            if (!cuenta_destino) 
+              throw new CuentaNoExisteError();
+            if (!cliente_destino) 
+              throw new ClienteNoExisteError();
+                            
+            const concepto_destino = await buscarConcepto(MOVIMIENTOS_CUENTAS_CONCEPTO.DEPOSITO); //Importar
+            const usuario_destino = await cliente_destino.get("usuario"); 
+
+            await crearMovimiento({
+              cuenta: cuenta_destino,
+              concepto: concepto_destino,
+              tipo: MOVIMIENTOS_CUENTAS_TIPO.ACREDITA,
+              cantidad: parseFloat(movimientos[i].importe), 
+              usuario: usuario_destino,
+              transaction
+            });
+
+            await aumentarSaldoDeCuenta({ cuenta: cuenta_destino, cantidad: movimientos[i].importe, transaction});
+            total += parseFloat(movimientos[i].importe);
+
+          console.log(total)
+        }
+      }
+
+      if (total <= 0 || !total) 
+        throw new CantidadInvalidaError();
+
+      if (tieneSaldoEnCuentaParaPagar({ cuenta: cuenta_origen, cantidad: total })) 
+        throw new CuentaConSaldoInsuficienteError();
+
+      const concepto_origen = await buscarConcepto(MOVIMIENTOS_CUENTAS_CONCEPTO.EXTRACCION);
+      const usuario_origen = await cliente_origen.get("usuario"); 
+  
+      await crearMovimiento({
+          cuenta: cuenta_origen,
+          concepto: concepto_origen,
+          tipo: MOVIMIENTOS_CUENTAS_TIPO.DEBITA,
+          cantidad: total,
+          usuario: usuario_origen,
+          transaction,
+      });
+  
+      console.log("total",total)
+      await disminuirSaldoDeCuenta({ cuenta: cuenta_origen, cantidad: total, transaction });
+
+      await transaction.commit();
+
+      return res.status(200).json({ mensaje: "compra autorizada" });
+    } catch (error) {
+      await transaction.rollback()
+      console.log("error", error)
+      return res.status(404).json({ error }).end();
+    }
+  },
+}
