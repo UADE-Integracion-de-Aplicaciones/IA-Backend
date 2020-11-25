@@ -68,14 +68,23 @@ const SERVICE_DETAILS = {
 const BANCOS_INFO = {
   BANCO_A: {
     nombre: "BANCO_A",
-    servicio_url: " https://bank-api-integreations.herokuapp.com",
-    pedir_dinero_endpoint: "/api/v1/withdraws",
-    numero_entidad_bancaria: "456",
+    numero_entidad: "456",
+    servicio_url: "https://bank-api-integrations.herokuapp.com",
+    base_path: "/api/v1/",
+    endpoints: {
+      retirar_dinero: "withdraws",
+      depositar_dinero: "deposits",
+    },
     token: {
       nombre: "x-banco-token",
       valor: "fbkYq54qFLTEG9V7aAACmJmHaNTYe4",
     },
   },
+};
+
+const obtenerEndpoint = (servicio, nombre) => {
+  const { servicio_url, base_path, endpoints } = BANCOS_INFO[servicio];
+  return servicio_url + base_path + endpoints[nombre];
 };
 
 module.exports = {
@@ -88,4 +97,5 @@ module.exports = {
   SMTP_CONFIG,
   SERVICE_DETAILS,
   BANCOS_INFO,
+  obtenerEndpoint,
 };
