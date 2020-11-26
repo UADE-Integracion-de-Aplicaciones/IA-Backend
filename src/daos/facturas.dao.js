@@ -25,15 +25,21 @@ const buscarFacturasPorIds = (ids) => {
 const obtenerFacturasFechaCuenta = async (numero_cuenta, anio, mes) => {
   const cuenta = await cuentas.findOne({ where: { numero_cuenta } });
 
+  const anioInt = parseInt(anio)
+  const mesInt = parseInt(mes) - 2
+  console.log("Anio int: " + anioInt, "mes int: " + mesInt)
   const fechaInicio = moment()
-    .year(anio)
-    .month(mes)
+    .year(anioInt)
+    .month(mesInt)
+    .day(0)
     .toDate();
   const fechaFin = moment()
-    .year(anio)
-    .month(mes)
+    .year(anioInt)
+    .month(mesInt)
+    .day(0)
     .add(1, "M")
     .toDate();
+  console.log(fechaInicio, fechaFin)
   return facturas.findAll({
     where: {
       cuenta_id: cuenta.get("id"),
