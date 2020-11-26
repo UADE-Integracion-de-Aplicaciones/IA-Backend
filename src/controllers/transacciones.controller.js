@@ -351,12 +351,12 @@ module.exports = {
     let transaction = await db.sequelize.transaction();
 
     try {
-      if (!cbu_origen || !movimientos) 
+      if (!cbu_origen || !movimientos)
         throw new Error("faltan datos");
 
       let {cuenta, cliente} = await buscarClientePorCbu(cbu_origen);
-       
-        if (!cuenta) 
+
+        if (!cuenta)
           throw new Error("No se encontro una cuenta para el cbu_origen");
         if (!cliente)
           throw new Error("No se encontro cliente asociado al cbu_origen");
@@ -369,15 +369,15 @@ module.exports = {
       for (let i =0; i < movimientosLen; i++) {
         let digitosIdenitficadores = movimientos[i].cbu.substring(0,3);
 
-          if (digitosIdenitficadores === "456") {
+          if (digitosIdenitficadores === BANCOS_INFO.BANCO_A.numero_entidad) {
             const descripcion = "Compra en " + cliente_destino.get("nombre") + " " + cliente_destino.get("apellido");
-                  
+
             //El metodo de redirigir transaccion deberia pegarle al de ellos y hacer la transaccion
             const token = BANCOS_INFO.BANCO_A.token.valor;
 
             const resultadoTransaccion = await pedirDineroAOtroBanco(movimientos[i].cbu, movimientos[i].cantidad, descripcion, token);
 
-            if (resultadoTransaccion.status === 200) 
+            if (resultadoTransaccion.status === 200)
               throw new Error("No se encontro la cuenta en el banco destino");
 
             if (resultadoTransaccion.status !== 201 )
@@ -387,19 +387,19 @@ module.exports = {
             let cuenta_destino = cuenta;
             let cliente_destino = cliente;
 
-            if (!cuenta_destino) 
+            if (!cuenta_destino)
               throw new CuentaNoExisteError();
-            if (!cliente_destino) 
+            if (!cliente_destino)
               throw new ClienteNoExisteError();
-                            
+
             const concepto_destino = await buscarConcepto(MOVIMIENTOS_CUENTAS_CONCEPTO.DEPOSITO); //Importar
-            const usuario_destino = await cliente_destino.get("usuario"); 
+            const usuario_destino = await cliente_destino.get("usuario");
 
             await crearMovimiento({
               cuenta: cuenta_destino,
               concepto: concepto_destino,
               tipo: MOVIMIENTOS_CUENTAS_TIPO.ACREDITA,
-              cantidad: parseFloat(movimientos[i].importe), 
+              cantidad: parseFloat(movimientos[i].importe),
               usuario: usuario_destino,
               transaction
             });
@@ -411,15 +411,15 @@ module.exports = {
         }
       }
 
-      if (total <= 0 || !total) 
+      if (total <= 0 || !total)
         throw new CantidadInvalidaError();
 
-      if (tieneSaldoEnCuentaParaPagar({ cuenta: cuenta_origen, cantidad: total })) 
+      if (tieneSaldoEnCuentaParaPagar({ cuenta: cuenta_origen, cantidad: total }))
         throw new CuentaConSaldoInsuficienteError();
 
       const concepto_origen = await buscarConcepto(MOVIMIENTOS_CUENTAS_CONCEPTO.EXTRACCION);
-      const usuario_origen = await cliente_origen.get("usuario"); 
-  
+      const usuario_origen = await cliente_origen.get("usuario");
+
       await crearMovimiento({
           cuenta: cuenta_origen,
           concepto: concepto_origen,
@@ -428,7 +428,7 @@ module.exports = {
           usuario: usuario_origen,
           transaction,
       });
-  
+
       console.log("total",total)
       await disminuirSaldoDeCuenta({ cuenta: cuenta_origen, cantidad: total, transaction });
 
