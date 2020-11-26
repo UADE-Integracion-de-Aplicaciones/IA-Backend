@@ -26,17 +26,17 @@ const obtenerFacturasFechaCuenta = async (numero_cuenta, anio, mes) => {
   const cuenta = await cuentas.findOne({ where: { numero_cuenta } });
 
   const anioInt = parseInt(anio)
-  const mesInt = parseInt(mes) - 2
+  const mesInt = parseInt(mes) - 1
   console.log("Anio int: " + anioInt, "mes int: " + mesInt)
   const fechaInicio = moment()
     .year(anioInt)
     .month(mesInt)
-    .day(0)
+    .date(1)
     .toDate();
   const fechaFin = moment()
     .year(anioInt)
     .month(mesInt)
-    .day(0)
+    .date(1)
     .add(1, "M")
     .toDate();
   console.log(fechaInicio, fechaFin)
