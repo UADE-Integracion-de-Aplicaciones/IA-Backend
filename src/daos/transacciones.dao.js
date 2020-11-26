@@ -430,6 +430,9 @@ const pagarServicio = async ({
   //TODO: validar que las facturas no hayan sido pagadas anteriormente
 
   const cuenta_destino = await facturas[0].getCuenta();
+  if (!cuenta_destino) {
+    throw new CuentaDestinoNoExisteError();
+  }
 
   const concepto_pago_proveedor = await buscarConcepto(
     MOVIMIENTOS_CUENTAS_CONCEPTO.PAGO_A_PROVEEDOR
@@ -579,6 +582,9 @@ const pagarServicioConEfectivo = async ({ facturas, cantidad, usuario }) => {
   //TODO: validar que las facturas no hayan sido pagadas anteriormente
 
   const cuenta = await facturas[0].getCuenta();
+  if (!cuenta) {
+    throw new CuentaDestinoNoExisteError();
+  }
 
   const concepto_pago_cliente = await buscarConcepto(
     MOVIMIENTOS_CUENTAS_CONCEPTO.PAGO_DE_CLIENTE
